@@ -1,0 +1,40 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type TenantSchema {
+  id: Int!
+  name: String!
+  cpf: String!
+  cnpj: String!
+  email: String!
+  phone: String!
+}
+
+type Query {
+  tenants: [TenantSchema!]!
+  tenant(id: Int!): TenantSchema!
+}
+
+type Mutation {
+  createTenant(createTenantInput: CreateTenantInput!): TenantSchema!
+  updateTenant(updateTenantInput: UpdateTenantInput!): TenantSchema!
+  removeTenant(id: Int!): TenantSchema!
+}
+
+input CreateTenantInput {
+  name: String!
+  cpf: String
+  cnpj: String
+  email: String!
+  phone: String!
+}
+
+input UpdateTenantInput {
+  name: String
+  cpf: String
+  cnpj: String
+  email: String
+  phone: String
+  id: Int!
+}
