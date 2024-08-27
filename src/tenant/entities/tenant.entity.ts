@@ -7,6 +7,7 @@ import {
   PrimaryKey,
   Table,
 } from 'sequelize-typescript';
+import { TenantType } from '../enum/tenant-type';
 
 @ObjectType()
 @Table
@@ -38,4 +39,9 @@ export class Tenant extends Model {
   @Column
   @Field(() => String)
   declare phone: string;
+
+  @Field(() => String)
+  get tenantType(): TenantType {
+    return this.cpf ? TenantType.Natural : TenantType.Legal;
+  }
 }

@@ -9,6 +9,7 @@ type Tenant {
   cnpj: String
   email: String!
   phone: String!
+  tenantType: String!
 }
 
 type Query {
