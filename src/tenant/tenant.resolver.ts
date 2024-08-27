@@ -15,7 +15,7 @@ export class TenantResolver {
     return this.tenantService.create(createTenantInput);
   }
 
-  @Query(() => [Tenant], { name: 'tenant' })
+  @Query(() => [Tenant], { name: 'tenants' })
   findAll() {
     return this.tenantService.findAll();
   }

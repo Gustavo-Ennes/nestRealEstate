@@ -12,6 +12,7 @@ type Tenant {
 }
 
 type Query {
+  tenants: [Tenant!]!
   tenant(id: Int!): Tenant!
 }
 
