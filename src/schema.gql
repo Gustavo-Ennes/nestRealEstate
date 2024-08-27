@@ -2,24 +2,23 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-type TenantSchema {
+type Tenant {
   id: Int!
   name: String!
-  cpf: String!
-  cnpj: String!
+  cpf: String
+  cnpj: String
   email: String!
   phone: String!
 }
 
 type Query {
-  tenants: [TenantSchema!]!
-  tenant(id: Int!): TenantSchema!
+  tenant(id: Int!): Tenant!
 }
 
 type Mutation {
-  createTenant(createTenantInput: CreateTenantInput!): TenantSchema!
-  updateTenant(updateTenantInput: UpdateTenantInput!): TenantSchema!
-  removeTenant(id: Int!): TenantSchema!
+  createTenant(createTenantInput: CreateTenantInput!): Tenant!
+  updateTenant(updateTenantInput: UpdateTenantInput!): Tenant!
+  removeTenant(id: Int!): Tenant!
 }
 
 input CreateTenantInput {
