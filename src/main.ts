@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { BadRequestException, ValidationPipe } from '@nestjs/common';
+import { BadRequestException, ValidationPipe, Logger } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -18,5 +18,6 @@ async function bootstrap() {
     }),
   );
   await app.listen(3000);
+  new Logger().verbose('Keep coding!');
 }
 bootstrap();

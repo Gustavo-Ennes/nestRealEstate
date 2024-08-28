@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { CreateTenantInput } from './dto/create-tenant.input';
 import { UpdateTenantInput } from './dto/update-tenant.input';
 import { InjectModel } from '@nestjs/sequelize';
@@ -14,40 +14,82 @@ export class TenantService {
     private cacheManager: Cache,
   ) {}
 
+  private readonly logger = new Logger(TenantService.name);
+
   async create(createTenantDto: CreateTenantInput): Promise<Tenant> {
-    return await this.tenantModel.create(createTenantDto as any);
+    try {
+      return await this.tenantModel.create(createTenantDto as any);
+    } catch (error) {
+      this.logger.error(
+        `${this.create.name} -> ${error.message}`,
+        error.stack,
+        { createTenantDto },
+      );
+    }
   }
 
   async findAll(): Promise<Tenant[]> {
-    const chacheTenants: Tenant[] | null =
-      await this.cacheManager.get('tenants');
-    if (chacheTenants) return chacheTenants;
+    try {
+      const chacheTenants: Tenant[] | null =
+        await this.cacheManager.get('tenants');
+      if (chacheTenants) return chacheTenants;
 
-    const tenants: Tenant[] = await this.tenantModel.findAll();
-    await this.cacheManager.set('tenants', tenants);
-    return tenants;
+      const tenants: Tenant[] = await this.tenantModel.findAll();
+      await this.cacheManager.set('tenants', tenants);
+      throw new Error('errrou');
+      return tenants;
+    } catch (error) {
+      this.logger.error(
+        `${this.findAll.name} -> ${error.message}`,
+        error.stack,
+      );
+    }
   }
 
   async findOne(id: number): Promise<Tenant> {
-    const cacheTenant: Tenant | null = await this.cacheManager.get(
-      `tenant:${id}`,
-    );
-    if (cacheTenant) return cacheTenant;
+    try {
+      const cacheTenant: Tenant | null = await this.cacheManager.get(
+        `tenant:${id}`,
+      );
+      if (cacheTenant) return cacheTenant;
 
-    const tenant: Tenant = await this.tenantModel.findByPk(id);
-    await this.cacheManager.set(`tenant:${id}`, tenant);
-    return await this.tenantModel.findByPk(id);
+      const tenant: Tenant = await this.tenantModel.findByPk(id);
+      await this.cacheManager.set(`tenant:${id}`, tenant);
+      return await this.tenantModel.findByPk(id);
+    } catch (error) {
+      this.logger.error(
+        `${this.findOne.name} -> ${error.message}`,
+        error.stack,
+        { id },
+      );
+    }
   }
 
   async update(
     id: number,
     updateTenantDto: UpdateTenantInput,
   ): Promise<[number]> {
-    return await this.tenantModel.update(updateTenantDto, { where: { id } });
+    try {
+      return await this.tenantModel.update(updateTenantDto, { where: { id } });
+    } catch (error) {
+      this.logger.error(
+        `${this.update.name} -> ${error.message}`,
+        error.stack,
+        { updateTenantDto },
+      );
+    }
   }
 
   async remove(id: number): Promise<void> {
-    const tenant = await this.findOne(id);
-    await tenant.destroy();
+    try {
+      const tenant = await this.findOne(id);
+      await tenant.destroy();
+    } catch (error) {
+      this.logger.error(
+        `${this.update.name} -> ${error.message}`,
+        error.stack,
+        { id },
+      );
+    }
   }
 }
