@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
+import { CacheModule } from '@nestjs/cache-manager';
 import { ConfigModule as NestConfigModule } from '@nestjs/config';
 import { join } from 'path';
 import { SequelizeModule } from '@nestjs/sequelize';
@@ -26,6 +27,8 @@ import { SequelizeModule } from '@nestjs/sequelize';
       autoLoadModels: true,
       synchronize: true,
     }),
+    // TODO after Websockets: https://docs.nestjs.com/techniques/caching#websockets-and-microservices
+    CacheModule.register({ isGlobal: true }),
   ],
 })
 export class ConfigModule {}
