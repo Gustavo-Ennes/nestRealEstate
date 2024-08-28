@@ -24,7 +24,7 @@ export class AuthService {
 
   async signUp(createUserInput: CreateUserInput): Promise<AuthReturn> {
     try {
-      const { username, password, email } = createUserInput;
+      const { username, password, email, role } = createUserInput;
       const sameUsernameUser = await this.usersService.findOne(username);
       if (sameUsernameUser) {
         throw new ConflictException(`Username ${username} already taken.`);
@@ -35,8 +35,9 @@ export class AuthService {
         username,
         email,
         password: hashedPassword,
+        role,
       });
-      const payload = { sub: user.id, username, email };
+      const payload = { sub: user.id, username, email, role };
       return {
         access_token: await this.jwtService.signAsync(payload),
       };
@@ -61,8 +62,8 @@ export class AuthService {
           `Password didn't match for user ${username}`,
         );
 
-      const { id, email } = user;
-      const payload = { sub: id, username, email };
+      const { id, email, role } = user;
+      const payload = { sub: id, username, email, role };
       return {
         access_token: await this.jwtService.signAsync(payload),
       };

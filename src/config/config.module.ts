@@ -26,6 +26,7 @@ import { SequelizeModule } from '@nestjs/sequelize';
       database: process.env.POSTGRES_DATABASE,
       autoLoadModels: true,
       synchronize: true,
+      // sync: { alter: true },
     }),
     // TODO after Websockets: https://docs.nestjs.com/techniques/caching#websockets-and-microservices
     CacheModule.register({ isGlobal: true }),

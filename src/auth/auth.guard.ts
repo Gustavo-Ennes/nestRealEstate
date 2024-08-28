@@ -28,7 +28,7 @@ export class AuthGuard implements CanActivate {
         secret: process.env.JWT_SECRET,
       });
 
-      request['userData'] = payload;
+      request['user'] = payload;
     } catch (error) {
       this.logger.error(
         `${this.canActivate.name} -> ${error.message}`,
