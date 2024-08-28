@@ -36,7 +36,6 @@ export class TenantService {
 
       const tenants: Tenant[] = await this.tenantModel.findAll();
       await this.cacheManager.set('tenants', tenants);
-      throw new Error('errrou');
       return tenants;
     } catch (error) {
       this.logger.error(

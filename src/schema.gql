@@ -12,9 +12,26 @@ type Tenant {
   tenantType: String!
 }
 
+type AuthReturn {
+  access_token: String!
+}
+
 type Query {
   tenants: [Tenant!]!
   tenant(id: Int!): Tenant!
+  signUp(createUserInput: CreateUserInput!): AuthReturn!
+  login(loginInput: LoginInput!): AuthReturn!
+}
+
+input CreateUserInput {
+  username: String!
+  email: String!
+  password: String!
+}
+
+input LoginInput {
+  username: String!
+  password: String!
 }
 
 type Mutation {

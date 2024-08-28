@@ -3,7 +3,10 @@ import { TenantService } from './tenant.service';
 import { Tenant } from './entities/tenant.entity';
 import { CreateTenantInput } from './dto/create-tenant.input';
 import { UpdateTenantInput } from './dto/update-tenant.input';
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from 'src/auth/auth.guard';
 
+@UseGuards(AuthGuard)
 @Resolver(() => Tenant)
 export class TenantResolver {
   constructor(private readonly tenantService: TenantService) {}
