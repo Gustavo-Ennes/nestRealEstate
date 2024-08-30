@@ -6,6 +6,7 @@ import {
   Model,
   PrimaryKey,
   Table,
+  DataType,
 } from 'sequelize-typescript';
 import { TenantType } from '../enum/tenant-type';
 
@@ -16,29 +17,37 @@ export class Tenant extends Model {
   @AutoIncrement
   @Column
   @Field(() => Int)
-  declare id: number;
+  id: number;
 
   @Column
   @Field(() => String)
-  declare name: string;
+  name: string;
 
   @AllowNull
   @Column
   @Field(() => String, { nullable: true })
-  declare cpf: string;
+  cpf: string;
 
   @AllowNull
   @Column
   @Field(() => String, { nullable: true })
-  declare cnpj: string;
+  cnpj: string;
 
   @Column
   @Field(() => String)
-  declare email: string;
+  email: string;
 
   @Column
   @Field(() => String)
-  declare phone: string;
+  phone: string;
+
+  @Column
+  @Field(() => Boolean, { defaultValue: true })
+  isActive: boolean;
+
+  @Column(DataType.JSON)
+  @Field(() => [String])
+  annotations: JSON;
 
   @Field(() => String)
   get tenantType(): TenantType {

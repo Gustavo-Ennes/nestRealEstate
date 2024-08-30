@@ -9,6 +9,8 @@ type Tenant {
   cnpj: String
   email: String!
   phone: String!
+  isActive: Boolean!
+  annotations: [String!]!
   tenantType: String!
 }
 
