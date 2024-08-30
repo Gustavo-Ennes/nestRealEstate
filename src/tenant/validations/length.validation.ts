@@ -32,7 +32,7 @@ const message = (property: string) =>
 const LengthValidatorBase =
   (type: LengthValidationTypes) => (object: object, propertyName: string) => {
     registerDecorator({
-      name: 'containsCpfOrCnpj',
+      name: `${type.toString()}LengthValidator`,
       target: object.constructor,
       propertyName: propertyName,
       validator: {

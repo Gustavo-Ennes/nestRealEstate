@@ -7,6 +7,7 @@ import {
   IsPhoneLength,
 } from '../validations/length.validation';
 import { IsEmail } from '../validations/email.validation';
+import { HasOnlyDigits } from '../validations/only-digits.validation';
 
 @InputType()
 export class CreateTenantInput {
@@ -16,10 +17,12 @@ export class CreateTenantInput {
 
   @IsCpfLength
   @ContainsCpfOrCnpj('cnpj')
+  @HasOnlyDigits
   @Field(() => String, { nullable: true })
   cpf: string;
 
   @IsCnpjLength
+  @HasOnlyDigits
   @Field(() => String, { nullable: true })
   cnpj: string;
 
@@ -30,6 +33,7 @@ export class CreateTenantInput {
 
   @IsNotEmpty()
   @IsPhoneLength
+  @HasOnlyDigits
   @Field(() => String)
   phone: string;
 }

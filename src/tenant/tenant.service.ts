@@ -20,11 +20,13 @@ export class TenantService {
     try {
       return await this.tenantModel.create(createTenantDto as any);
     } catch (error) {
+      // const { message } = error;
       this.logger.error(
         `${this.create.name} -> ${error.message}`,
         error.stack,
         { createTenantDto },
       );
+      throw error;
     }
   }
 
