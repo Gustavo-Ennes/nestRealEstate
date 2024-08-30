@@ -30,11 +30,14 @@ export class AuthGuard implements CanActivate {
 
       request['user'] = payload;
     } catch (error) {
+      const operationName = ctx.getInfo().fieldName;
+      const headers = request.headers;
       this.logger.error(
         `${this.canActivate.name} -> ${error.message}`,
         error.stack,
-        { graphqlContext: ctx },
+        { operationName, headers },
       );
+      throw error;
     }
     return true;
   }

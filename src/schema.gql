@@ -20,7 +20,7 @@ type AuthReturn {
 
 type Query {
   tenants: [Tenant!]!
-  tenant(id: Int!): Tenant!
+  tenant(id: Int!): Tenant
   signUp(createUserInput: CreateUserInput!): AuthReturn!
   login(loginInput: LoginInput!): AuthReturn!
 }

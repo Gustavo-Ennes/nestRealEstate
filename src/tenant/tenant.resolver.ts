@@ -4,10 +4,10 @@ import { Tenant } from './entities/tenant.entity';
 import { CreateTenantInput } from './dto/create-tenant.input';
 import { UpdateTenantInput } from './dto/update-tenant.input';
 import { UseGuards } from '@nestjs/common';
-import { AuthGuard } from 'src/auth/auth.guard';
-import { Roles } from 'src/auth/role/role.decorator';
-import { Role } from 'src/auth/role/role.enum';
-import { RolesGuard } from 'src/auth/role/role.guard';
+import { AuthGuard } from '../auth/auth.guard';
+import { Roles } from '../auth/role/role.decorator';
+import { Role } from '../auth/role/role.enum';
+import { RolesGuard } from '../auth/role/role.guard';
 
 @UseGuards(AuthGuard, RolesGuard)
 @Resolver(() => Tenant)
@@ -27,7 +27,7 @@ export class TenantResolver {
     return this.tenantService.findAll();
   }
 
-  @Query(() => Tenant, { name: 'tenant' })
+  @Query(() => Tenant, { name: 'tenant', nullable: true })
   @Roles(Role.Admin)
   findOne(@Args('id', { type: () => Int }) id: number) {
     return this.tenantService.findOne(id);
