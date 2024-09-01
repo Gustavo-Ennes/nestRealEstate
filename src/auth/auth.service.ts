@@ -7,9 +7,9 @@ import {
 } from '@nestjs/common';
 import { UserService } from '../user/user.service';
 import { JwtService } from '@nestjs/jwt';
-import { CreateUserInput } from 'src/user/dto/create-user.input';
+import { CreateUserInput } from '../user/dto/create-user.input';
 import { hashPassword, verifyPassword } from './auth.utils';
-import { User } from 'src/user/entities/user.entity';
+import { User } from '../user/entities/user.entity';
 import { LoginInput } from './dto/login.input';
 import { AuthReturn } from './auth.utils';
 

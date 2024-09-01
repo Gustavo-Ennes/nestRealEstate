@@ -1,5 +1,5 @@
 import { registerDecorator, ValidationArguments } from 'class-validator';
-import { Role } from 'src/auth/role/role.enum';
+import { Role } from '../../auth/role/role.enum';
 import { User } from '../entities/user.entity';
 
 const validate = (role: any): boolean => Object.values(Role).includes(role);

@@ -171,6 +171,26 @@ describe('TenantResolver', () => {
     );
   });
 
+  it("shouldn't create a tenant with letters or special characters in name", async () => {
+    const input = {
+      name: 'asd123as@@',
+      email: 'gustavo@ennes.dev',
+      phone: '3216549874',
+      cnpj: '12312312312322',
+    } as CreateTenantInput;
+    const dtoInstance = Object.assign(new CreateTenantInput(), input);
+
+    const dtoValidation = await validate(dtoInstance);
+
+    expect(dtoValidation).toBeInstanceOf(Array);
+    expect(dtoValidation).toHaveLength(1);
+    expect(dtoValidation[0].property).toBe('name');
+    expect(dtoValidation[0].constraints).toHaveProperty(
+      'hasOnlyLetters',
+      'name should have only letters.',
+    );
+  });
+
   it("shouldn't create a tenant with empty email", async () => {
     const input = {
       name: 'gustavo',

@@ -23,7 +23,7 @@ import { SequelizeModule } from '@nestjs/sequelize';
       port: Number.parseInt(process.env.POSTGRESS_PORT) ?? 5432,
       username: process.env.POSTGRES_USER,
       password: process.env.POSTGRES_PASSWORD,
-      database: process.env.POSTGRES_DATABASE,
+      database: `${process.env.POSTGRES_DATABASE}${process.env.NODE_ENV === 'test' ? 'Test' : ''}`,
       autoLoadModels: true,
       synchronize: true,
       // sync: { alter: true },

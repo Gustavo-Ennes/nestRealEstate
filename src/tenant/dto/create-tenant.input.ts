@@ -8,10 +8,12 @@ import {
 } from '../validations/length.validation';
 import { IsEmail } from '../validations/email.validation';
 import { HasOnlyDigits } from '../validations/only-digits.validation';
+import { HasOnlyLetters } from '../validations/only-letters.validation';
 
 @InputType()
 export class CreateTenantInput {
   @IsNotEmpty()
+  @HasOnlyLetters
   @Field(() => String)
   name: string;
 

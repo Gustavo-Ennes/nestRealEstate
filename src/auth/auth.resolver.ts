@@ -1,6 +1,6 @@
 import { AuthService } from './auth.service';
 import { Args, Query, Resolver } from '@nestjs/graphql';
-import { CreateUserInput } from 'src/user/dto/create-user.input';
+import { CreateUserInput } from '../user/dto/create-user.input';
 import { LoginInput } from './dto/login.input';
 import { AuthReturn } from './auth.utils';
 
