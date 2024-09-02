@@ -26,6 +26,7 @@ import { SequelizeModule } from '@nestjs/sequelize';
       database: `${process.env.POSTGRES_DATABASE}${process.env.NODE_ENV === 'test' ? 'Test' : ''}`,
       autoLoadModels: true,
       synchronize: true,
+      logging: process.env.NODE_ENV !== 'test',
       // sync: { alter: true },
     }),
     // TODO after Websockets: https://docs.nestjs.com/techniques/caching#websockets-and-microservices

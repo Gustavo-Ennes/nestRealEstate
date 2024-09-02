@@ -514,4 +514,28 @@ describe('TenantResolver', () => {
     ).toEqual(true);
     expect((tenantToUpdate as any).update).toHaveBeenCalled();
   });
+
+  it('should remove a tenant', async () => {
+    const tenantToUpdate = {
+      id: 1,
+      ...input,
+      tenantType: TenantType.Natural,
+      destroy: jest.fn(),
+    } as UpdateTenantInput;
+
+    (tenantModel.findByPk as jest.Mock).mockResolvedValue(tenantToUpdate);
+
+    expect(await resolver.removeTenant(tenantToUpdate.id)).toEqual(true);
+    expect((tenantToUpdate as any).destroy).toHaveBeenCalled();
+  });
+
+  it('should do nothing if cannot find a tenant to remove', async () => {
+    (tenantModel.findByPk as jest.Mock).mockResolvedValue(null);
+    try {
+      await resolver.removeTenant(1111);
+    } catch (error) {
+      expect(error.message).toEqual('Tenant not found.');
+      expect(error.status).toEqual(404);
+    }
+  });
 });

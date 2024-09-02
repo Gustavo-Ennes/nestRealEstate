@@ -48,9 +48,10 @@ export class TenantResolver {
     return this.tenantService.update(updateTenantInput);
   }
 
-  @Mutation(() => Tenant)
+  @Mutation(() => Boolean)
   @Roles(Role.Tenant, Role.Admin)
-  removeTenant(@Args('id', { type: () => Int }) id: number) {
-    return this.tenantService.remove(id);
+  async removeTenant(@Args('id', { type: () => Int }) id: number) {
+    await this.tenantService.remove(id);
+    return true;
   }
 }

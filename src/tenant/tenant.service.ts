@@ -137,6 +137,8 @@ export class TenantService {
   async remove(id: number): Promise<void> {
     try {
       const tenant = await this.findOne(id);
+      if (!tenant) throw new NotFoundException('Tenant not found.');
+
       await tenant.destroy();
     } catch (error) {
       this.logger.error(

@@ -37,3 +37,9 @@ export const updateMutation = `
     updateTenant(updateTenantInput: $input)
   }
 `;
+
+export const deleteMutation = `
+  mutation DeleteTenant($input: Int!) {
+    removeTenant(id: $input)
+  }
+`;
