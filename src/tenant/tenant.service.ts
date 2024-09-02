@@ -1,9 +1,17 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import {
+  ConflictException,
+  Inject,
+  Injectable,
+  Logger,
+  NotAcceptableException,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateTenantInput } from './dto/create-tenant.input';
 import { UpdateTenantInput } from './dto/update-tenant.input';
 import { InjectModel } from '@nestjs/sequelize';
 import { Tenant } from './entities/tenant.entity';
 import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
+import { TenantType } from './enum/tenant-type';
 
 @Injectable()
 export class TenantService {
@@ -18,7 +26,18 @@ export class TenantService {
 
   async create(createTenantDto: CreateTenantInput): Promise<Tenant> {
     try {
-      return await this.tenantModel.create(createTenantDto as any);
+      const newTenant: Tenant = await this.tenantModel.create(
+        createTenantDto as any,
+      );
+
+      await this.cacheManager.set(`tenant:${newTenant.id}`, newTenant);
+      const tenants: Tenant[] = await this.tenantModel.findAll();
+      await this.cacheManager.set(
+        'tenants',
+        tenants.sort((a, b) => a.id - b.id),
+      );
+
+      return newTenant;
     } catch (error) {
       this.logger.error(
         `${this.create.name} -> ${error.message}`,
@@ -36,13 +55,17 @@ export class TenantService {
       if (chacheTenants) return chacheTenants;
 
       const tenants: Tenant[] = await this.tenantModel.findAll();
-      await this.cacheManager.set('tenants', tenants);
+      await this.cacheManager.set(
+        'tenants',
+        tenants.sort((a, b) => a.id - b.id),
+      );
       return tenants;
     } catch (error) {
       this.logger.error(
         `${this.findAll.name} -> ${error.message}`,
         error.stack,
       );
+      throw error;
     }
   }
 
@@ -62,21 +85,52 @@ export class TenantService {
         error.stack,
         { id },
       );
+      throw error;
     }
   }
 
-  async update(
-    id: number,
-    updateTenantDto: UpdateTenantInput,
-  ): Promise<[number]> {
+  async update(updateTenantDto: UpdateTenantInput): Promise<boolean> {
     try {
-      return await this.tenantModel.update(updateTenantDto, { where: { id } });
+      const tenant = await this.tenantModel.findOne({
+        where: { id: updateTenantDto.id },
+      });
+      const { tenantType } = tenant;
+
+      if (!tenant) throw new NotFoundException('No tenant found.');
+
+      const dtoKeys = Object.keys(updateTenantDto);
+      if (
+        tenant.isActive === false &&
+        (dtoKeys.length !== 2 || !dtoKeys.includes('isActive'))
+      )
+        throw new NotAcceptableException(
+          'Tenant is not active. First update with only id and isActive=true, after update other properties in another call.',
+        );
+
+      if (
+        (tenantType === TenantType.Legal && updateTenantDto.cpf?.length > 0) ||
+        (tenantType === TenantType.Natural && updateTenantDto.cnpj?.length > 0)
+      )
+        throw new ConflictException(
+          'Cannot update a cpf of a legal tenant or the cnpj of a natural tenant.',
+        );
+
+      await tenant.update(updateTenantDto);
+      await this.cacheManager.set(`tenant:${updateTenantDto.id}`, tenant);
+      const tenants: Tenant[] = await this.tenantModel.findAll();
+      await this.cacheManager.set(
+        'tenants',
+        tenants.sort((a, b) => a.id - b.id),
+      );
+
+      return true;
     } catch (error) {
       this.logger.error(
         `${this.update.name} -> ${error.message}`,
         error.stack,
         { updateTenantDto },
       );
+      throw error;
     }
   }
 
@@ -90,6 +144,7 @@ export class TenantService {
         error.stack,
         { id },
       );
+      throw error;
     }
   }
 }

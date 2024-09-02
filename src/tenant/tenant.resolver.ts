@@ -39,12 +39,13 @@ export class TenantResolver {
   //   return this.tenantService.findOne({where:{landlordId: id}});
   // }
 
-  @Mutation(() => Tenant)
+  // if !isActive, update isActive first and do another update as you want
+  @Mutation(() => Boolean)
   @Roles(Role.Tenant, Role.Admin)
   updateTenant(
     @Args('updateTenantInput') updateTenantInput: UpdateTenantInput,
   ) {
-    return this.tenantService.update(updateTenantInput.id, updateTenantInput);
+    return this.tenantService.update(updateTenantInput);
   }
 
   @Mutation(() => Tenant)

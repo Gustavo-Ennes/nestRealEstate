@@ -46,7 +46,7 @@ export class Tenant extends Model {
   isActive: boolean;
 
   @Column(DataType.JSON)
-  @Field(() => [String])
+  @Field(() => [String], { nullable: true })
   annotations: JSON;
 
   @Field(() => String)

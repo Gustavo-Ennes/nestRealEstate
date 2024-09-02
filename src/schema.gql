@@ -39,7 +39,7 @@ input LoginInput {
 
 type Mutation {
   createTenant(createTenantInput: CreateTenantInput!): Tenant!
-  updateTenant(updateTenantInput: UpdateTenantInput!): Tenant!
+  updateTenant(updateTenantInput: UpdateTenantInput!): Boolean!
   removeTenant(id: Int!): Tenant!
 }
 

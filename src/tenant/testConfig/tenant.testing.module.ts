@@ -20,6 +20,7 @@ export const createTenantTestingModule = async () =>
         provide: getModelToken(Tenant),
         useValue: {
           findAll: jest.fn(),
+          findOne: jest.fn(),
           findByPk: jest.fn(),
           create: jest.fn(),
           update: jest.fn(),
