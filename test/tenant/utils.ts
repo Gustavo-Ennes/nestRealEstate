@@ -14,7 +14,15 @@ const generateToken = (user = { sub: 1, role: 'admin' }) => {
 
 const requestAndCheckError =
   (path: string) =>
-  async ({ app, token, query, variables, property, constraints }) => {
+  async ({
+    app,
+    token,
+    query,
+    variables,
+    property,
+    constraints = null,
+    code = 'BAD_REQUEST',
+  }) => {
     const res = await request(app.getHttpServer())
       .post('/graphql')
       .set('Authorization', `Bearer ${token}`)
@@ -24,16 +32,22 @@ const requestAndCheckError =
       })
       .expect(200);
 
+    const originalErrorMessageIsArray = Array.isArray(
+      res.body.errors[0].extensions.originalError.message,
+    );
+
     expect(res.body.errors).toBeInstanceOf(Array);
     expect(res.body.errors).toHaveLength(1);
     expect(res.body.errors[0]).toHaveProperty('path', [path]);
-    expect(res.body.errors[0].extensions).toHaveProperty('code', 'BAD_REQUEST');
-    expect(
-      res.body.errors[0].extensions.originalError.message[0],
-    ).toHaveProperty('property', property);
-    expect(
-      res.body.errors[0].extensions.originalError.message[0],
-    ).toHaveProperty('constraints', constraints);
+    expect(res.body.errors[0].extensions).toHaveProperty('code', code);
+    if (originalErrorMessageIsArray) {
+      expect(
+        res.body.errors[0].extensions.originalError.message[0],
+      ).toHaveProperty('property', property);
+      expect(
+        res.body.errors[0].extensions.originalError.message[0],
+      ).toHaveProperty('constraints', constraints);
+    }
   };
 
 const defaultTenantInput = {

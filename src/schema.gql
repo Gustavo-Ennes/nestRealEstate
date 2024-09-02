@@ -10,7 +10,7 @@ type Tenant {
   email: String!
   phone: String!
   isActive: Boolean!
-  annotations: [String!]!
+  annotations: [String!]
   tenantType: String!
 }
 
@@ -58,4 +58,6 @@ input UpdateTenantInput {
   email: String
   phone: String
   id: Int!
+  isActive: Boolean
+  annotations: [String!]
 }

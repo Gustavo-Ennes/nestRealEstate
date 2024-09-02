@@ -31,3 +31,9 @@ export const createMutation = `
       cpf
     }
   }`;
+
+export const updateMutation = `
+  mutation UpdateTenant($input: UpdateTenantInput!){
+    updateTenant(updateTenantInput: $input)
+  }
+`;
