@@ -1,4 +1,5 @@
 import { Field, ObjectType } from '@nestjs/graphql';
+import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 
 export const hashPassword = async (password: string) => {
@@ -13,6 +14,18 @@ export const verifyPassword = async (
 ) => {
   const isMatch = await bcrypt.compare(password, hashedPassword);
   return isMatch;
+};
+
+export const verifyAndDecodeToken = async (
+  token: string,
+  jwtService: JwtService,
+): Promise<any> => {
+  try {
+    const decoded = await jwtService.verifyAsync(token);
+    return decoded;
+  } catch (error) {
+    throw new Error(`Invalid token: ${error.message}\n${error.stack}`);
+  }
 };
 
 @ObjectType()

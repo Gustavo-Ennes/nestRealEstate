@@ -26,9 +26,8 @@ export class AuthService {
     try {
       const { username, password, email, role } = createUserInput;
       const sameUsernameUser = await this.usersService.findOne(username);
-      if (sameUsernameUser) {
+      if (sameUsernameUser)
         throw new ConflictException(`Username ${username} already taken.`);
-      }
 
       const hashedPassword = await hashPassword(password);
       const user: User = await this.usersService.create({
@@ -47,6 +46,7 @@ export class AuthService {
         error.stack,
         { createUserInput },
       );
+      throw error;
     }
   }
 
@@ -57,7 +57,7 @@ export class AuthService {
       if (!user)
         throw new NotFoundException(`No user found with username ${username}`);
 
-      if (!verifyPassword(password, user.password))
+      if (!(await verifyPassword(password, user.password)))
         throw new UnauthorizedException(
           `Password didn't match for user ${username}`,
         );
@@ -71,6 +71,7 @@ export class AuthService {
       this.logger.error(`${this.login.name} -> ${error.message}`, error.stack, {
         loginInput,
       });
+      throw error;
     }
   }
 }

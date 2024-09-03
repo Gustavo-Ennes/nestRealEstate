@@ -19,7 +19,7 @@ export class User extends Model {
   @Column
   password: string;
 
-  @Column
+  @Column({ unique: true })
   email: string;
 
   @Column({ defaultValue: true })
