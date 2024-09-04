@@ -1,55 +1,3 @@
-import { sign } from 'jsonwebtoken';
-import * as request from 'supertest';
-
-const generateToken = (user = { sub: 1, role: 'admin' }) => {
-  return sign(
-    {
-      sub: user.sub,
-      role: user.role,
-    },
-    process.env.JWT_SECRET,
-    { expiresIn: '1h' },
-  );
-};
-
-const requestAndCheckError =
-  (path: string) =>
-  async ({
-    app,
-    token,
-    query,
-    variables,
-    property,
-    constraints = null,
-    code = 'BAD_REQUEST',
-  }) => {
-    const res = await request(app.getHttpServer())
-      .post('/graphql')
-      .set('Authorization', `Bearer ${token}`)
-      .send({
-        query,
-        variables,
-      })
-      .expect(200);
-
-    const originalErrorMessageIsArray = Array.isArray(
-      res.body.errors[0].extensions.originalError.message,
-    );
-
-    expect(res.body.errors).toBeInstanceOf(Array);
-    expect(res.body.errors).toHaveLength(1);
-    expect(res.body.errors[0]).toHaveProperty('path', [path]);
-    expect(res.body.errors[0].extensions).toHaveProperty('code', code);
-    if (originalErrorMessageIsArray) {
-      expect(
-        res.body.errors[0].extensions.originalError.message[0],
-      ).toHaveProperty('property', property);
-      expect(
-        res.body.errors[0].extensions.originalError.message[0],
-      ).toHaveProperty('constraints', constraints);
-    }
-  };
-
 const defaultTenantInput = {
   name: 'tenant',
   cpf: '12312312322',
@@ -82,4 +30,4 @@ const tenantWith = {
   },
 };
 
-export { generateToken, requestAndCheckError, tenantWith };
+export { tenantWith };

@@ -1,5 +1,4 @@
 import { InputType, Field } from '@nestjs/graphql';
-import { Role } from '../role/role.enum';
 import { IsValidUsername } from '../validation/username.validation';
 import { IsValidPassword } from '../validation/password.validation';
 import { IsEmail } from '../../tenant/validations/email.validation';
@@ -20,6 +19,6 @@ export class SignUpInput {
   email: string;
 
   @IsValidRole
-  @Field(() => Role)
+  @Field(() => String)
   role: string;
 }

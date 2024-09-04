@@ -21,26 +21,14 @@ type AuthReturn {
 type Query {
   tenants: [Tenant!]!
   tenant(id: Int!): Tenant
-  signUp(createUserInput: CreateUserInput!): AuthReturn!
-  login(loginInput: LoginInput!): AuthReturn!
-}
-
-input CreateUserInput {
-  username: String!
-  email: String!
-  password: String!
-  role: String!
-}
-
-input LoginInput {
-  username: String!
-  password: String!
 }
 
 type Mutation {
   createTenant(createTenantInput: CreateTenantInput!): Tenant!
   updateTenant(updateTenantInput: UpdateTenantInput!): Boolean!
   removeTenant(id: Int!): Boolean!
+  signUp(signUpInput: SignUpInput!): AuthReturn!
+  login(loginInput: LoginInput!): AuthReturn!
 }
 
 input CreateTenantInput {
@@ -60,4 +48,16 @@ input UpdateTenantInput {
   id: Int!
   isActive: Boolean
   annotations: [String!]
+}
+
+input SignUpInput {
+  username: String!
+  password: String!
+  email: String!
+  role: String!
+}
+
+input LoginInput {
+  username: String!
+  password: String!
 }

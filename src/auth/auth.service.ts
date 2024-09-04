@@ -36,6 +36,12 @@ export class AuthService {
         password: hashedPassword,
         role,
       });
+
+      if (!user)
+        throw new ConflictException(
+          'User cannot be created. Probably the email is already registered',
+        );
+
       const payload = { sub: user.id, username, email, role };
       return {
         access_token: await this.jwtService.signAsync(payload),

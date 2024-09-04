@@ -1,14 +1,9 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import {
-  BadRequestException,
-  INestApplication,
-  ValidationPipe,
-} from '@nestjs/common';
+import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
-import { AppModule } from '../../src/app.module';
 import { Sequelize } from 'sequelize-typescript';
 import { createMutation } from './queries';
-import { generateToken, requestAndCheckError, tenantWith } from './utils';
+import { tenantWith } from './utils';
+import { requestAndCheckError, initApp } from '../utils';
 
 describe('Tenant Module - Create (e2e)', () => {
   let app: INestApplication;
@@ -16,28 +11,10 @@ describe('Tenant Module - Create (e2e)', () => {
   let token: string;
 
   beforeEach(async () => {
-    const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
-    }).compile();
-
-    app = moduleFixture.createNestApplication();
-    sequelize = app.get<Sequelize>(Sequelize);
-    token = generateToken();
-
-    app.useGlobalPipes(
-      new ValidationPipe({
-        transform: true,
-        exceptionFactory: (errors) => {
-          return new BadRequestException(
-            errors.map((err) => ({
-              property: err.property,
-              constraints: err.constraints,
-            })),
-          );
-        },
-      }),
-    );
-    await app.init();
+    const { application, adminToken, db } = await initApp();
+    app = application;
+    token = adminToken;
+    sequelize = db;
 
     await sequelize.getQueryInterface().dropTable('Tenants');
     await sequelize.sync({ force: true });

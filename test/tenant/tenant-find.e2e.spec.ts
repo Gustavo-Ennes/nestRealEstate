@@ -1,44 +1,20 @@
-import {
-  INestApplication,
-  ValidationPipe,
-  BadRequestException,
-} from '@nestjs/common';
-import { TestingModule, Test } from '@nestjs/testing';
+import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { Sequelize } from 'sequelize-typescript';
-import { AppModule } from '../../src/app.module';
 import { Tenant } from '../../src/tenant/entities/tenant.entity';
 import { findOneQuery, findAllQuery } from './queries';
-import { generateToken } from './utils';
+import { generateToken, initApp } from '../utils';
 
-describe('Tenant Module - find (e2e)', () => {
+describe('Tenant Module - Find (e2e)', () => {
   let app: INestApplication;
   let sequelize: Sequelize;
   let token: string;
 
   beforeEach(async () => {
-    const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
-    }).compile();
-
-    app = moduleFixture.createNestApplication();
-    sequelize = app.get<Sequelize>(Sequelize);
-    token = generateToken();
-
-    app.useGlobalPipes(
-      new ValidationPipe({
-        transform: true,
-        exceptionFactory: (errors) => {
-          return new BadRequestException(
-            errors.map((err) => ({
-              property: err.property,
-              constraints: err.constraints,
-            })),
-          );
-        },
-      }),
-    );
-    await app.init();
+    const { application, db, adminToken } = await initApp();
+    app = application;
+    token = adminToken;
+    sequelize = db;
 
     await sequelize.getQueryInterface().dropTable('Tenants');
     await sequelize.sync({ force: true });
