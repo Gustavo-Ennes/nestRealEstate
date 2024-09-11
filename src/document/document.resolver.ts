@@ -4,8 +4,6 @@ import { DocumentService } from './document.service';
 import { Document } from './entities/document.entity';
 import { UpdateDocumentInput } from './dto/update-document.input';
 import { FileUpload } from './document.interface';
-import { CurrentUser } from './decorators/current-user.decorator';
-import { User } from '../user/entities/user.entity';
 import { CreateDocumentInput } from './dto/create-document.input';
 import { UseGuards } from '@nestjs/common';
 import { AuthGuard } from '../auth/auth.guard';
@@ -22,10 +20,8 @@ export class DocumentResolver {
     document: Promise<FileUpload>,
     @Args('createDocumentInput')
     info: CreateDocumentInput,
-    @CurrentUser()
-    user: User,
   ) {
-    return this.documentService.create(document, user, info);
+    return this.documentService.create(document, info);
   }
 
   @Query(() => [Document], { name: 'document' })

@@ -1,11 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Storage } from '@google-cloud/storage';
 import { CreateDocumentInput } from '../document/dto/create-document.input';
-import { User } from '../user/entities/user.entity';
 
 interface IUploadToBucket {
   tempFilePath: string;
-  user: User;
   documentInfo: CreateDocumentInput;
 }
 
@@ -16,7 +14,6 @@ export class BucketService {
 
   async uploadToBucket({
     tempFilePath,
-    user,
     documentInfo,
   }: IUploadToBucket): Promise<string> {
     const destFileName = `documents/${documentInfo.ownerType}/${documentInfo.ownerId}/${documentInfo.type}/${Date.now().toString()}.pdf`;
@@ -32,7 +29,7 @@ export class BucketService {
       this.logger.error(
         `${this.uploadToBucket.name} -> ${error.message}`,
         error.stack,
-        { user, documentInfo },
+        { documentInfo },
       );
 
       throw error;

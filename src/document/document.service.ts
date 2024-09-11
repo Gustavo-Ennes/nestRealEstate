@@ -1,7 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { UpdateDocumentInput } from './dto/update-document.input';
 import { FileUpload } from './document.interface';
-import { User } from '../user/entities/user.entity';
 import { CreateDocumentInput } from './dto/create-document.input';
 import { Queue } from 'bullmq';
 import { InjectQueue } from '@nestjs/bullmq';
@@ -20,7 +19,6 @@ export class DocumentService {
 
   async create(
     document: Promise<FileUpload>,
-    user: User,
     documentInfo: CreateDocumentInput,
   ): Promise<{ jobId: string }> {
     try {
@@ -46,7 +44,6 @@ export class DocumentService {
         'uploadAndSave',
         {
           tempFilePath,
-          user,
           documentInfo,
         },
         { attempts: 3 },
