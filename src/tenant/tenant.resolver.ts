@@ -3,13 +3,15 @@ import { TenantService } from './tenant.service';
 import { Tenant } from './entities/tenant.entity';
 import { CreateTenantInput } from './dto/create-tenant.input';
 import { UpdateTenantInput } from './dto/update-tenant.input';
-import { UseGuards } from '@nestjs/common';
+import { UseGuards, UsePipes } from '@nestjs/common';
 import { AuthGuard } from '../auth/auth.guard';
 import { Roles } from '../auth/role/role.decorator';
 import { Role } from '../auth/role/role.enum';
 import { RolesGuard } from '../auth/role/role.guard';
+import { validationPipe } from '../pipes/validation.pipe';
 
 @UseGuards(AuthGuard, RolesGuard)
+@UsePipes(validationPipe)
 @Resolver(() => Tenant)
 export class TenantResolver {
   constructor(private readonly tenantService: TenantService) {}

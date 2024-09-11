@@ -5,6 +5,7 @@ import { CacheModule } from '@nestjs/cache-manager';
 import { ConfigModule as NestConfigModule } from '@nestjs/config';
 import { join } from 'path';
 import { SequelizeModule } from '@nestjs/sequelize';
+import { BullModule } from '@nestjs/bullmq';
 
 @Module({
   imports: [
@@ -31,6 +32,12 @@ import { SequelizeModule } from '@nestjs/sequelize';
     }),
     // TODO after Websockets: https://docs.nestjs.com/techniques/caching#websockets-and-microservices
     CacheModule.register({ isGlobal: true }),
+    BullModule.forRoot({
+      connection: {
+        host: process.env.REDIS_HOST,
+        port: parseInt(process.env.REDIS_PORT),
+      },
+    }),
   ],
 })
 export class ConfigModule {}

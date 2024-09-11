@@ -12,15 +12,13 @@ import { validate } from 'class-validator';
 import { LoginInput } from './dto/login.input';
 
 describe('AuthService', () => {
-  let service: AuthService,
-    jwtService: JwtService,
-    userModel: typeof User,
-    signUpInput: SignUpInput = {
-      email: 'gustavo@ennes.dev',
-      password: '1Senha!.',
-      role: Role.Admin,
-      username: 'admin',
-    };
+  let service: AuthService, jwtService: JwtService, userModel: typeof User;
+  const signUpInput: SignUpInput = {
+    email: 'gustavo@ennes.dev',
+    password: '1Senha!.',
+    role: Role.Admin,
+    username: 'admin',
+  };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({

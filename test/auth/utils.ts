@@ -1,4 +1,4 @@
-import { LoginInput } from 'src/auth/dto/login.input';
+import { LoginInput } from '../../src/auth/dto/login.input';
 import { SignUpInput } from '../../src/auth/dto/signup.input';
 import { Role } from '../../src/auth/role/role.enum';
 

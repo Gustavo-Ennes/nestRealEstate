@@ -18,9 +18,24 @@ type AuthReturn {
   access_token: String!
 }
 
+type Document {
+  id: Int!
+  type: String!
+  ownerType: String!
+  ownerId: Int!
+  status: String!
+  observation: String!
+  document: String!
+}
+
+type FileOutput {
+  jobId: String!
+}
+
 type Query {
   tenants: [Tenant!]!
   tenant(id: Int!): Tenant
+  document(id: Int!): Document!
 }
 
 type Mutation {
@@ -29,6 +44,9 @@ type Mutation {
   removeTenant(id: Int!): Boolean!
   signUp(signUpInput: SignUpInput!): AuthReturn!
   login(loginInput: LoginInput!): AuthReturn!
+  createDocument(document: Upload!, createDocumentInput: CreateDocumentInput!): FileOutput!
+  updateDocument(updateDocumentInput: UpdateDocumentInput!): Document!
+  removeDocument(id: Int!): Document!
 }
 
 input CreateTenantInput {
@@ -60,4 +78,22 @@ input SignUpInput {
 input LoginInput {
   username: String!
   password: String!
+}
+
+"""The `Upload` scalar type represents a file upload."""
+scalar Upload
+
+input CreateDocumentInput {
+  type: String!
+  ownerType: String!
+  ownerId: Int!
+  observation: String
+}
+
+input UpdateDocumentInput {
+  type: String
+  ownerType: String
+  ownerId: Int
+  observation: String
+  id: Int!
 }

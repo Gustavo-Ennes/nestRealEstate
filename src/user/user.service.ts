@@ -21,6 +21,7 @@ export class UserService {
         error.stack,
         { username },
       );
+      throw error;
     }
   }
 
@@ -33,6 +34,7 @@ export class UserService {
         error.stack,
         { createUserInput },
       );
+      throw error;
     }
   }
 }

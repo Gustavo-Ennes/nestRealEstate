@@ -26,6 +26,7 @@ export class AuthService {
     try {
       const { username, password, email, role } = createUserInput;
       const sameUsernameUser = await this.usersService.findOne(username);
+
       if (sameUsernameUser)
         throw new ConflictException(`Username ${username} already taken.`);
 
@@ -36,11 +37,6 @@ export class AuthService {
         password: hashedPassword,
         role,
       });
-
-      if (!user)
-        throw new ConflictException(
-          'User cannot be created. Probably the email is already registered',
-        );
 
       const payload = { sub: user.id, username, email, role };
       return {

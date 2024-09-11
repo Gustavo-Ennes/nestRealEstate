@@ -1,24 +1,11 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
-import { BadRequestException, ValidationPipe, Logger } from '@nestjs/common';
 import helmet from 'helmet';
+import { Logger } from '@nestjs/common';
+import * as graphqlUploadExpress from 'graphql-upload/graphqlUploadExpress.js';
+import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-
-  app.useGlobalPipes(
-    new ValidationPipe({
-      transform: true,
-      exceptionFactory: (errors) => {
-        return new BadRequestException(
-          errors.map((err) => ({
-            property: err.property,
-            constraints: err.constraints,
-          })),
-        );
-      },
-    }),
-  );
 
   app.use(
     helmet({
@@ -40,7 +27,11 @@ async function bootstrap() {
       },
     }),
   );
+
+  app.use(graphqlUploadExpress({ maxFileSize: 1000000, maxFiles: 1 }));
+
   await app.listen(3000);
+
   new Logger().verbose('Keep coding!');
 }
 bootstrap();

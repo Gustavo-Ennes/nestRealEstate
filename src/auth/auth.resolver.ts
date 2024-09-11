@@ -1,10 +1,13 @@
-import { AuthService } from './auth.service';
 import { Args, Mutation, Resolver } from '@nestjs/graphql';
+import { UsePipes } from '@nestjs/common';
+import { AuthService } from './auth.service';
 import { LoginInput } from './dto/login.input';
 import { AuthReturn } from './auth.utils';
 import { SignUpInput } from './dto/signup.input';
+import { validationPipe } from '../pipes/validation.pipe';
 
 @Resolver(() => AuthReturn)
+@UsePipes(validationPipe)
 export class AuthResolver {
   constructor(private authService: AuthService) {}
 

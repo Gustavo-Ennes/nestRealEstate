@@ -37,7 +37,7 @@ export const requestAndCheckError =
       .expect(200);
 
     const originalErrorMessageIsArray = Array.isArray(
-      res.body.errors[0].extensions.originalError.message,
+      res.body.errors[0].extensions.originalError?.message,
     );
 
     expect(res.body.errors).toBeInstanceOf(Array);
