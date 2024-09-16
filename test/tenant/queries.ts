@@ -6,6 +6,10 @@ export const findOneQuery = `
       email
       phone
       cpf
+      documents {
+        id
+        type
+      }
     }
   }`;
 

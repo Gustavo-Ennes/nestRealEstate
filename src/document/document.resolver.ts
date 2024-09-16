@@ -8,8 +8,11 @@ import { CreateDocumentInput } from './dto/create-document.input';
 import { UseGuards } from '@nestjs/common';
 import { AuthGuard } from '../auth/auth.guard';
 import { FileOutput } from './dto/create-document.output';
+import { RolesGuard } from '../auth/role/role.guard';
+import { Roles } from '../auth/role/role.decorator';
+import { Role } from '../auth/role/role.enum';
 
-@UseGuards(AuthGuard)
+@UseGuards(AuthGuard, RolesGuard)
 @Resolver(() => Document)
 export class DocumentResolver {
   constructor(private readonly documentService: DocumentService) {}
@@ -24,7 +27,8 @@ export class DocumentResolver {
     return this.documentService.create(document, info);
   }
 
-  @Query(() => [Document], { name: 'document' })
+  @Query(() => [Document], { name: 'documents' })
+  @Roles(Role.Admin)
   findAll() {
     return this.documentService.findAll();
   }

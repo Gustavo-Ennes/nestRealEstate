@@ -4,6 +4,9 @@ import { Sequelize } from 'sequelize-typescript';
 import { Tenant } from '../../src/tenant/entities/tenant.entity';
 import { findOneQuery, findAllQuery } from './queries';
 import { generateToken, initApp } from '../utils';
+import { EOwnerType } from '../../src/document/enum/owner-type.enum';
+import { EDocumentType } from '../../src/document/enum/document-type.enum';
+import { Document } from '../../src/document/entities/document.entity';
 
 describe('Tenant Module - Find (e2e)', () => {
   let app: INestApplication;
@@ -36,7 +39,14 @@ describe('Tenant Module - Find (e2e)', () => {
       email: 'tenant@tenant.com',
       phone: '1231231232',
     };
+    const documentInput = {
+      ownerId: 1,
+      ownerType: EOwnerType.Tenant,
+      type: EDocumentType.Cpf,
+    };
+
     await Tenant.create(tenantInput);
+    await Document.create(documentInput);
 
     const res = await request(app.getHttpServer())
       .post('/graphql')
@@ -46,7 +56,13 @@ describe('Tenant Module - Find (e2e)', () => {
       })
       .expect(200);
 
-    expect(res.body.data).toEqual({ tenant: { id: 1, ...tenantInput } });
+    expect(res.body.data).toEqual({
+      tenant: {
+        id: 1,
+        ...tenantInput,
+        documents: [{ id: 1, type: documentInput.type }],
+      },
+    });
   });
 
   it('should not find a tenant with tenant role', async () => {

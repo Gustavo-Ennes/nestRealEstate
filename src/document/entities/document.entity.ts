@@ -39,5 +39,5 @@ export class Document extends Model {
 
   @Column
   @Field(() => String)
-  document: string;
+  url: string;
 }

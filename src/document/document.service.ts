@@ -7,6 +7,7 @@ import { InjectQueue } from '@nestjs/bullmq';
 import * as path from 'path';
 import * as os from 'os';
 import * as fs from 'fs';
+import { Document } from './entities/document.entity';
 
 @Injectable()
 export class DocumentService {
@@ -62,8 +63,18 @@ export class DocumentService {
     }
   }
 
-  findAll() {
-    return `This action returns all document`;
+  async findAll(): Promise<Document[]> {
+    try {
+      const documents: Document[] = await Document.findAll();
+      return documents;
+    } catch (error) {
+      this.logger.error(
+        `${this.create.name} -> ${error.message}`,
+        error.stack,
+        { createUserInput: { document } },
+      );
+      throw error;
+    }
   }
 
   findOne(id: number) {

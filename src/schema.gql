@@ -2,6 +2,16 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type Document {
+  id: Int!
+  type: String!
+  ownerType: String!
+  ownerId: Int!
+  status: String!
+  observation: String!
+  url: String!
+}
+
 type Tenant {
   id: Int!
   name: String!
@@ -12,20 +22,11 @@ type Tenant {
   isActive: Boolean!
   annotations: [String!]
   tenantType: String!
+  documents: [Document!]!
 }
 
 type AuthReturn {
   access_token: String!
-}
-
-type Document {
-  id: Int!
-  type: String!
-  ownerType: String!
-  ownerId: Int!
-  status: String!
-  observation: String!
-  document: String!
 }
 
 type FileOutput {
@@ -35,6 +36,7 @@ type FileOutput {
 type Query {
   tenants: [Tenant!]!
   tenant(id: Int!): Tenant
+  documents: [Document!]!
   document(id: Int!): Document!
 }
 
