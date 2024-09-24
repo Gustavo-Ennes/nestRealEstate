@@ -3,7 +3,7 @@ import * as request from 'supertest';
 import { Sequelize } from 'sequelize-typescript';
 import { updateMutation } from './queries';
 import { generateToken, initApp, requestAndCheckError } from '../utils';
-import { Tenant } from '../../src/tenant/entities/tenant.entity';
+import { Tenant } from '../../src/domain/tenant/entities/tenant.entity';
 
 describe('Tenant Module - Update (e2e)', () => {
   let app: INestApplication,

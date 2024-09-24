@@ -5,7 +5,7 @@ import { initApp } from '../utils';
 import { signUpMutation } from './mutation';
 import { requestAndCheckError } from '../utils';
 import { defaultSignUpInput, signupWithout } from './utils';
-import { User } from '../../src/user/entities/user.entity';
+import { User } from '../../src/application/user/entities/user.entity';
 
 describe('Auth Module - SignUp (e2e)', () => {
   let app: INestApplication;

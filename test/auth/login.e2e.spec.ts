@@ -1,8 +1,8 @@
 import { INestApplication } from '@nestjs/common';
 import { Sequelize } from 'sequelize-typescript';
 import * as request from 'supertest';
-import { hashPassword } from '../../src/auth/auth.utils';
-import { User } from '../../src/user/entities/user.entity';
+import { hashPassword } from '../../src/application/auth/auth.utils';
+import { User } from '../../src/application/user/entities/user.entity';
 import { loginMutation } from './mutation';
 import { defaultLoginInput, loginWithout } from './utils';
 import { initApp, requestAndCheckError } from '../utils';

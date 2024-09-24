@@ -1,10 +1,10 @@
-import { LoginInput } from '../../src/auth/dto/login.input';
-import { SignUpInput } from '../../src/auth/dto/signup.input';
-import { Role } from '../../src/auth/role/role.enum';
+import { LoginInput } from '../../src/application/auth/dto/login.input';
+import { SignUpInput } from '../../src/application/auth/dto/signup.input';
+import { ERole } from '../../src/application/auth/role/role.enum';
 
 export const defaultSignUpInput: SignUpInput = {
   username: 'tenant',
-  role: Role.Admin,
+  role: ERole.Admin,
   email: 'tenant@tenant.com',
   password: '1Senha!.',
 };

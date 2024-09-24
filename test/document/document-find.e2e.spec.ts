@@ -3,10 +3,10 @@ import * as request from 'supertest';
 import { Sequelize } from 'sequelize-typescript';
 import { findOneQuery } from './queries';
 import { generateToken, initApp } from '../utils';
-import { EOwnerType } from '../../src/document/enum/owner-type.enum';
-import { EDocumentType } from '../../src/document/enum/document-type.enum';
-import { Document } from '../../src/document/entities/document.entity';
-import { Role } from '../../src/auth/role/role.enum';
+import { EOwnerType } from '../../src/domain/document/enum/owner-type.enum';
+import { EDocumentType } from '../../src/domain/document/enum/document-type.enum';
+import { Document } from '../../src/domain/document/entities/document.entity';
+import { ERole } from '../../src/application/auth/role/role.enum';
 
 describe('Document Module - Find (e2e)', () => {
   let app: INestApplication;
@@ -67,7 +67,7 @@ describe('Document Module - Find (e2e)', () => {
   });
 
   it('should find a document with tenant role', async () => {
-    token = generateToken({ sub: 1, role: Role.Tenant });
+    token = generateToken({ sub: 1, role: ERole.Tenant });
     const res = await request(app.getHttpServer())
       .post('/graphql')
       .set('Authorization', `Bearer ${token}`)
@@ -94,7 +94,7 @@ describe('Document Module - Find (e2e)', () => {
   });
 
   it('should find a document with landlord role', async () => {
-    token = generateToken({ sub: 1, role: Role.Landlord });
+    token = generateToken({ sub: 1, role: ERole.Landlord });
     const res = await request(app.getHttpServer())
       .post('/graphql')
       .set('Authorization', `Bearer ${token}`)

@@ -3,11 +3,11 @@ import * as request from 'supertest';
 import { Sequelize } from 'sequelize-typescript';
 import { updateMutation } from './queries';
 import { generateToken, initApp, requestAndCheckError } from '../utils';
-import { Tenant } from '../../src/tenant/entities/tenant.entity';
-import { Document } from '../../src/document/entities/document.entity';
-import { EDocumentType } from '../../src/document/enum/document-type.enum';
-import { EOwnerType } from '../../src/document/enum/owner-type.enum';
-import { Role } from '../../src/auth/role/role.enum';
+import { Tenant } from '../../src/domain/tenant/entities/tenant.entity';
+import { Document } from '../../src/domain/document/entities/document.entity';
+import { EDocumentType } from '../../src/domain/document/enum/document-type.enum';
+import { EOwnerType } from '../../src/domain/document/enum/owner-type.enum';
+import { ERole } from '../../src/application/auth/role/role.enum';
 
 describe('Document Module - Update (e2e)', () => {
   let app: INestApplication,
@@ -89,7 +89,7 @@ describe('Document Module - Update (e2e)', () => {
   });
 
   it('should update a document with tenant role', async () => {
-    token = generateToken({ sub: naturalTenant.id, role: Role.Tenant });
+    token = generateToken({ sub: naturalTenant.id, role: ERole.Tenant });
     const updateDto = {
       id: document.id,
       type: EDocumentType.Certificate,
@@ -129,7 +129,7 @@ describe('Document Module - Update (e2e)', () => {
   });
 
   it('should update a document with landlord role', async () => {
-    token = generateToken({ sub: naturalTenant.id, role: Role.Landlord });
+    token = generateToken({ sub: naturalTenant.id, role: ERole.Landlord });
     const updateDto = {
       id: document.id,
       type: EDocumentType.ProofOfResidence,

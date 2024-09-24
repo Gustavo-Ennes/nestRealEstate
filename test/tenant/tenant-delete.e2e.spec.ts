@@ -3,7 +3,7 @@ import * as request from 'supertest';
 import { Sequelize } from 'sequelize-typescript';
 import { deleteMutation } from './queries';
 import { generateToken, initApp } from '../utils';
-import { Tenant } from '../../src/tenant/entities/tenant.entity';
+import { Tenant } from '../../src/domain/tenant/entities/tenant.entity';
 
 describe('Tenant Module - Create (e2e)', () => {
   let app: INestApplication,

@@ -3,9 +3,9 @@ import * as request from 'supertest';
 import { Sequelize } from 'sequelize-typescript';
 import { deleteMutation } from './queries';
 import { initApp, requestAndCheckError } from '../utils';
-import { EOwnerType } from '../../src/document/enum/owner-type.enum';
-import { EDocumentType } from '../../src/document/enum/document-type.enum';
-import { Document } from '../../src/document/entities/document.entity';
+import { EOwnerType } from '../../src/domain/document/enum/owner-type.enum';
+import { EDocumentType } from '../../src/domain/document/enum/document-type.enum';
+import { Document } from '../../src/domain/document/entities/document.entity';
 
 describe('Document Module - Delete (e2e)', () => {
   let app: INestApplication;

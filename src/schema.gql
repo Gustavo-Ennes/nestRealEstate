@@ -2,6 +2,10 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type AuthReturn {
+  access_token: String!
+}
+
 type Document {
   id: Int!
   type: String!
@@ -19,6 +23,25 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
+type FileOutput {
+  jobId: String!
+}
+
+type Landlord {
+  id: Int!
+  name: String!
+  cpf: String
+  cnpj: String
+  email: String!
+  phone: String!
+  isActive: Boolean!
+  annotations: [String!]
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  landlordType: String!
+  documents: [Document!]!
+}
+
 type Tenant {
   id: Int!
   name: String!
@@ -34,30 +57,39 @@ type Tenant {
   documents: [Document!]!
 }
 
-type AuthReturn {
-  access_token: String!
-}
-
-type FileOutput {
-  jobId: String!
-}
-
 type Query {
   tenants: [Tenant!]!
   tenant(id: Int!): Tenant
   documents: [Document!]!
   document(id: Int!): Document
+  landlords: [Landlord!]!
+  landlord(id: Int!): Landlord!
 }
 
 type Mutation {
+  signUp(signUpInput: SignUpInput!): AuthReturn!
+  login(loginInput: LoginInput!): AuthReturn!
   createTenant(createTenantInput: CreateTenantInput!): Tenant!
   updateTenant(updateTenantInput: UpdateTenantInput!): Tenant!
   removeTenant(id: Int!): Boolean!
-  signUp(signUpInput: SignUpInput!): AuthReturn!
-  login(loginInput: LoginInput!): AuthReturn!
   createDocument(document: Upload!, createDocumentInput: CreateDocumentInput!): FileOutput!
   updateDocument(updateDocumentInput: UpdateDocumentInput!): Document!
   removeDocument(id: Int!): Boolean!
+  createLandlord(createLandlordInput: CreateLandlordInput!): Landlord!
+  updateLandlord(updateLandlordInput: UpdateLandlordInput!): Landlord!
+  removeLandlord(id: Int!): Boolean!
+}
+
+input SignUpInput {
+  username: String!
+  password: String!
+  email: String!
+  role: String!
+}
+
+input LoginInput {
+  username: String!
+  password: String!
 }
 
 input CreateTenantInput {
@@ -79,18 +111,6 @@ input UpdateTenantInput {
   annotations: [String!]
 }
 
-input SignUpInput {
-  username: String!
-  password: String!
-  email: String!
-  role: String!
-}
-
-input LoginInput {
-  username: String!
-  password: String!
-}
-
 """The `Upload` scalar type represents a file upload."""
 scalar Upload
 
@@ -107,4 +127,23 @@ input UpdateDocumentInput {
   ownerId: Int
   observation: String
   id: Int!
+}
+
+input CreateLandlordInput {
+  name: String!
+  cpf: String
+  cnpj: String
+  email: String!
+  phone: String!
+}
+
+input UpdateLandlordInput {
+  name: String
+  cpf: String
+  cnpj: String
+  email: String
+  phone: String
+  id: Int!
+  isActive: Boolean
+  annotations: [String!]
 }
