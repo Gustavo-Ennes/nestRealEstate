@@ -2,9 +2,12 @@ import { ObjectType, Field, Int } from '@nestjs/graphql';
 import {
   AutoIncrement,
   Column,
+  CreatedAt,
+  Default,
   Model,
   PrimaryKey,
   Table,
+  UpdatedAt,
 } from 'sequelize-typescript';
 import { EDocumentStatus } from '../enum/document-status.enum';
 
@@ -29,15 +32,26 @@ export class Document extends Model {
   @Field(() => Int)
   ownerId: number;
 
+  @Default(EDocumentStatus.Processing)
   @Column
   @Field(() => String, { defaultValue: EDocumentStatus.Processing })
   status: string;
 
   @Column
-  @Field(() => String)
+  @Field(() => String, { nullable: true })
   observation: string;
 
   @Column
   @Field(() => String)
   url: string;
+
+  // Expor o campo createdAt no GraphQL
+  @CreatedAt
+  @Field(() => Date)
+  createdAt: Date;
+
+  // Expor o campo updatedAt no GraphQL
+  @UpdatedAt
+  @Field(() => Date)
+  updatedAt: Date;
 }

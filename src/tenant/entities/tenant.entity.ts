@@ -8,6 +8,8 @@ import {
   Table,
   DataType,
   Default,
+  CreatedAt,
+  UpdatedAt,
 } from 'sequelize-typescript';
 import { TenantType } from '../enum/tenant-type';
 import { Document } from '../../document/entities/document.entity';
@@ -52,6 +54,16 @@ export class Tenant extends Model {
   @Column(DataType.JSON)
   @Field(() => [String], { nullable: true })
   annotations: JSON;
+
+  // Expor o campo createdAt no GraphQL
+  @CreatedAt
+  @Field(() => Date)
+  createdAt: Date;
+
+  // Expor o campo updatedAt no GraphQL
+  @UpdatedAt
+  @Field(() => Date)
+  updatedAt: Date;
 
   @Field(() => String)
   get tenantType(): TenantType {

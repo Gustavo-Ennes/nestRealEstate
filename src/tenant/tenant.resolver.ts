@@ -42,7 +42,7 @@ export class TenantResolver {
   // }
 
   // if !isActive, update isActive first and do another update as you want
-  @Mutation(() => Boolean)
+  @Mutation(() => Tenant)
   @Roles(Role.Tenant, Role.Admin)
   updateTenant(
     @Args('updateTenantInput') updateTenantInput: UpdateTenantInput,

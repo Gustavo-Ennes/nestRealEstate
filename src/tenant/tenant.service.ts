@@ -89,7 +89,7 @@ export class TenantService {
     }
   }
 
-  async update(updateTenantDto: UpdateTenantInput): Promise<boolean> {
+  async update(updateTenantDto: UpdateTenantInput): Promise<Tenant> {
     try {
       const tenant = await this.tenantModel.findOne({
         where: { id: updateTenantDto.id },
@@ -122,8 +122,8 @@ export class TenantService {
         'tenants',
         tenants.sort((a, b) => a.id - b.id),
       );
-
-      return true;
+      await tenant.reload();
+      return tenant;
     } catch (error) {
       this.logger.error(
         `${this.update.name} -> ${error.message}`,

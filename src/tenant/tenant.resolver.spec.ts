@@ -244,6 +244,7 @@ describe('TenantResolver', () => {
       ...input,
       tenantType: TenantType.Natural,
       update: jest.fn(),
+      reload: jest.fn(),
     } as UpdateTenantInput;
 
     (tenantModel.findOne as jest.Mock).mockResolvedValue(tenantToUpdate);
@@ -252,8 +253,9 @@ describe('TenantResolver', () => {
 
     expect(
       await resolver.updateTenant({ id: tenantToUpdate.id, name: 'New Name' }),
-    ).toEqual(true);
+    ).toEqual(tenantToUpdate);
     expect((tenantToUpdate as any).update).toHaveBeenCalled();
+    expect((tenantToUpdate as any).reload).toHaveBeenCalled();
   });
 
   it("shouldn't update a tenant if name is empty", async () => {
@@ -502,6 +504,7 @@ describe('TenantResolver', () => {
       ...input,
       tenantType: TenantType.Natural,
       update: jest.fn(),
+      reload: jest.fn(),
       isActive: false,
     } as UpdateTenantInput;
 
@@ -511,8 +514,9 @@ describe('TenantResolver', () => {
 
     expect(
       await resolver.updateTenant({ id: tenantToUpdate.id, isActive: true }),
-    ).toEqual(true);
+    ).toEqual(tenantToUpdate);
     expect((tenantToUpdate as any).update).toHaveBeenCalled();
+    expect((tenantToUpdate as any).reload).toHaveBeenCalled();
   });
 
   it('should remove a tenant', async () => {

@@ -1,12 +1,13 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { UpdateDocumentInput } from './dto/update-document.input';
-import { FileUpload } from './document.interface';
-import { CreateDocumentInput } from './dto/create-document.input';
-import { Queue } from 'bullmq';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bullmq';
 import * as path from 'path';
 import * as os from 'os';
 import * as fs from 'fs';
+import { Queue } from 'bullmq';
+import { dissoc } from 'ramda';
+import { UpdateDocumentInput } from './dto/update-document.input';
+import { FileUpload } from './document.interface';
+import { CreateDocumentInput } from './dto/create-document.input';
 import { Document } from './entities/document.entity';
 
 @Injectable()
@@ -69,24 +70,67 @@ export class DocumentService {
       return documents;
     } catch (error) {
       this.logger.error(
-        `${this.create.name} -> ${error.message}`,
+        `${this.findAll.name} -> ${error.message}`,
         error.stack,
-        { createUserInput: { document } },
       );
       throw error;
     }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} document`;
+  async findOne(id: number): Promise<Document> {
+    try {
+      const document: Document = await Document.findOne({ where: { id } });
+      return document;
+    } catch (error) {
+      this.logger.error(
+        `${this.findOne.name} -> ${error.message}`,
+        error.stack,
+        { id },
+      );
+      throw error;
+    }
   }
 
-  async update(id: number, updateDocumentInput: UpdateDocumentInput) {
-    return await Promise.resolve(null);
+  async update(updateDocumentInput: UpdateDocumentInput): Promise<Document> {
+    try {
+      const { id } = updateDocumentInput;
+      const inputWithoutId = dissoc('id', updateDocumentInput);
+      const document: Document = await Document.findOne({ where: { id } });
+      console.log("🚀 ~ DocumentService ~ update ~ document:", JSON.stringify(document, null, 2))
+
+      if (!document) throw new NotFoundException('Document not found.');
+
+      await Document.update(inputWithoutId, { where: { id } });
+      await document.reload();
+
+      return document;
+    } catch (error) {
+      this.logger.error(
+        `${this.update.name} -> ${error.message}`,
+        error.stack,
+        { updateDocumentInput },
+      );
+      throw error;
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} document`;
+  async remove(id: number): Promise<boolean> {
+    try {
+      const document: Document = await Document.findOne({ where: { id } });
+
+      if (!document) throw new NotFoundException('Document not found.');
+
+      await document.destroy();
+
+      return true;
+    } catch (error) {
+      this.logger.error(
+        `${this.remove.name} -> ${error.message}`,
+        error.stack,
+        { id },
+      );
+      throw error;
+    }
   }
 
   async createTempFile(

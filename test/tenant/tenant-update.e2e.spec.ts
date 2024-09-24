@@ -60,7 +60,21 @@ describe('Tenant Module - Update (e2e)', () => {
       .expect(200);
 
     await naturalTenant.reload();
-    expect(res.body.data).toEqual({ updateTenant: true });
+
+    expect(res.body.data).toHaveProperty('updateTenant');
+    expect(res.body.data.updateTenant).toHaveProperty('id', naturalTenant.id);
+    expect(res.body.data.updateTenant).toHaveProperty(
+      'name',
+      naturalTenant.name,
+    );
+    expect(res.body.data.updateTenant).toHaveProperty(
+      'phone',
+      naturalTenant.phone,
+    );
+    expect(res.body.data.updateTenant).toHaveProperty(
+      'email',
+      naturalTenant.email,
+    );
     expect(naturalTenant.name).toBe('new name');
   });
 
@@ -81,7 +95,21 @@ describe('Tenant Module - Update (e2e)', () => {
       .expect(200);
 
     await naturalTenant.reload();
-    expect(res.body.data).toEqual({ updateTenant: true });
+
+    expect(res.body.data).toHaveProperty('updateTenant');
+    expect(res.body.data.updateTenant).toHaveProperty('id', naturalTenant.id);
+    expect(res.body.data.updateTenant).toHaveProperty(
+      'name',
+      naturalTenant.name,
+    );
+    expect(res.body.data.updateTenant).toHaveProperty(
+      'phone',
+      naturalTenant.phone,
+    );
+    expect(res.body.data.updateTenant).toHaveProperty(
+      'email',
+      naturalTenant.email,
+    );
     expect(naturalTenant.name).toBe('new name');
   });
 
@@ -270,7 +298,21 @@ describe('Tenant Module - Update (e2e)', () => {
       .expect(200);
 
     await naturalTenant.reload();
-    expect(res.body.data).toEqual({ updateTenant: true });
+
+    expect(res.body.data).toHaveProperty('updateTenant');
+    expect(res.body.data.updateTenant).toHaveProperty('id', naturalTenant.id);
+    expect(res.body.data.updateTenant).toHaveProperty(
+      'name',
+      naturalTenant.name,
+    );
+    expect(res.body.data.updateTenant).toHaveProperty(
+      'phone',
+      naturalTenant.phone,
+    );
+    expect(res.body.data.updateTenant).toHaveProperty(
+      'email',
+      naturalTenant.email,
+    );
     expect(naturalTenant.isActive).toBeTruthy();
   });
 });

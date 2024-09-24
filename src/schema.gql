@@ -8,9 +8,16 @@ type Document {
   ownerType: String!
   ownerId: Int!
   status: String!
-  observation: String!
+  observation: String
   url: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
 }
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
 
 type Tenant {
   id: Int!
@@ -21,6 +28,8 @@ type Tenant {
   phone: String!
   isActive: Boolean!
   annotations: [String!]
+  createdAt: DateTime!
+  updatedAt: DateTime!
   tenantType: String!
   documents: [Document!]!
 }
@@ -42,7 +51,7 @@ type Query {
 
 type Mutation {
   createTenant(createTenantInput: CreateTenantInput!): Tenant!
-  updateTenant(updateTenantInput: UpdateTenantInput!): Boolean!
+  updateTenant(updateTenantInput: UpdateTenantInput!): Tenant!
   removeTenant(id: Int!): Boolean!
   signUp(signUpInput: SignUpInput!): AuthReturn!
   login(loginInput: LoginInput!): AuthReturn!

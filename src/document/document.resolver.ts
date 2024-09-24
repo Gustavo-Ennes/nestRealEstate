@@ -42,10 +42,7 @@ export class DocumentResolver {
   updateDocument(
     @Args('updateDocumentInput') updateDocumentInput: UpdateDocumentInput,
   ) {
-    return this.documentService.update(
-      updateDocumentInput.id,
-      updateDocumentInput,
-    );
+    return this.documentService.update(updateDocumentInput);
   }
 
   @Mutation(() => Document)

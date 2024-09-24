@@ -38,7 +38,13 @@ export const createMutation = `
 
 export const updateMutation = `
   mutation UpdateTenant($input: UpdateTenantInput!){
-    updateTenant(updateTenantInput: $input)
+    updateTenant(updateTenantInput: $input){
+      id
+      name
+      email
+      phone
+      cpf
+    }
   }
 `;
 
