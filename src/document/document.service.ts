@@ -96,7 +96,6 @@ export class DocumentService {
       const { id } = updateDocumentInput;
       const inputWithoutId = dissoc('id', updateDocumentInput);
       const document: Document = await Document.findOne({ where: { id } });
-      console.log("🚀 ~ DocumentService ~ update ~ document:", JSON.stringify(document, null, 2))
 
       if (!document) throw new NotFoundException('Document not found.');
 

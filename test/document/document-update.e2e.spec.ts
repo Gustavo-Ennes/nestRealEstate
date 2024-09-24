@@ -8,9 +8,8 @@ import { Document } from '../../src/document/entities/document.entity';
 import { EDocumentType } from '../../src/document/enum/document-type.enum';
 import { EOwnerType } from '../../src/document/enum/owner-type.enum';
 import { Role } from '../../src/auth/role/role.enum';
-import { isValidDocumentType } from 'src/document/validations/type.validation';
 
-describe('Tenant Module - Update (e2e)', () => {
+describe('Document Module - Update (e2e)', () => {
   let app: INestApplication,
     sequelize: Sequelize,
     token: string,
@@ -23,7 +22,7 @@ describe('Tenant Module - Update (e2e)', () => {
     token = adminToken;
     sequelize = db;
 
-    await sequelize.getQueryInterface().dropTable('Tenants');
+    await sequelize.getQueryInterface().dropTable('Documents');
     await sequelize.sync({ force: true });
 
     naturalTenant = await Tenant.create({

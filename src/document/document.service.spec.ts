@@ -182,5 +182,6 @@ describe('DocumentService', () => {
     expect(dtoValidation[0].constraints).toHaveProperty(
       'isValidDocumentOwnerType',
       `Inexistent document owner type: ${dtoObj.ownerType}`,
-    );});
+    );
+  });
 });

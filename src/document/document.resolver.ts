@@ -33,7 +33,7 @@ export class DocumentResolver {
     return this.documentService.findAll();
   }
 
-  @Query(() => Document, { name: 'document' })
+  @Query(() => Document, { name: 'document', nullable: true })
   findOne(@Args('id', { type: () => Int }) id: number) {
     return this.documentService.findOne(id);
   }
@@ -45,7 +45,8 @@ export class DocumentResolver {
     return this.documentService.update(updateDocumentInput);
   }
 
-  @Mutation(() => Document)
+  @Mutation(() => Boolean)
+  @Roles(Role.Admin)
   removeDocument(@Args('id', { type: () => Int }) id: number) {
     return this.documentService.remove(id);
   }

@@ -46,7 +46,7 @@ type Query {
   tenants: [Tenant!]!
   tenant(id: Int!): Tenant
   documents: [Document!]!
-  document(id: Int!): Document!
+  document(id: Int!): Document
 }
 
 type Mutation {
@@ -57,7 +57,7 @@ type Mutation {
   login(loginInput: LoginInput!): AuthReturn!
   createDocument(document: Upload!, createDocumentInput: CreateDocumentInput!): FileOutput!
   updateDocument(updateDocumentInput: UpdateDocumentInput!): Document!
-  removeDocument(id: Int!): Document!
+  removeDocument(id: Int!): Boolean!
 }
 
 input CreateTenantInput {
