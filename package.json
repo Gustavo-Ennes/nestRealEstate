@@ -17,10 +17,13 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json --watch --runInBand --detectOpenHandles" 
+    "test:e2e": "jest --config ./test/jest-e2e.json --watch --runInBand --detectOpenHandles"
   },
   "dependencies": {
     "@apollo/server": "^4.11.0",
+    "@bull-board/api": "^5.23.0",
+    "@bull-board/express": "^5.23.0",
+    "@bull-board/nestjs": "^5.23.0",
     "@google-cloud/storage": "^7.12.1",
     "@nestjs/apollo": "^12.2.0",
     "@nestjs/bullmq": "^10.2.1",
