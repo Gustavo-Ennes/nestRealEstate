@@ -26,9 +26,7 @@ export class TenantService {
 
   async create(createTenantDto: CreateTenantInput): Promise<Tenant> {
     try {
-      const newTenant: Tenant = await this.tenantModel.create(
-        createTenantDto as any,
-      );
+      const newTenant: Tenant = await this.tenantModel.create(createTenantDto);
 
       await this.cacheManager.set(`tenant:${newTenant.id}`, newTenant);
       const tenants: Tenant[] = await this.tenantModel.findAll();

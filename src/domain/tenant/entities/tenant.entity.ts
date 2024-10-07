@@ -17,7 +17,7 @@ import { EOwnerType } from '../../document/enum/owner-type.enum';
 
 @ObjectType()
 @Table
-export class Tenant extends Model {
+export class Tenant extends Model<Tenant> {
   @PrimaryKey
   @AutoIncrement
   @Column

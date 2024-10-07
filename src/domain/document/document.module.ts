@@ -9,9 +9,11 @@ import { Document } from './entities/document.entity';
 import { DocumentConsumer } from './consumers/document.consumer';
 import { BucketModule } from '../../application/bucket/bucket.module';
 import { AuthModule } from '../../application/auth/auth.module';
+import { DocumentTypeModule } from '../document-type/document-type.module';
 
-@Module({
+export const documentModuleObject = {
   imports: [
+    AuthModule,
     SequelizeModule.forFeature([Document]),
     BullModule.registerQueue({
       name: 'document',
@@ -20,9 +22,12 @@ import { AuthModule } from '../../application/auth/auth.module';
       name: 'document',
       adapter: BullMQAdapter,
     }),
-    AuthModule,
+    DocumentTypeModule,
     BucketModule,
   ],
   providers: [DocumentResolver, DocumentService, DocumentConsumer],
-})
+  exports: [DocumentService],
+};
+
+@Module(documentModuleObject)
 export class DocumentModule {}

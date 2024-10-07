@@ -8,6 +8,7 @@ import { Document } from '../../src/domain/document/entities/document.entity';
 import { EDocumentType } from '../../src/domain/document/enum/document-type.enum';
 import { EOwnerType } from '../../src/domain/document/enum/owner-type.enum';
 import { ERole } from '../../src/application/auth/role/role.enum';
+import { DocumentType } from '../../src/domain/document-type/entities/document-type.entity';
 
 describe('Document Module - Update (e2e)', () => {
   let app: INestApplication,
@@ -37,6 +38,15 @@ describe('Document Module - Update (e2e)', () => {
       ownerType: EOwnerType.Tenant,
       ownerId: naturalTenant.id,
       url: 'some.url.com',
+    });
+
+    await DocumentType.create({
+      name: EDocumentType.CNPJ,
+      applicableTo: 'legal',
+    });
+    await DocumentType.create({
+      name: EDocumentType.Cpf,
+      applicableTo: 'natural',
     });
   });
 
@@ -92,7 +102,7 @@ describe('Document Module - Update (e2e)', () => {
     token = generateToken({ sub: naturalTenant.id, role: ERole.Tenant });
     const updateDto = {
       id: document.id,
-      type: EDocumentType.Certificate,
+      type: EDocumentType.Cpf,
     };
 
     const res = await request(app.getHttpServer())
@@ -125,14 +135,14 @@ describe('Document Module - Update (e2e)', () => {
     );
     expect(res.body.data.updateDocument).toHaveProperty('createdAt');
     expect(res.body.data.updateDocument).toHaveProperty('updatedAt');
-    expect(document.type).toBe(EDocumentType.Certificate);
+    expect(document.type).toBe(EDocumentType.Cpf);
   });
 
   it('should update a document with landlord role', async () => {
     token = generateToken({ sub: naturalTenant.id, role: ERole.Landlord });
     const updateDto = {
       id: document.id,
-      type: EDocumentType.ProofOfResidence,
+      type: EDocumentType.Cpf,
       observation: 'Some observation',
     };
 
@@ -167,7 +177,7 @@ describe('Document Module - Update (e2e)', () => {
     );
     expect(res.body.data.updateDocument).toHaveProperty('createdAt');
     expect(res.body.data.updateDocument).toHaveProperty('updatedAt');
-    expect(document.type).toBe(EDocumentType.ProofOfResidence);
+    expect(document.type).toBe(EDocumentType.Cpf);
   });
 
   it('should not update if document type is invalid', async () =>

@@ -13,7 +13,7 @@ import { EDocumentStatus } from '../enum/document-status.enum';
 
 @ObjectType()
 @Table
-export class Document extends Model {
+export class Document extends Model<Document> {
   @PrimaryKey
   @AutoIncrement
   @Column

@@ -6,25 +6,24 @@ import * as fs from 'fs';
 import { Queue } from 'bullmq';
 import { dissoc } from 'ramda';
 import { UpdateDocumentInput } from './dto/update-document.input';
-import { FileUpload } from './document.interface';
 import { CreateDocumentInput } from './dto/create-document.input';
 import { Document } from './entities/document.entity';
+import { InjectModel } from '@nestjs/sequelize';
 
 @Injectable()
 export class DocumentService {
   constructor(
     @InjectQueue('document')
     private documentQueue: Queue,
+    @InjectModel(Document)
+    private readonly documentModel: typeof Document,
   ) {}
 
   private readonly logger = new Logger(DocumentService.name);
 
-  async create(
-    document: Promise<FileUpload>,
-    documentInfo: CreateDocumentInput,
-  ): Promise<{ jobId: string }> {
+  async create(documentInfo: CreateDocumentInput): Promise<{ jobId: string }> {
     try {
-      const { createReadStream, filename } = await document;
+      const { createReadStream, filename } = await documentInfo.file;
 
       const chunks: Buffer[] = [];
       const stream = createReadStream();
@@ -51,14 +50,16 @@ export class DocumentService {
         { attempts: 3 },
       );
 
-      this.logger.log('job added to queue.');
+      this.logger.log(
+        `Queue ${documentJob?.queueName?.toUpperCase()}: job ${documentJob?.id} was added.`,
+      );
 
       return { jobId: documentJob.id };
     } catch (error) {
       this.logger.error(
         `${this.create.name} -> ${error.message}`,
         error.stack,
-        { createUserInput: { document } },
+        { documentInfo },
       );
       throw error;
     }
@@ -66,7 +67,7 @@ export class DocumentService {
 
   async findAll(): Promise<Document[]> {
     try {
-      const documents: Document[] = await Document.findAll();
+      const documents: Document[] = await this.documentModel.findAll();
       return documents;
     } catch (error) {
       this.logger.error(
@@ -79,7 +80,9 @@ export class DocumentService {
 
   async findOne(id: number): Promise<Document> {
     try {
-      const document: Document = await Document.findOne({ where: { id } });
+      const document: Document = await this.documentModel.findOne({
+        where: { id },
+      });
       return document;
     } catch (error) {
       this.logger.error(
@@ -95,11 +98,13 @@ export class DocumentService {
     try {
       const { id } = updateDocumentInput;
       const inputWithoutId = dissoc('id', updateDocumentInput);
-      const document: Document = await Document.findOne({ where: { id } });
+      const document: Document = await this.documentModel.findOne({
+        where: { id },
+      });
 
       if (!document) throw new NotFoundException('Document not found.');
 
-      await Document.update(inputWithoutId, { where: { id } });
+      await this.documentModel.update(inputWithoutId, { where: { id } });
       await document.reload();
 
       return document;
@@ -115,7 +120,9 @@ export class DocumentService {
 
   async remove(id: number): Promise<boolean> {
     try {
-      const document: Document = await Document.findOne({ where: { id } });
+      const document: Document = await this.documentModel.findOne({
+        where: { id },
+      });
 
       if (!document) throw new NotFoundException('Document not found.');
 

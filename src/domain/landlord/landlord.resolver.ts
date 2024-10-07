@@ -30,7 +30,7 @@ export class LandlordResolver {
   }
 
   @Roles(ERole.Admin, ERole.Landlord)
-  @Query(() => Landlord, { name: 'landlord' })
+  @Query(() => Landlord, { name: 'landlord', nullable: true })
   findOne(@Args('id', { type: () => Int }) id: number) {
     return this.landlordService.findOne(id);
   }

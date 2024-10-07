@@ -5,9 +5,11 @@ import { Tenant } from './entities/tenant.entity';
 import { TenantResolver } from './tenant.resolver';
 import { AuthModule } from '../../application/auth/auth.module';
 
-@Module({
+export const tenantModuleObject = {
   imports: [SequelizeModule.forFeature([Tenant]), AuthModule],
   providers: [TenantService, TenantResolver],
-  exports: [TenantService],
-})
+  exports: [TenantService, SequelizeModule],
+};
+
+@Module(tenantModuleObject)
 export class TenantModule {}

@@ -21,17 +21,27 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     }),
     SequelizeModule.forRootAsync({
       imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => {
+        const isTest = process.env.NODE_ENV === 'test';
+        const database = configService.get<string>(
+          isTest ? 'POSTGRES_DATABASE' : 'POSTGRES_TEST_DATABASE',
+        );
+        const logging = !isTest;
+
+        return {
+          dialect: 'postgres',
+          host: configService.get<string>('POSTGRES_HOST'),
+          port: configService.get<number>('POSTGRES_PORT'),
+          username: configService.get<string>('POSTGRES_USER'),
+          password: configService.get<string>('POSTGRES_PASSWORD'),
+          database,
+          autoLoadModels: true,
+          synchronize: true,
+          logging,
+          // force: true,
+        };
+      },
       inject: [ConfigService],
-      useFactory: async (configService: ConfigService) => ({
-        dialect: 'postgres',
-        host: configService.get<string>('POSTGRES_HOST'),
-        port: configService.get<number>('POSTGRES_PORT'),
-        username: configService.get<string>('POSTGRES_USER'),
-        password: configService.get<string>('POSTGRES_PASSWORD'),
-        database: configService.get<string>('POSTGRES_DATABASE'),
-        autoLoadModels: true,
-        synchronize: true,
-      }),
     }),
     CacheModule.register({ isGlobal: true }),
     BullModule.forRootAsync({
@@ -49,8 +59,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       route: '/queues',
       adapter: ExpressAdapter,
     }),
-    AuthModule,
     UserModule,
+    AuthModule,
     BucketModule,
   ],
 })

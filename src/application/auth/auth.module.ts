@@ -7,8 +7,9 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthGuard } from './auth.guard';
 import { RolesGuard } from './role/role.guard';
 
-@Module({
+export const authModuleObject = {
   imports: [
+    UserModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -17,9 +18,10 @@ import { RolesGuard } from './role/role.guard';
         signOptions: { expiresIn: '10h' },
       }),
     }),
-    UserModule,
   ],
   providers: [AuthResolver, AuthService, AuthGuard, RolesGuard],
   exports: [AuthService, AuthGuard, RolesGuard, JwtModule],
-})
+};
+
+@Module(authModuleObject)
 export class AuthModule {}

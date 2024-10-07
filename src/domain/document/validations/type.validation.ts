@@ -1,22 +1,10 @@
-import { registerDecorator, ValidationArguments } from 'class-validator';
+import { DocumentType } from '../../document-type/entities/document-type.entity';
 
-import { Document } from '../entities/document.entity';
-import { EDocumentType } from '../enum/document-type.enum';
-
-const validate = (documentType: any): boolean =>
-  Object.values(EDocumentType).includes(documentType);
-
-const defaultMessage = (args: ValidationArguments) =>
-  `Inexistent document type: ${(args.object as Document).type}`;
-
-export const isValidDocumentType = (object: object, propertyName: string) => {
-  registerDecorator({
-    name: 'isValidDocumentType',
-    target: object.constructor,
-    propertyName: propertyName,
-    validator: {
-      validate,
-      defaultMessage,
-    },
-  });
-};
+/* 
+  this was an async validator, but in e2e tests, I was unable to inject the DocumentTypeService
+  in the async validator and test properly.
+*/
+export const validateDocumentType = async (
+  value: any,
+  types: DocumentType[] = [],
+) => types.some((dt) => dt.name === value);

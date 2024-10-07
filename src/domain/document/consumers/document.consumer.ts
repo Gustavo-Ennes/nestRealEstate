@@ -30,8 +30,15 @@ export class DocumentConsumer extends WorkerHost {
 
       await this.documentModel.create({
         ...documentInfo,
-        document: destFileName,
+        url: destFileName,
       });
+
+      progress = 100;
+      await job.updateProgress(progress);
+
+      this.logger.log(
+        `Queue ${job.queueName?.toUpperCase()}: job ${job.id} was processed successfully.`,
+      );
     } catch (error) {
       this.logger.error(
         `${this.process.name} -> ${error.message}`,
