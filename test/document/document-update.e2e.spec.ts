@@ -103,6 +103,8 @@ describe('Document Module - Update (e2e)', () => {
     const updateDto = {
       id: document.id,
       type: EDocumentType.Cpf,
+      ownerType: EOwnerType.Tenant,
+      ownerId: 1,
     };
 
     const res = await request(app.getHttpServer())
@@ -191,6 +193,29 @@ describe('Document Module - Update (e2e)', () => {
         isValidDocumentType: 'Inexistent document type: chessGameRecord',
       },
     }));
+
+  it('should not update a document if owner not exists', async () => {
+    const updateDto = {
+      id: document.id,
+      ownerId: 222,
+    };
+
+    const res = await request(app.getHttpServer())
+      .post('/graphql')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        query: updateMutation,
+        variables: { input: updateDto },
+      })
+      .expect(200);
+
+    expect(res.body).toHaveProperty('errors');
+    expect(res.body.errors).toHaveLength(1);
+    expect(res.body.errors[0]).toHaveProperty(
+      'message',
+      'No tenant found with provided id.',
+    );
+  });
 
   it('should not update if document owner type is invalid', async () =>
     await requestAndCheckError('updateDocument')({

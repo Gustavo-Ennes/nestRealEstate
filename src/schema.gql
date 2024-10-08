@@ -2,10 +2,6 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-type AuthReturn {
-  access_token: String!
-}
-
 type Document {
   id: Int!
   type: String!
@@ -22,6 +18,25 @@ type Document {
 A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
 """
 scalar DateTime
+
+type Tenant {
+  id: Int!
+  name: String!
+  cpf: String
+  cnpj: String
+  email: String!
+  phone: String!
+  isActive: Boolean!
+  annotations: [String!]
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  tenantType: String!
+  documents: [Document!]!
+}
+
+type AuthReturn {
+  access_token: String!
+}
 
 type FileOutput {
   jobId: String!
@@ -45,21 +60,6 @@ type Landlord {
   createdAt: DateTime!
   updatedAt: DateTime!
   landlordType: String!
-  documents: [Document!]!
-}
-
-type Tenant {
-  id: Int!
-  name: String!
-  cpf: String
-  cnpj: String
-  email: String!
-  phone: String!
-  isActive: Boolean!
-  annotations: [String!]
-  createdAt: DateTime!
-  updatedAt: DateTime!
-  tenantType: String!
   documents: [Document!]!
 }
 

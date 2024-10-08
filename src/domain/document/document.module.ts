@@ -10,6 +10,8 @@ import { DocumentConsumer } from './consumers/document.consumer';
 import { BucketModule } from '../../application/bucket/bucket.module';
 import { AuthModule } from '../../application/auth/auth.module';
 import { DocumentTypeModule } from '../document-type/document-type.module';
+import { LandlordModule } from '../landlord/landlord.module';
+import { TenantModule } from '../tenant/tenant.module';
 
 export const documentModuleObject = {
   imports: [
@@ -23,6 +25,8 @@ export const documentModuleObject = {
       adapter: BullMQAdapter,
     }),
     DocumentTypeModule,
+    TenantModule,
+    LandlordModule,
     BucketModule,
   ],
   providers: [DocumentResolver, DocumentService, DocumentConsumer],

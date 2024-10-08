@@ -11,6 +11,10 @@ import { DocumentConsumer } from '../consumers/document.consumer';
 import { APP_PIPE } from '@nestjs/core';
 import { validationPipe } from '../../../application/pipes/validation.pipe';
 import { ValidationPipe } from '@nestjs/common';
+import { tenantModuleObject } from '../../../domain/tenant/tenant.module';
+import { landlordModuleObject } from '../../../domain/landlord/landlord.module';
+import { Tenant } from '../../../domain/tenant/entities/tenant.entity';
+import { Landlord } from '../../../domain/landlord/entities/landlord.entity';
 
 const documentTestModuleObject = {
   imports: [
@@ -20,8 +24,12 @@ const documentTestModuleObject = {
   ],
   providers: [
     JwtService,
+    ...tenantModuleObject.providers,
+    ...landlordModuleObject.providers,
     ...documentTypeModuleObject.providers,
     ...documentModuleObject.providers,
+    getMockedEntityProvider(Tenant),
+    getMockedEntityProvider(Landlord),
     getMockedEntityProvider(DocumentType),
     getMockedEntityProvider(Document),
     getMockedCacheProvider(),

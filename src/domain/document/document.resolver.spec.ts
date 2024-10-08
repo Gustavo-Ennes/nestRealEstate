@@ -14,12 +14,15 @@ import { Queue } from 'bullmq';
 import { UpdateDocumentInput } from './dto/update-document.input';
 import { Document } from './entities/document.entity';
 import { EDocumentStatus } from './enum/document-status.enum';
+import { Tenant } from '../tenant/entities/tenant.entity';
+import { validationPipe } from '../../application/pipes/validation.pipe';
 
 describe('DocumentResolver', () => {
   let resolver: DocumentResolver,
     module: TestingModule,
     documentTypeModel: typeof DocumentType,
     documentModel: typeof Document,
+    tenantModel: typeof Tenant,
     documentQueue: Queue;
 
   const document: Promise<FileUpload> = Promise.resolve({
@@ -59,6 +62,7 @@ describe('DocumentResolver', () => {
     documentTypeModel = module.get<typeof DocumentType>(
       getModelToken(DocumentType),
     );
+    tenantModel = module.get<typeof Tenant>(getModelToken(Tenant));
     documentQueue = module.get<Queue>(getQueueToken('document'));
 
     (documentTypeModel.findAll as jest.Mock).mockResolvedValue([
@@ -78,6 +82,10 @@ describe('DocumentResolver', () => {
   });
 
   it('should create a document with a valid type', async () => {
+    (tenantModel.findByPk as jest.Mock).mockResolvedValue({
+      id: 1,
+      name: 'name',
+    });
     const dtoObj: CreateDocumentInput = assoc(
       'type',
       EDocumentType.Cpf,
@@ -89,6 +97,10 @@ describe('DocumentResolver', () => {
   });
 
   it('should update a document with a valid type', async () => {
+    (tenantModel.findByPk as jest.Mock).mockResolvedValue({
+      id: 1,
+      name: 'name',
+    });
     const dtoObj: UpdateDocumentInput = {
       id: 1,
       type: EDocumentType.CNPJ,
@@ -120,6 +132,48 @@ describe('DocumentResolver', () => {
     }
   });
 
+  it('should not create a document with invalid owner type', async () => {
+    const dtoObj: CreateDocumentInput = {
+      ...documentDto,
+      ownerType: 'bananasDePijamas',
+      type: EDocumentType.CNPJ,
+    };
+    const dtoInstance = Object.assign(new CreateDocumentInput(), dtoObj);
+
+    try {
+      await validationPipe.transform(dtoInstance, {
+        type: 'body',
+        metatype: CreateDocumentInput,
+      });
+    } catch (error) {
+      expect(error.response.message).toHaveLength(1);
+      expect(error.response.message[0]).toHaveProperty('constraints', {
+        isValidDocumentOwnerType: `Inexistent document owner type: ${dtoInstance.ownerType}`,
+      });
+      expect(error.response.message[0]).toHaveProperty('property', 'ownerType');
+    }
+  });
+
+  it('should not create a document with inexistent owner entity', async () => {
+    const dtoObj: CreateDocumentInput = assoc(
+      'type',
+      EDocumentType.Cpf,
+      documentDto,
+    );
+    const dtoInstance = Object.assign(new CreateDocumentInput(), dtoObj);
+
+    try {
+      await resolver.createDocument(dtoInstance);
+    } catch (error) {
+      expect(error.response).toHaveProperty(
+        'message',
+        `No ${dtoInstance.ownerType} found with provided id.`,
+      );
+      expect(error.response).toHaveProperty('error', `Bad Request`);
+      expect(error.response).toHaveProperty('statusCode', 400);
+    }
+  });
+
   it('should not update a document with an invalid type', async () => {
     const dtoObj: UpdateDocumentInput = {
       id: 1,
@@ -133,6 +187,49 @@ describe('DocumentResolver', () => {
       expect(error.response).toHaveProperty(
         'message',
         `${dtoInstance.type} isn't a valid type.`,
+      );
+      expect(error.response).toHaveProperty('error', `Bad Request`);
+      expect(error.response).toHaveProperty('statusCode', 400);
+    }
+  });
+
+  it('should not update a document with invalid owner type', async () => {
+    const dtoObj: UpdateDocumentInput = {
+      id: 1,
+      ownerType: 'bananasDePijamas',
+      type: EDocumentType.Cpf,
+    };
+
+    const dtoInstance = Object.assign(new UpdateDocumentInput(), dtoObj);
+
+    try {
+      await validationPipe.transform(dtoInstance, {
+        type: 'body',
+        metatype: UpdateDocumentInput,
+      });
+    } catch (error) {
+      expect(error.response.message).toHaveLength(1);
+      expect(error.response.message[0]).toHaveProperty('constraints', {
+        isValidDocumentOwnerType: `Inexistent document owner type: ${dtoInstance.ownerType}`,
+      });
+      expect(error.response.message[0]).toHaveProperty('property', 'ownerType');
+    }
+  });
+
+  it('should not update a document with inexistent owner entity', async () => {
+    const dtoObj: UpdateDocumentInput = {
+      id: 1,
+      ownerType: EOwnerType.Tenant,
+    };
+
+    const dtoInstance = Object.assign(new UpdateDocumentInput(), dtoObj);
+
+    try {
+      await resolver.updateDocument(dtoInstance);
+    } catch (error) {
+      expect(error.response).toHaveProperty(
+        'message',
+        `${dtoInstance.ownerType} isn't a valid owner type.`,
       );
       expect(error.response).toHaveProperty('error', `Bad Request`);
       expect(error.response).toHaveProperty('statusCode', 400);

@@ -5,6 +5,6 @@ import { DocumentType } from '../../document-type/entities/document-type.entity'
   in the async validator and test properly.
 */
 export const validateDocumentType = async (
-  value: any,
+  value: any = '',
   types: DocumentType[] = [],
 ) => types.some((dt) => dt.name === value);

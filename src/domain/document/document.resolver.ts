@@ -5,6 +5,9 @@ import { UpdateDocumentInput } from './dto/update-document.input';
 import { CreateDocumentInput } from './dto/create-document.input';
 import {
   BadRequestException,
+  Logger,
+  NotFoundException,
+  NotImplementedException,
   UseGuards,
   UsePipes,
   ValidationPipe,
@@ -16,6 +19,11 @@ import { Roles } from '../../application/auth/role/role.decorator';
 import { ERole } from '../../application/auth/role/role.enum';
 import { DocumentTypeService } from '../document-type/document-type.service';
 import { validateDocumentType } from './validations/type.validation';
+import { EOwnerType } from './enum/owner-type.enum';
+import { TenantService } from '../tenant/tenant.service';
+import { LandlordService } from '../landlord/landlord.service';
+import { Tenant } from '../tenant/entities/tenant.entity';
+import { Landlord } from '../landlord/entities/landlord.entity';
 
 @UseGuards(AuthGuard, RolesGuard)
 @UsePipes(new ValidationPipe({ transform: true }))
@@ -24,23 +32,59 @@ export class DocumentResolver {
   constructor(
     private readonly documentService: DocumentService,
     private readonly documentTypeService: DocumentTypeService,
+    private readonly tenantService: TenantService,
+    private readonly landlordService: LandlordService,
   ) {}
+
+  private readonly logger = new Logger(DocumentResolver.name);
 
   @Mutation(() => FileOutput)
   async createDocument(
     @Args('createDocumentInput')
     info: CreateDocumentInput,
   ) {
-    const { type } = info;
-    const isTypeValid = await validateDocumentType(
-      type,
-      await this.documentTypeService.findAll(),
-    );
+    let owner: Tenant | Landlord;
+    const { type, ownerType, ownerId, file } = info;
 
-    if (!isTypeValid)
-      throw new BadRequestException(`${type} isn't a valid type.`);
+    try {
+      const isTypeValid = await validateDocumentType(
+        type,
+        await this.documentTypeService.findAll(),
+      );
 
-    return this.documentService.create(info);
+      if (!isTypeValid)
+        throw new BadRequestException(`${type} isn't a valid type.`);
+
+      // TODO change with Guarantor entity implementation
+      switch (ownerType) {
+        case EOwnerType.Tenant:
+          owner = await this.tenantService.findOne(ownerId);
+          break;
+        case EOwnerType.Landlord:
+          owner = await this.landlordService.findOne(ownerId);
+          break;
+        case EOwnerType.Guarantor:
+          throw new NotImplementedException();
+      }
+      // TODO test this!
+      if (!owner)
+        throw new BadRequestException(
+          `No ${ownerType} found with provided id.`,
+        );
+
+      if (!file) throw new BadRequestException(`File not provided.`);
+
+      return this.documentService.create(info);
+    } catch (error) {
+      this.logger.error(
+        `${this.createDocument.name} -> ${error.message}`,
+        error.stack,
+        {
+          createDocumentInput: info,
+        },
+      );
+      throw error;
+    }
   }
 
   @Roles(ERole.Admin)
@@ -58,16 +102,52 @@ export class DocumentResolver {
   async updateDocument(
     @Args('updateDocumentInput') updateDocumentInput: UpdateDocumentInput,
   ) {
-    const { type } = updateDocumentInput;
-    const isTypeValid = await validateDocumentType(
-      type,
-      await this.documentTypeService.findAll(),
-    );
+    let owner: Tenant | Landlord;
+    const { type, ownerType, ownerId, id } = updateDocumentInput;
+    try {
+      const isTypeValid = await validateDocumentType(
+        type,
+        await this.documentTypeService.findAll(),
+      );
+      const documentToUpdate = await this.documentService.findOne(id);
 
-    if (!isTypeValid)
-      throw new BadRequestException(`${type} isn't a valid type.`);
+      if (!documentToUpdate) throw new NotFoundException('Document not found.');
 
-    return this.documentService.update(updateDocumentInput);
+      if (type && !isTypeValid)
+        throw new BadRequestException(`${type} isn't a valid type.`);
+
+      // TODO change with Guarantor entity implementation
+      const actualOwnerType = ownerType ?? documentToUpdate.ownerType;
+      const actualOwnerId = ownerId ?? documentToUpdate.ownerId;
+
+      switch (actualOwnerType) {
+        case EOwnerType.Tenant:
+          owner = await this.tenantService.findOne(actualOwnerId);
+          break;
+        case EOwnerType.Landlord:
+          owner = await this.landlordService.findOne(actualOwnerId);
+          break;
+        case EOwnerType.Guarantor:
+          throw new NotImplementedException();
+      }
+      // }
+
+      if (!owner)
+        throw new BadRequestException(
+          `No ${actualOwnerType} found with provided id.`,
+        );
+
+      return this.documentService.update(updateDocumentInput);
+    } catch (error) {
+      this.logger.error(
+        `${this.updateDocument.name} -> ${error.message}`,
+        error.stack,
+        {
+          updateDocumentInput,
+        },
+      );
+      throw error;
+    }
   }
 
   @Roles(ERole.Admin)
