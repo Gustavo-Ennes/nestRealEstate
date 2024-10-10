@@ -18,7 +18,7 @@ export class DocumentTypeService {
   ): Promise<DocumentType> {
     try {
       const documentType: DocumentType = await this.documentTypeModel.create(
-        createDocumentTypeInput as any,
+        createDocumentTypeInput,
       );
 
       return documentType;

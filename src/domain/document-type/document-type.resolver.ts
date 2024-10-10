@@ -3,12 +3,14 @@ import { DocumentTypeService } from './document-type.service';
 import { DocumentType } from './entities/document-type.entity';
 import { CreateDocumentTypeInput } from './dto/create-document-type.input';
 import { UpdateDocumentTypeInput } from './dto/update-document-type.input';
-import { UseGuards } from '@nestjs/common';
+import { UseGuards, UsePipes } from '@nestjs/common';
 import { AuthGuard } from '../../application/auth/auth.guard';
 import { RolesGuard } from '../../application/auth/role/role.guard';
 import { Roles } from '../../application/auth/role/role.decorator';
 import { ERole } from '../../application/auth/role/role.enum';
+import { validationPipe } from '../../application/pipes/validation.pipe';
 
+@UsePipes(validationPipe)
 @UseGuards(AuthGuard, RolesGuard)
 @Resolver(() => DocumentType)
 export class DocumentTypeResolver {

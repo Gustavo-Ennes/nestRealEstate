@@ -10,7 +10,6 @@ import {
   NotImplementedException,
   UseGuards,
   UsePipes,
-  ValidationPipe,
 } from '@nestjs/common';
 import { AuthGuard } from '../../application/auth/auth.guard';
 import { FileOutput } from './dto/create-document.output';
@@ -24,9 +23,10 @@ import { TenantService } from '../tenant/tenant.service';
 import { LandlordService } from '../landlord/landlord.service';
 import { Tenant } from '../tenant/entities/tenant.entity';
 import { Landlord } from '../landlord/entities/landlord.entity';
+import { validationPipe } from '../../application/pipes/validation.pipe';
 
 @UseGuards(AuthGuard, RolesGuard)
-@UsePipes(new ValidationPipe({ transform: true }))
+@UsePipes(validationPipe)
 @Resolver(() => Document)
 export class DocumentResolver {
   constructor(

@@ -1,7 +1,7 @@
 import { BadRequestException, ValidationPipe } from '@nestjs/common';
 
 export const validationPipe = new ValidationPipe({
-  transform: false,
+  transform: true,
   exceptionFactory: (errors) => {
     return new BadRequestException(
       errors.map((err) => ({
