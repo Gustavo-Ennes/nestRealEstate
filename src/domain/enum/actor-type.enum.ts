@@ -1,4 +1,4 @@
-export enum ETenantType {
+export enum EActorType {
   Legal = 'legal',
   Natural = 'natural',
 }

@@ -11,7 +11,7 @@ import {
   CreatedAt,
   UpdatedAt,
 } from 'sequelize-typescript';
-import { ETenantType } from '../enum/tenant-type.enum';
+import { EActorType } from '../../enum/actor-type.enum';
 import { Document } from '../../document/entities/document.entity';
 import { EOwnerType } from '../../document/enum/owner-type.enum';
 
@@ -64,8 +64,8 @@ export class Tenant extends Model<Tenant> {
   updatedAt: Date;
 
   @Field(() => String)
-  get tenantType(): ETenantType {
-    return this.cpf ? ETenantType.Natural : ETenantType.Legal;
+  get tenantType(): EActorType {
+    return this.cpf ? EActorType.Natural : EActorType.Legal;
   }
 
   @Field(() => [Document])

@@ -13,7 +13,7 @@ import {
 } from 'sequelize-typescript';
 import { EOwnerType } from '../../document/enum/owner-type.enum';
 import { Document } from '../../document/entities/document.entity';
-import { ELandlordType } from '../enum/landlord-type.enum';
+import { EActorType } from '../../enum/actor-type.enum';
 
 @ObjectType()
 @Table
@@ -64,8 +64,8 @@ export class Landlord extends Model {
   updatedAt: Date;
 
   @Field(() => String)
-  get landlordType(): ELandlordType {
-    return this.cpf ? ELandlordType.Natural : ELandlordType.Legal;
+  get landlordType(): EActorType {
+    return this.cpf ? EActorType.Natural : EActorType.Legal;
   }
 
   @Field(() => [Document])

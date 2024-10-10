@@ -11,7 +11,7 @@ import { UpdateTenantInput } from './dto/update-tenant.input';
 import { InjectModel } from '@nestjs/sequelize';
 import { Tenant } from './entities/tenant.entity';
 import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
-import { ETenantType } from './enum/tenant-type.enum';
+import { EActorType } from '../enum/actor-type.enum';
 
 @Injectable()
 export class TenantService {
@@ -106,8 +106,8 @@ export class TenantService {
         );
 
       if (
-        (tenantType === ETenantType.Legal && updateTenantDto.cpf?.length > 0) ||
-        (tenantType === ETenantType.Natural && updateTenantDto.cnpj?.length > 0)
+        (tenantType === EActorType.Legal && updateTenantDto.cpf?.length > 0) ||
+        (tenantType === EActorType.Natural && updateTenantDto.cnpj?.length > 0)
       )
         throw new ConflictException(
           'Cannot update a cpf of a legal tenant or the cnpj of a natural tenant.',

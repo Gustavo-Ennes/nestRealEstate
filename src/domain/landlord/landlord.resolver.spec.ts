@@ -6,7 +6,7 @@ import { CreateLandlordInput } from './dto/create-landlord.input';
 import { createLandlordTestingModule } from './testConfig/landlord.test.config';
 import { validate } from 'class-validator';
 import { UpdateLandlordInput } from './dto/update-landlord.input';
-import { ELandlordType } from './enum/landlord-type.enum';
+import { EActorType } from '../enum/actor-type.enum';
 
 describe('LandlordResolver', () => {
   let resolver: LandlordResolver;
@@ -245,7 +245,7 @@ describe('LandlordResolver', () => {
     const landlordToUpdate = {
       id: 1,
       ...input,
-      landlordType: ELandlordType.Natural,
+      landlordType: EActorType.Natural,
       update: jest.fn(),
       reload: jest.fn(),
     } as UpdateLandlordInput;
@@ -373,7 +373,7 @@ describe('LandlordResolver', () => {
     const landlordToUpdate = {
       id: 1,
       ...input,
-      landlordType: ELandlordType.Natural,
+      landlordType: EActorType.Natural,
       update: jest.fn(),
     } as UpdateLandlordInput;
 
@@ -399,7 +399,7 @@ describe('LandlordResolver', () => {
       ...input,
       cpf: undefined,
       cnpj: '32132132132122',
-      landlordType: ELandlordType.Legal,
+      landlordType: EActorType.Legal,
       update: jest.fn(),
     } as UpdateLandlordInput;
 
@@ -483,7 +483,7 @@ describe('LandlordResolver', () => {
     const landlordToUpdate = {
       id: 1,
       ...input,
-      landlordType: ELandlordType.Natural,
+      landlordType: EActorType.Natural,
       update: jest.fn(),
       isActive: false,
     } as UpdateLandlordInput;
@@ -508,7 +508,7 @@ describe('LandlordResolver', () => {
     const landlordToUpdate = {
       id: 1,
       ...input,
-      landlordType: ELandlordType.Natural,
+      landlordType: EActorType.Natural,
       update: jest.fn(),
       reload: jest.fn(),
       isActive: false,
@@ -532,7 +532,7 @@ describe('LandlordResolver', () => {
     const landlordToUpdate = {
       id: 1,
       ...input,
-      landlordType: ELandlordType.Natural,
+      landlordType: EActorType.Natural,
       destroy: jest.fn(),
     } as UpdateLandlordInput;
 

@@ -6,7 +6,7 @@ import { CreateTenantInput } from './dto/create-tenant.input';
 import { createTenantTestingModule } from './testConfig/tenant.test.config';
 import { validate } from 'class-validator';
 import { UpdateTenantInput } from './dto/update-tenant.input';
-import { ETenantType } from './enum/tenant-type.enum';
+import { EActorType } from '../enum/actor-type.enum';
 
 describe('TenantResolver', () => {
   let resolver: TenantResolver;
@@ -242,7 +242,7 @@ describe('TenantResolver', () => {
     const tenantToUpdate = {
       id: 1,
       ...input,
-      tenantType: ETenantType.Natural,
+      tenantType: EActorType.Natural,
       update: jest.fn(),
       reload: jest.fn(),
     } as UpdateTenantInput;
@@ -367,7 +367,7 @@ describe('TenantResolver', () => {
     const tenantToUpdate = {
       id: 1,
       ...input,
-      tenantType: ETenantType.Natural,
+      tenantType: EActorType.Natural,
       update: jest.fn(),
     } as UpdateTenantInput;
 
@@ -393,7 +393,7 @@ describe('TenantResolver', () => {
       ...input,
       cpf: undefined,
       cnpj: '32132132132122',
-      tenantType: ETenantType.Legal,
+      tenantType: EActorType.Legal,
       update: jest.fn(),
     } as UpdateTenantInput;
 
@@ -477,7 +477,7 @@ describe('TenantResolver', () => {
     const tenantToUpdate = {
       id: 1,
       ...input,
-      tenantType: ETenantType.Natural,
+      tenantType: EActorType.Natural,
       update: jest.fn(),
       isActive: false,
     } as UpdateTenantInput;
@@ -502,7 +502,7 @@ describe('TenantResolver', () => {
     const tenantToUpdate = {
       id: 1,
       ...input,
-      tenantType: ETenantType.Natural,
+      tenantType: EActorType.Natural,
       update: jest.fn(),
       reload: jest.fn(),
       isActive: false,
@@ -523,7 +523,7 @@ describe('TenantResolver', () => {
     const tenantToUpdate = {
       id: 1,
       ...input,
-      tenantType: ETenantType.Natural,
+      tenantType: EActorType.Natural,
       destroy: jest.fn(),
     } as UpdateTenantInput;
 
