@@ -2,9 +2,11 @@ import { ObjectType, Field, Int } from '@nestjs/graphql';
 import {
   AutoIncrement,
   Column,
+  CreatedAt,
   Model,
   PrimaryKey,
   Table,
+  UpdatedAt,
 } from 'sequelize-typescript';
 
 @Table
@@ -18,9 +20,17 @@ export class DocumentType extends Model<DocumentType> {
 
   @Column
   @Field(() => String)
-  name: string; // Ex: 'RG', 'CPF', 'CNH', etc.
+  name: string; // EDocumentType
 
   @Column
   @Field(() => String)
-  applicableTo: string; // 'individual' ou 'business'
+  applicableTo: string; //  EActorType
+
+  @CreatedAt
+  @Field(() => Date)
+  createdAt: Date;
+
+  @UpdatedAt
+  @Field(() => Date)
+  updatedAt: Date;
 }

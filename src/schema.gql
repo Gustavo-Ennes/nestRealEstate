@@ -31,6 +31,8 @@ type DocumentType {
   id: Int!
   name: String!
   applicableTo: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
 }
 
 type Tenant {

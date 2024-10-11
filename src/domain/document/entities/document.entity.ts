@@ -45,12 +45,10 @@ export class Document extends Model<Document> {
   @Field(() => String)
   url: string;
 
-  // Expor o campo createdAt no GraphQL
   @CreatedAt
   @Field(() => Date)
   createdAt: Date;
 
-  // Expor o campo updatedAt no GraphQL
   @UpdatedAt
   @Field(() => Date)
   updatedAt: Date;
