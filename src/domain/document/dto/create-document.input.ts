@@ -1,5 +1,5 @@
 import { InputType, Field, Int } from '@nestjs/graphql';
-import { isValidDocumentOwnerType } from '../validations/owner-type.validation';
+import { isValidDocumentOwnerRole } from '../../validations/owner-role.validation';
 import { IsNotEmpty } from 'class-validator';
 import { FileUpload } from '../document.interface';
 import * as GraphQLUpload from 'graphql-upload/GraphQLUpload.js';
@@ -11,9 +11,9 @@ export class CreateDocumentInput {
   type: string;
 
   @IsNotEmpty()
-  @isValidDocumentOwnerType
+  @isValidDocumentOwnerRole
   @Field(() => String)
-  ownerType: string;
+  ownerRole: string;
 
   @IsNotEmpty()
   @Field(() => Int)

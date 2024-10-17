@@ -16,7 +16,7 @@ export class BucketService {
     tempFilePath,
     documentInfo,
   }: IUploadToBucket): Promise<string> {
-    const destFileName = `documents/${documentInfo.ownerType}/${documentInfo.ownerId}/${documentInfo.type}/${Date.now().toString()}.pdf`;
+    const destFileName = `documents/${documentInfo.ownerRole}/${documentInfo.ownerId}/${documentInfo.type}/${Date.now().toString()}.pdf`;
 
     try {
       const storage = new Storage();

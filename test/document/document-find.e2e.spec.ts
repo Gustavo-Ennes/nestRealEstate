@@ -3,7 +3,6 @@ import * as request from 'supertest';
 import { Sequelize } from 'sequelize-typescript';
 import { findOneQuery } from './queries';
 import { generateToken, initApp } from '../utils';
-import { EOwnerType } from '../../src/domain/document/enum/owner-type.enum';
 import { EDocumentType } from '../../src/domain/document/enum/document-type.enum';
 import { Document } from '../../src/domain/document/entities/document.entity';
 import { ERole } from '../../src/application/auth/role/role.enum';
@@ -25,7 +24,7 @@ describe('Document Module - Find (e2e)', () => {
 
     document = await Document.create({
       type: EDocumentType.CNPJ,
-      ownerType: EOwnerType.Tenant,
+      ownerRole: ERole.Tenant,
       ownerId: 1,
       url: 'some.url.com',
     });
@@ -53,8 +52,8 @@ describe('Document Module - Find (e2e)', () => {
     expect(res.body.data).toHaveProperty('document');
     expect(res.body.data.document).toHaveProperty('type', document.type);
     expect(res.body.data.document).toHaveProperty(
-      'ownerType',
-      document.ownerType,
+      'ownerRole',
+      document.ownerRole,
     );
     expect(res.body.data.document).toHaveProperty('ownerId', document.ownerId);
     expect(res.body.data.document).toHaveProperty('status', document.status);
@@ -80,8 +79,8 @@ describe('Document Module - Find (e2e)', () => {
     expect(res.body.data).toHaveProperty('document');
     expect(res.body.data.document).toHaveProperty('type', document.type);
     expect(res.body.data.document).toHaveProperty(
-      'ownerType',
-      document.ownerType,
+      'ownerRole',
+      document.ownerRole,
     );
     expect(res.body.data.document).toHaveProperty('ownerId', document.ownerId);
     expect(res.body.data.document).toHaveProperty('status', document.status);
@@ -107,8 +106,8 @@ describe('Document Module - Find (e2e)', () => {
     expect(res.body.data).toHaveProperty('document');
     expect(res.body.data.document).toHaveProperty('type', document.type);
     expect(res.body.data.document).toHaveProperty(
-      'ownerType',
-      document.ownerType,
+      'ownerRole',
+      document.ownerRole,
     );
     expect(res.body.data.document).toHaveProperty('ownerId', document.ownerId);
     expect(res.body.data.document).toHaveProperty('status', document.status);

@@ -3,7 +3,7 @@ import * as request from 'supertest';
 import { Sequelize } from 'sequelize-typescript';
 import { deleteMutation } from './queries';
 import { initApp, requestAndCheckError } from '../utils';
-import { EOwnerType } from '../../src/domain/document/enum/owner-type.enum';
+import { ERole } from '../../src/application/auth/role/role.enum';
 import { EDocumentType } from '../../src/domain/document/enum/document-type.enum';
 import { Document } from '../../src/domain/document/entities/document.entity';
 
@@ -24,7 +24,7 @@ describe('Document Module - Delete (e2e)', () => {
 
     document = await Document.create({
       type: EDocumentType.CNPJ,
-      ownerType: EOwnerType.Tenant,
+      ownerRole: ERole.Tenant,
       ownerId: 1,
       url: 'some.url.com',
     });

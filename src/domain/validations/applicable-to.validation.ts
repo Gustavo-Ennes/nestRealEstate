@@ -1,8 +1,8 @@
 import { ValidationArguments, registerDecorator } from 'class-validator';
-import { EActorType } from '../enum/actor-type.enum';
+import { ELegalType } from '../enum/legal-type.enum';
 
 const validate = (value: string): boolean =>
-  Object.values(EActorType).includes(value as EActorType);
+  Object.values(ELegalType).includes(value as ELegalType);
 
 const defaultMessage = (args: ValidationArguments) =>
   `${args.value} isn't a valid actor type.`;

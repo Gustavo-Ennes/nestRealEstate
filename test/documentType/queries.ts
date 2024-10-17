@@ -3,7 +3,7 @@ export const updateMutation = `
     updateDocumentType(updateDocumentTypeInput: $input) {
       id
       name
-      applicableTo
+      legalType
       createdAt
       updatedAt
     }
@@ -15,7 +15,7 @@ export const findAllQuery = `
     documentTypes {
       id
       name
-      applicableTo
+      legalType
       createdAt
       updatedAt
     }
@@ -27,7 +27,7 @@ export const findOneQuery = `
     documentType(id: $id) {
       id
       name
-      applicableTo
+      legalType
       createdAt
       updatedAt
     }
@@ -45,7 +45,7 @@ export const createMutation = `
     createDocumentType(createDocumentTypeInput: $input) {
       id
       name
-      applicableTo
+      legalType
       createdAt
       updatedAt
     }

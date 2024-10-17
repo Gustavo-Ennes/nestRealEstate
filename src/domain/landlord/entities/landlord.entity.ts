@@ -11,9 +11,9 @@ import {
   UpdatedAt,
   Model,
 } from 'sequelize-typescript';
-import { EOwnerType } from '../../document/enum/owner-type.enum';
+import { ERole } from '../../../application/auth/role/role.enum';
 import { Document } from '../../document/entities/document.entity';
-import { EActorType } from '../../enum/actor-type.enum';
+import { ELegalType } from '../../enum/legal-type.enum';
 
 @ObjectType()
 @Table
@@ -64,14 +64,14 @@ export class Landlord extends Model {
   updatedAt: Date;
 
   @Field(() => String)
-  get landlordType(): EActorType {
-    return this.cpf ? EActorType.Natural : EActorType.Legal;
+  get landlordType(): ELegalType {
+    return this.cpf ? ELegalType.Natural : ELegalType.Legal;
   }
 
   @Field(() => [Document])
   get documents(): Promise<Document[]> {
     return Document.findAll({
-      where: { ownerId: this.id, ownerType: EOwnerType.Landlord },
+      where: { ownerId: this.id, ownerRole: ERole.Landlord },
     });
   }
 }

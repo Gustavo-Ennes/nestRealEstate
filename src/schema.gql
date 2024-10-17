@@ -9,7 +9,7 @@ type AuthReturn {
 type Document {
   id: Int!
   type: String!
-  ownerType: String!
+  ownerRole: String!
   ownerId: Int!
   status: String!
   observation: String
@@ -30,7 +30,7 @@ type FileOutput {
 type DocumentType {
   id: Int!
   name: String!
-  applicableTo: String!
+  legalType: String!
   createdAt: DateTime!
   updatedAt: DateTime!
 }
@@ -65,6 +65,14 @@ type Landlord {
   documents: [Document!]!
 }
 
+type DocumentRequirement {
+  id: Int!
+  documentTypeId: Int!
+  role: String!
+  isRequired: Boolean!
+  documentType: [DocumentType!]!
+}
+
 type Query {
   documentTypes: [DocumentType!]!
   documentType(id: Int!): DocumentType
@@ -74,6 +82,7 @@ type Query {
   tenant(id: Int!): Tenant
   landlords: [Landlord!]!
   landlord(id: Int!): Landlord
+  documentRequirement(id: Int!): DocumentRequirement!
 }
 
 type Mutation {
@@ -91,6 +100,9 @@ type Mutation {
   createLandlord(createLandlordInput: CreateLandlordInput!): Landlord!
   updateLandlord(updateLandlordInput: UpdateLandlordInput!): Landlord!
   removeLandlord(id: Int!): Boolean!
+  createDocumentRequirement(createDocumentRequirementInput: CreateDocumentRequirementInput!): DocumentRequirement!
+  updateDocumentRequirement(updateDocumentRequirementInput: UpdateDocumentRequirementInput!): DocumentRequirement!
+  removeDocumentRequirement(id: Int!): DocumentRequirement!
 }
 
 input SignUpInput {
@@ -107,18 +119,18 @@ input LoginInput {
 
 input CreateDocumentTypeInput {
   name: String!
-  applicableTo: String!
+  legalType: String!
 }
 
 input UpdateDocumentTypeInput {
   name: String
-  applicableTo: String
+  legalType: String
   id: Int!
 }
 
 input CreateDocumentInput {
   type: String!
-  ownerType: String!
+  ownerRole: String!
   ownerId: Int!
   observation: String
   file: Upload!
@@ -129,7 +141,7 @@ scalar Upload
 
 input UpdateDocumentInput {
   type: String
-  ownerType: String
+  ownerRole: String
   ownerId: Int
   observation: String
   file: Upload
@@ -172,4 +184,17 @@ input UpdateLandlordInput {
   id: Int!
   isActive: Boolean
   annotations: [String!]
+}
+
+input CreateDocumentRequirementInput {
+  documentTypeId: Int!
+  role: String!
+  isRequired: Boolean! = true
+}
+
+input UpdateDocumentRequirementInput {
+  documentTypeId: Int
+  role: String
+  isRequired: Boolean = true
+  id: Int!
 }

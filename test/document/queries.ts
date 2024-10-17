@@ -3,7 +3,7 @@ export const updateMutation = `
     updateDocument(updateDocumentInput: $input) {
       id
       type
-      ownerType
+      ownerRole
       ownerId
       status
       observation
@@ -18,7 +18,7 @@ export const findOneQuery = `
     document(id: $input) {
       id
       type
-      ownerType
+      ownerRole
       ownerId
       status
       observation

@@ -5,7 +5,7 @@ import { createMutation } from './queries';
 import { generateToken, initApp } from '../utils';
 import { EDocumentType } from '../../src/domain/document/enum/document-type.enum';
 import { ERole } from '../../src/application/auth/role/role.enum';
-import { EActorType } from '../../src/domain/enum/actor-type.enum';
+import { ELegalType } from '../../src/domain/enum/legal-type.enum';
 import { CreateDocumentTypeInput } from 'src/domain/document-type/dto/create-document-type.input';
 
 describe('DocumentType Module - Create (e2e)', () => {
@@ -14,7 +14,7 @@ describe('DocumentType Module - Create (e2e)', () => {
   let token: string;
   const input: CreateDocumentTypeInput = {
     name: EDocumentType.LastBalanceSheet,
-    applicableTo: EActorType.Legal,
+    legalType: ELegalType.Legal,
   };
 
   beforeEach(async () => {
@@ -49,8 +49,8 @@ describe('DocumentType Module - Create (e2e)', () => {
     expect(res.body.data).toHaveProperty('createDocumentType');
     expect(res.body.data.createDocumentType).toHaveProperty('name', input.name);
     expect(res.body.data.createDocumentType).toHaveProperty(
-      'applicableTo',
-      input.applicableTo,
+      'legalType',
+      input.legalType,
     );
     expect(res.body.data.createDocumentType).toHaveProperty('createdAt');
     expect(res.body.data.createDocumentType).toHaveProperty('updatedAt');
@@ -94,7 +94,7 @@ describe('DocumentType Module - Create (e2e)', () => {
       .set('Authorization', `Bearer ${token}`)
       .send({
         query: createMutation,
-        variables: { input: { applicableTo: EActorType.Legal } },
+        variables: { input: { legalType: ELegalType.Legal } },
       })
       .expect(200);
 
@@ -102,7 +102,7 @@ describe('DocumentType Module - Create (e2e)', () => {
     expect(res.body.errors).toHaveLength(1);
     expect(res.body.errors[0]).toHaveProperty(
       'message',
-      'Variable "$input" got invalid value { applicableTo: "legal" }; Field "name" of required type "String!" was not provided.',
+      'Variable "$input" got invalid value { legalType: "legal" }; Field "name" of required type "String!" was not provided.',
     );
     expect(res.body.errors[0]).toHaveProperty('extensions', {
       code: 'BAD_USER_INPUT',
@@ -115,7 +115,7 @@ describe('DocumentType Module - Create (e2e)', () => {
       .set('Authorization', `Bearer ${token}`)
       .send({
         query: createMutation,
-        variables: { input: { name: '', applicableTo: EActorType.Legal } },
+        variables: { input: { name: '', legalType: ELegalType.Legal } },
       })
       .expect(200);
 
@@ -143,7 +143,7 @@ describe('DocumentType Module - Create (e2e)', () => {
       .set('Authorization', `Bearer ${token}`)
       .send({
         query: createMutation,
-        variables: { input: { name: EActorType.Legal } },
+        variables: { input: { name: ELegalType.Legal } },
       })
       .expect(200);
 
@@ -151,7 +151,7 @@ describe('DocumentType Module - Create (e2e)', () => {
     expect(res.body.errors).toHaveLength(1);
     expect(res.body.errors[0]).toHaveProperty(
       'message',
-      'Variable "$input" got invalid value { name: "legal" }; Field "applicableTo" of required type "String!" was not provided.',
+      'Variable "$input" got invalid value { name: "legal" }; Field "legalType" of required type "String!" was not provided.',
     );
     expect(res.body.errors[0]).toHaveProperty('extensions', {
       code: 'BAD_USER_INPUT',
@@ -167,7 +167,7 @@ describe('DocumentType Module - Create (e2e)', () => {
         variables: {
           input: {
             name: EDocumentType.ProofOrCompanyProperties,
-            applicableTo: 'musician',
+            legalType: 'musician',
           },
         },
       })
@@ -180,7 +180,7 @@ describe('DocumentType Module - Create (e2e)', () => {
     expect(res.body.errors[0].extensions).toHaveProperty('originalError', {
       message: [
         {
-          property: 'applicableTo',
+          property: 'legalType',
           constraints: {
             isActorType: "musician isn't a valid actor type.",
           },

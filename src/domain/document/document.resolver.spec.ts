@@ -7,7 +7,7 @@ import { EDocumentType } from './enum/document-type.enum';
 import { FileUpload } from './document.interface';
 import { Stream } from 'stream';
 import { CreateDocumentInput } from './dto/create-document.input';
-import { EOwnerType } from './enum/owner-type.enum';
+import { ERole } from '../../application/auth/role/role.enum';
 import { assoc } from 'ramda';
 import { getQueueToken } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
@@ -40,7 +40,7 @@ describe('DocumentResolver', () => {
   });
   const documentDto: CreateDocumentInput = {
     ownerId: 1,
-    ownerType: EOwnerType.Tenant,
+    ownerRole: ERole.Tenant,
     type: EDocumentType.IR,
     file: document,
   };
@@ -48,7 +48,7 @@ describe('DocumentResolver', () => {
   const documentToUpdate = {
     id: 1,
     type: EDocumentType.Cpf,
-    ownerType: EOwnerType.Tenant,
+    ownerRole: ERole.Tenant,
     ownerId: 1,
     status: EDocumentStatus.Processing,
     reload: jest.fn(),
@@ -66,8 +66,8 @@ describe('DocumentResolver', () => {
     documentQueue = module.get<Queue>(getQueueToken('document'));
 
     (documentTypeModel.findAll as jest.Mock).mockResolvedValue([
-      { name: EDocumentType.Cpf, applicableTo: 'natural' },
-      { name: EDocumentType.CNPJ, applicableTo: 'legal' },
+      { name: EDocumentType.Cpf, legalType: 'natural' },
+      { name: EDocumentType.CNPJ, legalType: 'legal' },
     ]);
     (documentModel.findOne as jest.Mock).mockResolvedValue(documentToUpdate);
     (documentQueue.add as jest.Mock).mockResolvedValue({ id: 1 });
@@ -135,7 +135,7 @@ describe('DocumentResolver', () => {
   it('should not create a document with invalid owner type', async () => {
     const dtoObj: CreateDocumentInput = {
       ...documentDto,
-      ownerType: 'bananasDePijamas',
+      ownerRole: 'bananasDePijamas',
       type: EDocumentType.CNPJ,
     };
     const dtoInstance = Object.assign(new CreateDocumentInput(), dtoObj);
@@ -148,9 +148,9 @@ describe('DocumentResolver', () => {
     } catch (error) {
       expect(error.response.message).toHaveLength(1);
       expect(error.response.message[0]).toHaveProperty('constraints', {
-        isValidDocumentOwnerType: `Inexistent document owner type: ${dtoInstance.ownerType}`,
+        isValidDocumentOwnerRole: `Inexistent document owner role: ${dtoInstance.ownerRole}`,
       });
-      expect(error.response.message[0]).toHaveProperty('property', 'ownerType');
+      expect(error.response.message[0]).toHaveProperty('property', 'ownerRole');
     }
   });
 
@@ -167,7 +167,7 @@ describe('DocumentResolver', () => {
     } catch (error) {
       expect(error.response).toHaveProperty(
         'message',
-        `No ${dtoInstance.ownerType} found with provided id.`,
+        `No ${dtoInstance.ownerRole} found with provided id.`,
       );
       expect(error.response).toHaveProperty('error', `Bad Request`);
       expect(error.response).toHaveProperty('statusCode', 400);
@@ -196,7 +196,7 @@ describe('DocumentResolver', () => {
   it('should not update a document with invalid owner type', async () => {
     const dtoObj: UpdateDocumentInput = {
       id: 1,
-      ownerType: 'bananasDePijamas',
+      ownerRole: 'bananasDePijamas',
       type: EDocumentType.Cpf,
     };
 
@@ -210,16 +210,16 @@ describe('DocumentResolver', () => {
     } catch (error) {
       expect(error.response.message).toHaveLength(1);
       expect(error.response.message[0]).toHaveProperty('constraints', {
-        isValidDocumentOwnerType: `Inexistent document owner type: ${dtoInstance.ownerType}`,
+        isValidDocumentOwnerRole: `Inexistent document owner role: ${dtoInstance.ownerRole}`,
       });
-      expect(error.response.message[0]).toHaveProperty('property', 'ownerType');
+      expect(error.response.message[0]).toHaveProperty('property', 'ownerRole');
     }
   });
 
   it('should not update a document with inexistent owner entity', async () => {
     const dtoObj: UpdateDocumentInput = {
       id: 1,
-      ownerType: EOwnerType.Tenant,
+      ownerRole: ERole.Tenant,
     };
 
     const dtoInstance = Object.assign(new UpdateDocumentInput(), dtoObj);
@@ -229,7 +229,7 @@ describe('DocumentResolver', () => {
     } catch (error) {
       expect(error.response).toHaveProperty(
         'message',
-        `${dtoInstance.ownerType} isn't a valid owner type.`,
+        `${dtoInstance.ownerRole} isn't a valid owner type.`,
       );
       expect(error.response).toHaveProperty('error', `Bad Request`);
       expect(error.response).toHaveProperty('statusCode', 400);

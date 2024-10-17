@@ -4,7 +4,7 @@ import { Sequelize } from 'sequelize-typescript';
 import { Tenant } from '../../src/domain/tenant/entities/tenant.entity';
 import { findOneQuery, findAllQuery } from './queries';
 import { generateToken, initApp } from '../utils';
-import { EOwnerType } from '../../src/domain/document/enum/owner-type.enum';
+import { ERole } from '../../src/application/auth/role/role.enum';
 import { EDocumentType } from '../../src/domain/document/enum/document-type.enum';
 import { Document } from '../../src/domain/document/entities/document.entity';
 
@@ -41,7 +41,7 @@ describe('Tenant Module - Find (e2e)', () => {
     };
     const documentInput = {
       ownerId: 1,
-      ownerType: EOwnerType.Tenant,
+      ownerRole: ERole.Tenant,
       type: EDocumentType.Cpf,
     };
 

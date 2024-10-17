@@ -6,7 +6,6 @@ import { generateToken, initApp, requestAndCheckError } from '../utils';
 import { Tenant } from '../../src/domain/tenant/entities/tenant.entity';
 import { Document } from '../../src/domain/document/entities/document.entity';
 import { EDocumentType } from '../../src/domain/document/enum/document-type.enum';
-import { EOwnerType } from '../../src/domain/document/enum/owner-type.enum';
 import { ERole } from '../../src/application/auth/role/role.enum';
 import { DocumentType } from '../../src/domain/document-type/entities/document-type.entity';
 
@@ -35,18 +34,18 @@ describe('Document Module - Update (e2e)', () => {
 
     document = await Document.create({
       type: EDocumentType.CNPJ,
-      ownerType: EOwnerType.Tenant,
+      ownerRole: ERole.Tenant,
       ownerId: naturalTenant.id,
       url: 'some.url.com',
     });
 
     await DocumentType.create({
       name: EDocumentType.CNPJ,
-      applicableTo: 'legal',
+      legalType: 'legal',
     });
     await DocumentType.create({
       name: EDocumentType.Cpf,
-      applicableTo: 'natural',
+      legalType: 'natural',
     });
   });
 
@@ -78,8 +77,8 @@ describe('Document Module - Update (e2e)', () => {
     expect(res.body.data).toHaveProperty('updateDocument');
     expect(res.body.data.updateDocument).toHaveProperty('type', document.type);
     expect(res.body.data.updateDocument).toHaveProperty(
-      'ownerType',
-      document.ownerType,
+      'ownerRole',
+      document.ownerRole,
     );
     expect(res.body.data.updateDocument).toHaveProperty(
       'ownerId',
@@ -103,7 +102,7 @@ describe('Document Module - Update (e2e)', () => {
     const updateDto = {
       id: document.id,
       type: EDocumentType.Cpf,
-      ownerType: EOwnerType.Tenant,
+      ownerRole: ERole.Tenant,
       ownerId: 1,
     };
 
@@ -120,8 +119,8 @@ describe('Document Module - Update (e2e)', () => {
     expect(res.body.data).toHaveProperty('updateDocument');
     expect(res.body.data.updateDocument).toHaveProperty('type', document.type);
     expect(res.body.data.updateDocument).toHaveProperty(
-      'ownerType',
-      document.ownerType,
+      'ownerRole',
+      document.ownerRole,
     );
     expect(res.body.data.updateDocument).toHaveProperty(
       'ownerId',
@@ -162,8 +161,8 @@ describe('Document Module - Update (e2e)', () => {
     expect(res.body.data).toHaveProperty('updateDocument');
     expect(res.body.data.updateDocument).toHaveProperty('type', document.type);
     expect(res.body.data.updateDocument).toHaveProperty(
-      'ownerType',
-      document.ownerType,
+      'ownerRole',
+      document.ownerRole,
     );
     expect(res.body.data.updateDocument).toHaveProperty(
       'ownerId',
@@ -222,10 +221,10 @@ describe('Document Module - Update (e2e)', () => {
       app,
       token,
       query: updateMutation,
-      variables: { input: { id: document.id, ownerType: 'chessPlayer' } },
-      property: 'ownerType',
+      variables: { input: { id: document.id, ownerRole: 'chessPlayer' } },
+      property: 'ownerRole',
       constraints: {
-        isValidDocumentOwnerType: 'Inexistent document owner type: chessPlayer',
+        isValidDocumentOwnerRole: 'Inexistent document owner role: chessPlayer',
       },
     }));
 });

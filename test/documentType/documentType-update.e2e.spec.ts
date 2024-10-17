@@ -6,7 +6,7 @@ import { generateToken, initApp } from '../utils';
 import { EDocumentType } from '../../src/domain/document/enum/document-type.enum';
 import { ERole } from '../../src/application/auth/role/role.enum';
 import { DocumentType } from '../../src/domain/document-type/entities/document-type.entity';
-import { EActorType } from '../../src/domain/enum/actor-type.enum';
+import { ELegalType } from '../../src/domain/enum/legal-type.enum';
 import { UpdateDocumentTypeInput } from '../../src/domain/document-type/dto/update-document-type.input';
 
 describe('DocumentType Module - Update (e2e)', () => {
@@ -26,7 +26,7 @@ describe('DocumentType Module - Update (e2e)', () => {
 
     documentType = await DocumentType.create({
       name: EDocumentType.CNPJ,
-      applicableTo: EActorType.Legal,
+      legalType: ELegalType.Legal,
     });
   });
 
@@ -42,7 +42,7 @@ describe('DocumentType Module - Update (e2e)', () => {
   it('should update a document type with admin role', async () => {
     const input: UpdateDocumentTypeInput = {
       id: documentType.id,
-      applicableTo: EActorType.Natural,
+      legalType: ELegalType.Natural,
       name: EDocumentType.Certificate,
     };
     const res = await request(app.getHttpServer())
@@ -57,8 +57,8 @@ describe('DocumentType Module - Update (e2e)', () => {
     expect(res.body.data).toHaveProperty('updateDocumentType');
     expect(res.body.data.updateDocumentType).toHaveProperty('name', input.name);
     expect(res.body.data.updateDocumentType).toHaveProperty(
-      'applicableTo',
-      input.applicableTo,
+      'legalType',
+      input.legalType,
     );
     expect(res.body.data.updateDocumentType).toHaveProperty('createdAt');
     expect(res.body.data.updateDocumentType).toHaveProperty('updatedAt');
@@ -68,7 +68,7 @@ describe('DocumentType Module - Update (e2e)', () => {
     const landlordToken = generateToken({ sub: 1, role: ERole.Landlord });
     const input: UpdateDocumentTypeInput = {
       id: documentType.id,
-      applicableTo: EActorType.Natural,
+      legalType: ELegalType.Natural,
     };
     const res = await request(app.getHttpServer())
       .post('/graphql')
@@ -88,7 +88,7 @@ describe('DocumentType Module - Update (e2e)', () => {
     const tenantToken = generateToken({ sub: 1, role: ERole.Tenant });
     const input: UpdateDocumentTypeInput = {
       id: documentType.id,
-      applicableTo: EActorType.Natural,
+      legalType: ELegalType.Natural,
     };
     const res = await request(app.getHttpServer())
       .post('/graphql')
@@ -107,7 +107,7 @@ describe('DocumentType Module - Update (e2e)', () => {
   it('should not update a document type with an invalid actor type', async () => {
     const input: UpdateDocumentTypeInput = {
       id: documentType.id,
-      applicableTo: 'musician',
+      legalType: 'musician',
     };
     const res = await request(app.getHttpServer())
       .post('/graphql')
@@ -125,9 +125,9 @@ describe('DocumentType Module - Update (e2e)', () => {
     expect(res.body.errors[0].extensions).toHaveProperty('originalError', {
       message: [
         {
-          property: 'applicableTo',
+          property: 'legalType',
           constraints: {
-            isActorType: `${input.applicableTo} isn't a valid actor type.`,
+            isActorType: `${input.legalType} isn't a valid actor type.`,
           },
         },
       ],

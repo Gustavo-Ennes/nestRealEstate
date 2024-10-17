@@ -5,7 +5,7 @@ import { FileUpload } from './document.interface';
 import { CreateDocumentInput } from './dto/create-document.input';
 import { Queue } from 'bullmq';
 import { EDocumentType } from './enum/document-type.enum';
-import { EOwnerType } from './enum/owner-type.enum';
+import { ERole } from '../../application/auth/role/role.enum';
 import { assoc } from 'ramda';
 import { createDocumentTestingModule } from './testConfig/document.test.config';
 import { TestingModule } from '@nestjs/testing';
@@ -27,7 +27,7 @@ describe('DocumentService', () => {
   });
   const documentInfo: CreateDocumentInput = {
     ownerId: 1,
-    ownerType: EOwnerType.Tenant,
+    ownerRole: ERole.Tenant,
     type: EDocumentType.IR,
     file: document,
   };

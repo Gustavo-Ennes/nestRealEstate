@@ -11,7 +11,7 @@ import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
 import { InjectModel } from '@nestjs/sequelize';
 import { Landlord } from './entities/landlord.entity';
 import { UpdateLandlordInput } from './dto/update-landlord.input';
-import { EActorType } from '../enum/actor-type.enum';
+import { ELegalType } from '../enum/legal-type.enum';
 
 @Injectable()
 export class LandlordService {
@@ -108,9 +108,9 @@ export class LandlordService {
         );
 
       if (
-        (landlordType === EActorType.Legal &&
+        (landlordType === ELegalType.Legal &&
           updateLandlordDto.cpf?.length > 0) ||
-        (landlordType === EActorType.Natural &&
+        (landlordType === ELegalType.Natural &&
           updateLandlordDto.cnpj?.length > 0)
       )
         throw new ConflictException(

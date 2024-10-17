@@ -6,7 +6,7 @@ import { generateToken, initApp } from '../utils';
 import { EDocumentType } from '../../src/domain/document/enum/document-type.enum';
 import { ERole } from '../../src/application/auth/role/role.enum';
 import { DocumentType } from '../../src/domain/document-type/entities/document-type.entity';
-import { EActorType } from '../../src/domain/enum/actor-type.enum';
+import { ELegalType } from '../../src/domain/enum/legal-type.enum';
 
 describe('DocumentType Module - Delete (e2e)', () => {
   let app: INestApplication;
@@ -25,7 +25,7 @@ describe('DocumentType Module - Delete (e2e)', () => {
 
     documentType = await DocumentType.create({
       name: EDocumentType.CNPJ,
-      applicableTo: EActorType.Legal,
+      legalType: ELegalType.Legal,
     });
   });
 

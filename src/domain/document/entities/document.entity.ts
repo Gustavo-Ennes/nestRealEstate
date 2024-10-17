@@ -26,7 +26,7 @@ export class Document extends Model<Document> {
 
   @Column
   @Field(() => String)
-  ownerType: string;
+  ownerRole: string; // ERole => table
 
   @Column
   @Field(() => Int)

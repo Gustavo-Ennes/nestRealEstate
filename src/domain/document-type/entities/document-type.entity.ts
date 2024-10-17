@@ -24,7 +24,7 @@ export class DocumentType extends Model<DocumentType> {
 
   @Column
   @Field(() => String)
-  applicableTo: string; //  EActorType
+  legalType: string; //  ELegalType
 
   @CreatedAt
   @Field(() => Date)

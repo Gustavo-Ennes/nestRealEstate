@@ -6,7 +6,7 @@ import { generateToken, initApp } from '../utils';
 import { EDocumentType } from '../../src/domain/document/enum/document-type.enum';
 import { ERole } from '../../src/application/auth/role/role.enum';
 import { DocumentType } from '../../src/domain/document-type/entities/document-type.entity';
-import { EActorType } from '../../src/domain/enum/actor-type.enum';
+import { ELegalType } from '../../src/domain/enum/legal-type.enum';
 
 describe('DocumentType Module - Find (e2e)', () => {
   let app: INestApplication;
@@ -25,7 +25,7 @@ describe('DocumentType Module - Find (e2e)', () => {
 
     documentType = await DocumentType.create({
       name: EDocumentType.CNPJ,
-      applicableTo: EActorType.Legal,
+      legalType: ELegalType.Legal,
     });
   });
 
@@ -54,8 +54,8 @@ describe('DocumentType Module - Find (e2e)', () => {
       documentType.name,
     );
     expect(res.body.data.documentTypes[0]).toHaveProperty(
-      'applicableTo',
-      documentType.applicableTo,
+      'legalType',
+      documentType.legalType,
     );
     expect(res.body.data.documentTypes[0]).toHaveProperty('createdAt');
     expect(res.body.data.documentTypes[0]).toHaveProperty('updatedAt');
@@ -77,8 +77,8 @@ describe('DocumentType Module - Find (e2e)', () => {
       documentType.name,
     );
     expect(res.body.data.documentType).toHaveProperty(
-      'applicableTo',
-      documentType.applicableTo,
+      'legalType',
+      documentType.legalType,
     );
     expect(res.body.data.documentType).toHaveProperty('createdAt');
     expect(res.body.data.documentType).toHaveProperty('updatedAt');

@@ -18,7 +18,6 @@ import { Roles } from '../../application/auth/role/role.decorator';
 import { ERole } from '../../application/auth/role/role.enum';
 import { DocumentTypeService } from '../document-type/document-type.service';
 import { validateDocumentType } from './validations/type.validation';
-import { EOwnerType } from './enum/owner-type.enum';
 import { TenantService } from '../tenant/tenant.service';
 import { LandlordService } from '../landlord/landlord.service';
 import { Tenant } from '../tenant/entities/tenant.entity';
@@ -44,7 +43,7 @@ export class DocumentResolver {
     info: CreateDocumentInput,
   ) {
     let owner: Tenant | Landlord;
-    const { type, ownerType, ownerId, file } = info;
+    const { type, ownerRole, ownerId, file } = info;
 
     try {
       const isTypeValid = await validateDocumentType(
@@ -56,20 +55,20 @@ export class DocumentResolver {
         throw new BadRequestException(`${type} isn't a valid type.`);
 
       // TODO change with Guarantor entity implementation
-      switch (ownerType) {
-        case EOwnerType.Tenant:
+      switch (ownerRole) {
+        case ERole.Tenant:
           owner = await this.tenantService.findOne(ownerId);
           break;
-        case EOwnerType.Landlord:
+        case ERole.Landlord:
           owner = await this.landlordService.findOne(ownerId);
           break;
-        case EOwnerType.Guarantor:
+        case ERole.Guarantor:
           throw new NotImplementedException();
       }
       // TODO test this!
       if (!owner)
         throw new BadRequestException(
-          `No ${ownerType} found with provided id.`,
+          `No ${ownerRole} found with provided id.`,
         );
 
       if (!file) throw new BadRequestException(`File not provided.`);
@@ -103,7 +102,7 @@ export class DocumentResolver {
     @Args('updateDocumentInput') updateDocumentInput: UpdateDocumentInput,
   ) {
     let owner: Tenant | Landlord;
-    const { type, ownerType, ownerId, id } = updateDocumentInput;
+    const { type, ownerRole, ownerId, id } = updateDocumentInput;
     try {
       const isTypeValid = await validateDocumentType(
         type,
@@ -117,17 +116,17 @@ export class DocumentResolver {
         throw new BadRequestException(`${type} isn't a valid type.`);
 
       // TODO change with Guarantor entity implementation
-      const actualOwnerType = ownerType ?? documentToUpdate.ownerType;
+      const actualOwnerType = ownerRole ?? documentToUpdate.ownerRole;
       const actualOwnerId = ownerId ?? documentToUpdate.ownerId;
 
       switch (actualOwnerType) {
-        case EOwnerType.Tenant:
+        case ERole.Tenant:
           owner = await this.tenantService.findOne(actualOwnerId);
           break;
-        case EOwnerType.Landlord:
+        case ERole.Landlord:
           owner = await this.landlordService.findOne(actualOwnerId);
           break;
-        case EOwnerType.Guarantor:
+        case ERole.Guarantor:
           throw new NotImplementedException();
       }
       // }

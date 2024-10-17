@@ -75,7 +75,7 @@ export class DocumentTypeService {
         );
 
       if (input.name) documentType.name = input.name;
-      if (input.applicableTo) documentType.applicableTo = input.applicableTo;
+      if (input.legalType) documentType.legalType = input.legalType;
 
       await this.documentTypeModel.update(input, { where: { id: input.id } });
       await documentType.reload();

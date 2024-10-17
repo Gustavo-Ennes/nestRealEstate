@@ -11,5 +11,5 @@ export class CreateDocumentTypeInput {
   @Field(() => String)
   @IsNotEmpty()
   @isActorType
-  applicableTo: string;
+  legalType: string;
 }

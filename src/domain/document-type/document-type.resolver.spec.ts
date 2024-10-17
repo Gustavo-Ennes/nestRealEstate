@@ -3,7 +3,7 @@ import { DocumentTypeResolver } from './document-type.resolver';
 import { createDocumentTypeTestingModule } from './testConfig/document-type.test.config';
 import { DocumentType } from './entities/document-type.entity';
 import { CreateDocumentTypeInput } from './dto/create-document-type.input';
-import { EActorType } from '../enum/actor-type.enum';
+import { ELegalType } from '../enum/legal-type.enum';
 import { getModelToken } from '@nestjs/sequelize';
 import { validationPipe } from '../../application/pipes/validation.pipe';
 import { UpdateDocumentTypeInput } from './dto/update-document-type.input';
@@ -27,7 +27,7 @@ describe('DocumentTypeResolver', () => {
   it('should create a document type', async () => {
     const dtoObj: CreateDocumentTypeInput = {
       name: 'asdasd',
-      applicableTo: EActorType.Natural,
+      legalType: ELegalType.Natural,
     };
     (documentTypeModel.create as jest.Mock).mockResolvedValueOnce({
       ...dtoObj,
@@ -40,7 +40,7 @@ describe('DocumentTypeResolver', () => {
 
   it('should not create a document type without a name', async () => {
     const dtoObj = {
-      applicableTo: EActorType.Legal,
+      legalType: ELegalType.Legal,
     };
 
     try {
@@ -59,7 +59,7 @@ describe('DocumentTypeResolver', () => {
     }
   });
 
-  it('should not create a document type without a applicableTo property', async () => {
+  it('should not create a document type without a legalType property', async () => {
     const dtoObj = {
       name: 'gustavo',
     };
@@ -72,22 +72,19 @@ describe('DocumentTypeResolver', () => {
     } catch (error) {
       expect(error.response).toHaveProperty('message');
       expect(error.response.message).toHaveLength(1);
-      expect(error.response.message[0]).toHaveProperty(
-        'property',
-        'applicableTo',
-      );
+      expect(error.response.message[0]).toHaveProperty('property', 'legalType');
       expect(error.response.message[0]).toHaveProperty('constraints', {
-        isNotEmpty: 'applicableTo should not be empty',
+        isNotEmpty: 'legalType should not be empty',
         isActorType: "undefined isn't a valid actor type.",
       });
       expect(error.response).toHaveProperty('error', 'Bad Request');
     }
   });
 
-  it('should not create a document type with invalid applicableTo property', async () => {
+  it('should not create a document type with invalid legalType property', async () => {
     const dtoObj: CreateDocumentTypeInput = {
       name: 'asdasd',
-      applicableTo: 'musical',
+      legalType: 'musical',
     };
 
     try {
@@ -98,12 +95,9 @@ describe('DocumentTypeResolver', () => {
     } catch (error) {
       expect(error.response).toHaveProperty('message');
       expect(error.response.message).toHaveLength(1);
-      expect(error.response.message[0]).toHaveProperty(
-        'property',
-        'applicableTo',
-      );
+      expect(error.response.message[0]).toHaveProperty('property', 'legalType');
       expect(error.response.message[0]).toHaveProperty('constraints', {
-        isActorType: `${dtoObj.applicableTo} isn't a valid actor type.`,
+        isActorType: `${dtoObj.legalType} isn't a valid actor type.`,
       });
       expect(error.response).toHaveProperty('error', 'Bad Request');
     }
@@ -112,13 +106,13 @@ describe('DocumentTypeResolver', () => {
   it('should update a document type', async () => {
     const documentTypeToUpdate = {
       nome: 'name',
-      applicableTo: EActorType.Legal,
+      legalType: ELegalType.Legal,
       id: 1,
       reload: jest.fn(),
     };
     const dtoObj: UpdateDocumentTypeInput = {
       id: 1,
-      applicableTo: EActorType.Natural,
+      legalType: ELegalType.Natural,
     };
 
     (documentTypeModel.findOne as jest.Mock).mockResolvedValueOnce(
@@ -126,14 +120,14 @@ describe('DocumentTypeResolver', () => {
     );
     (documentTypeModel.update as jest.Mock).mockResolvedValueOnce({
       ...documentTypeToUpdate,
-      applicableTo: EActorType.Natural,
+      legalType: ELegalType.Natural,
     });
 
     const dtoInstance = Object.assign(new UpdateDocumentTypeInput(), dtoObj);
     const response = await resolver.updateDocumentType(dtoInstance);
     expect(response).toEqual({
       ...documentTypeToUpdate,
-      applicableTo: EActorType.Natural,
+      legalType: ELegalType.Natural,
     });
     expect(documentTypeToUpdate.reload).toHaveBeenCalled();
   });
@@ -158,10 +152,10 @@ describe('DocumentTypeResolver', () => {
     }
   });
 
-  it('should not update a document type with a empty applicableTo', async () => {
+  it('should not update a document type with a empty legalType', async () => {
     const dtoObj: UpdateDocumentTypeInput = {
       id: 1,
-      applicableTo: '',
+      legalType: '',
     };
     try {
       await validationPipe.transform(dtoObj, {
@@ -171,22 +165,19 @@ describe('DocumentTypeResolver', () => {
     } catch (error) {
       expect(error.response).toHaveProperty('message');
       expect(error.response.message).toHaveLength(1);
-      expect(error.response.message[0]).toHaveProperty(
-        'property',
-        'applicableTo',
-      );
+      expect(error.response.message[0]).toHaveProperty('property', 'legalType');
       expect(error.response.message[0]).toHaveProperty('constraints', {
-        isNotEmpty: `applicableTo should not be empty`,
+        isNotEmpty: `legalType should not be empty`,
         isActorType: " isn't a valid actor type.",
       });
       expect(error.response).toHaveProperty('error', 'Bad Request');
     }
   });
 
-  it('should not update a document type with invalid applicableTo property', async () => {
+  it('should not update a document type with invalid legalType property', async () => {
     const dtoObj: UpdateDocumentTypeInput = {
       id: 1,
-      applicableTo: 'musical',
+      legalType: 'musical',
     };
     try {
       await validationPipe.transform(dtoObj, {
@@ -196,10 +187,7 @@ describe('DocumentTypeResolver', () => {
     } catch (error) {
       expect(error.response).toHaveProperty('message');
       expect(error.response.message).toHaveLength(1);
-      expect(error.response.message[0]).toHaveProperty(
-        'property',
-        'applicableTo',
-      );
+      expect(error.response.message[0]).toHaveProperty('property', 'legalType');
       expect(error.response.message[0]).toHaveProperty('constraints', {
         isActorType: "musical isn't a valid actor type.",
       });
