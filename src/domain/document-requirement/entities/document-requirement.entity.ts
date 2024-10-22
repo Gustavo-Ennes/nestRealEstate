@@ -6,6 +6,8 @@ import {
   Default,
   AutoIncrement,
   PrimaryKey,
+  CreatedAt,
+  UpdatedAt,
 } from 'sequelize-typescript';
 import { DocumentType } from '../../document-type/entities/document-type.entity';
 import { Field, Int, ObjectType } from '@nestjs/graphql';
@@ -33,7 +35,15 @@ export class DocumentRequirement extends Model<DocumentRequirement> {
   @Field(() => Boolean, { defaultValue: true })
   isRequired: boolean;
 
-  @Field(() => [DocumentType])
+  @CreatedAt
+  @Field(() => Date)
+  createdAt: Date;
+
+  @UpdatedAt
+  @Field(() => Date)
+  updatedAt: Date;
+
+  @Field(() => DocumentType)
   get documentType(): Promise<DocumentType> {
     return DocumentType.findOne({
       where: { id: this.documentTypeId },

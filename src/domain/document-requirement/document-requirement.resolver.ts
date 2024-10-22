@@ -3,13 +3,22 @@ import { DocumentRequirementService } from './document-requirement.service';
 import { DocumentRequirement } from './entities/document-requirement.entity';
 import { CreateDocumentRequirementInput } from './dto/create-document-requirement.input';
 import { UpdateDocumentRequirementInput } from './dto/update-document-requirement.input';
+import { UseGuards, UsePipes } from '@nestjs/common';
+import { validationPipe } from '../../application/pipes/validation.pipe';
+import { RolesGuard } from '../../application/auth/role/role.guard';
+import { Roles } from '../../application/auth/role/role.decorator';
+import { ERole } from '../../application/auth/role/role.enum';
+import { AuthGuard } from '../../application/auth/auth.guard';
 
+@UsePipes(validationPipe)
+@UseGuards(AuthGuard, RolesGuard)
 @Resolver(() => DocumentRequirement)
 export class DocumentRequirementResolver {
   constructor(
     private readonly documentRequirementService: DocumentRequirementService,
   ) {}
 
+  @Roles(ERole.Admin)
   @Mutation(() => DocumentRequirement)
   createDocumentRequirement(
     @Args('createDocumentRequirementInput')
@@ -20,7 +29,7 @@ export class DocumentRequirementResolver {
     );
   }
 
-  @Query(() => [DocumentRequirement], { name: 'documentRequirement' })
+  @Query(() => [DocumentRequirement], { name: 'documentRequirements' })
   findAll() {
     return this.documentRequirementService.findAll();
   }
@@ -30,6 +39,7 @@ export class DocumentRequirementResolver {
     return this.documentRequirementService.findOne(id);
   }
 
+  @Roles(ERole.Admin)
   @Mutation(() => DocumentRequirement)
   updateDocumentRequirement(
     @Args('updateDocumentRequirementInput')
@@ -40,7 +50,8 @@ export class DocumentRequirementResolver {
     );
   }
 
-  @Mutation(() => DocumentRequirement)
+  @Roles(ERole.Admin)
+  @Mutation(() => Boolean)
   removeDocumentRequirement(@Args('id', { type: () => Int }) id: number) {
     return this.documentRequirementService.remove(id);
   }

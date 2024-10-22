@@ -3,30 +3,27 @@ import * as request from 'supertest';
 import { Sequelize } from 'sequelize-typescript';
 import { createMutation } from './queries';
 import { landlordWith } from './utils';
-import { requestAndCheckError, initApp } from '../utils';
+import { requestAndCheckError, initApp, afterAllTests } from '../utils';
 
 describe('Landlord Module - Create (e2e)', () => {
   let app: INestApplication;
   let sequelize: Sequelize;
   let token: string;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const { application, adminToken, db } = await initApp();
     app = application;
     token = adminToken;
     sequelize = db;
+  });
 
+  beforeEach(async () => {
     await sequelize.getQueryInterface().dropTable('Landlords');
     await sequelize.sync({ force: true });
   });
 
-  afterEach(async () => {
-    const sequelize = app.get<Sequelize>(Sequelize);
-    await sequelize.close();
-  });
-
   afterAll(async () => {
-    await app.close();
+    await afterAllTests(app);
   });
 
   it('should create a landlord with admin role', async () => {

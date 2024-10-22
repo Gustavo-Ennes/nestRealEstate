@@ -145,7 +145,7 @@ export class LandlordService {
       return true;
     } catch (error) {
       this.logger.error(
-        `${this.update.name} -> ${error.message}`,
+        `${this.remove.name} -> ${error.message}`,
         error.stack,
         { id },
       );

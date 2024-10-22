@@ -113,7 +113,7 @@ describe('DocumentRequirementResolver', () => {
       expect(error.response.message[0]).toHaveProperty('property', 'role');
       expect(error.response.message[0]).toHaveProperty('constraints', {
         isNotEmpty: 'role should not be empty',
-        isValidDocumentOwnerRole: 'Inexistent document owner role: undefined',
+        isValidDocumentOwnerRole: 'Inexistent document owner role: ',
       });
       expect(error.response).toHaveProperty('error', 'Bad Request');
     }
@@ -135,7 +135,7 @@ describe('DocumentRequirementResolver', () => {
       expect(error.response.message).toHaveLength(1);
       expect(error.response.message[0]).toHaveProperty('property', 'role');
       expect(error.response.message[0]).toHaveProperty('constraints', {
-        isValidDocumentOwnerRole: 'Inexistent document owner role: undefined',
+        isValidDocumentOwnerRole: 'Inexistent document owner role: musician',
       });
       expect(error.response).toHaveProperty('error', 'Bad Request');
     }
@@ -223,7 +223,7 @@ describe('DocumentRequirementResolver', () => {
       expect(error.response.message[0]).toHaveProperty('property', 'role');
       expect(error.response.message[0]).toHaveProperty('constraints', {
         isNotEmpty: 'role should not be empty',
-        isValidDocumentOwnerRole: 'Inexistent document owner role: undefined',
+        isValidDocumentOwnerRole: 'Inexistent document owner role: ',
       });
       expect(error.response).toHaveProperty('error', 'Bad Request');
     }
@@ -245,7 +245,7 @@ describe('DocumentRequirementResolver', () => {
       expect(error.response.message).toHaveLength(1);
       expect(error.response.message[0]).toHaveProperty('property', 'role');
       expect(error.response.message[0]).toHaveProperty('constraints', {
-        isValidDocumentOwnerRole: 'Inexistent document owner role: undefined',
+        isValidDocumentOwnerRole: 'Inexistent document owner role: musician',
       });
       expect(error.response).toHaveProperty('error', 'Bad Request');
     }

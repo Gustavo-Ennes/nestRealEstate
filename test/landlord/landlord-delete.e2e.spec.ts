@@ -2,21 +2,24 @@ import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { Sequelize } from 'sequelize-typescript';
 import { deleteMutation } from './queries';
-import { generateToken, initApp } from '../utils';
+import { afterAllTests, generateToken, initApp } from '../utils';
 import { Landlord } from '../../src/domain/landlord/entities/landlord.entity';
+import { ERole } from '../../src/application/auth/role/role.enum';
 
-describe('Landlord Module - Create (e2e)', () => {
+describe('Landlord Module - Delete (e2e)', () => {
   let app: INestApplication,
     sequelize: Sequelize,
     token: string,
     landlord: Landlord;
 
-  beforeEach(async () => {
-    const { application, db, adminToken } = await initApp();
+  beforeAll(async () => {
+    const { application, adminToken, db } = await initApp();
     app = application;
     token = adminToken;
     sequelize = db;
+  });
 
+  beforeEach(async () => {
     await sequelize.getQueryInterface().dropTable('Landlords');
     await sequelize.sync({ force: true });
 
@@ -28,13 +31,8 @@ describe('Landlord Module - Create (e2e)', () => {
     });
   });
 
-  afterEach(async () => {
-    const sequelize = app.get<Sequelize>(Sequelize);
-    await sequelize.close();
-  });
-
   afterAll(async () => {
-    await app.close();
+    await afterAllTests(app);
   });
 
   it('should delete a landlord with admin role', async () => {
@@ -51,10 +49,13 @@ describe('Landlord Module - Create (e2e)', () => {
   });
 
   it('should delete a landlord with landlord role', async () => {
-    token = generateToken({ sub: landlord.id, role: 'landlord' });
+    const landlordToken = generateToken({
+      sub: landlord.id,
+      role: ERole.Landlord,
+    });
     const res = await request(app.getHttpServer())
       .post('/graphql')
-      .set('Authorization', `Bearer ${token}`)
+      .set('Authorization', `Bearer ${landlordToken}`)
       .send({
         query: deleteMutation,
         variables: { input: landlord.id },
@@ -65,10 +66,10 @@ describe('Landlord Module - Create (e2e)', () => {
   });
 
   it('should not delete a landlord with tenant role', async () => {
-    token = generateToken({ sub: landlord.id, role: 'tenant' });
+    const tenantToken = generateToken({ sub: landlord.id, role: ERole.Tenant });
     const res = await request(app.getHttpServer())
       .post('/graphql')
-      .set('Authorization', `Bearer ${token}`)
+      .set('Authorization', `Bearer ${tenantToken}`)
       .send({
         query: deleteMutation,
         variables: { input: landlord.id },
@@ -84,14 +85,12 @@ describe('Landlord Module - Create (e2e)', () => {
   });
 
   it("should throw a 404 if landlord to delete don't exists", async () => {
-    await landlord.destroy();
-
     const res = await request(app.getHttpServer())
       .post('/graphql')
       .set('Authorization', `Bearer ${token}`)
       .send({
         query: deleteMutation,
-        variables: { input: landlord.id },
+        variables: { input: 666 },
       })
       .expect(200);
 

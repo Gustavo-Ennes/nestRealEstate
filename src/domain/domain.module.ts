@@ -6,6 +6,12 @@ import { DocumentTypeModule } from './document-type/document-type.module';
 import { DocumentRequirementModule } from './document-requirement/document-requirement.module';
 
 @Module({
-  imports: [DocumentTypeModule, DocumentModule, TenantModule, LandlordModule, DocumentRequirementModule],
+  imports: [
+    DocumentTypeModule,
+    DocumentModule,
+    TenantModule,
+    LandlordModule,
+    DocumentRequirementModule,
+  ],
 })
 export class DomainModule {}

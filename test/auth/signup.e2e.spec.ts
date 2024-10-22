@@ -12,21 +12,19 @@ describe('Auth Module - SignUp (e2e)', () => {
   let sequelize: Sequelize;
   let token: string;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const { application, db } = await initApp();
     app = application;
     sequelize = db;
+  });
 
+  beforeEach(async () => {
     await sequelize.getQueryInterface().dropTable('Users');
     await sequelize.sync({ force: true });
   });
 
-  afterEach(async () => {
-    const sequelize = app.get<Sequelize>(Sequelize);
-    await sequelize.close();
-  });
-
   afterAll(async () => {
+    await sequelize.close();
     await app.close();
   });
 

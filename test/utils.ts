@@ -1,9 +1,15 @@
-import { ValidationPipe, BadRequestException } from '@nestjs/common';
+import {
+  ValidationPipe,
+  BadRequestException,
+  INestApplication,
+} from '@nestjs/common';
 import { TestingModule, Test } from '@nestjs/testing';
 import { sign } from 'jsonwebtoken';
 import * as request from 'supertest';
 import { Sequelize } from 'sequelize-typescript';
 import { AppModule } from '../src/app.module';
+import { Queue } from 'bullmq';
+import { getQueueToken } from '@nestjs/bullmq';
 
 export const generateToken = (user = { sub: 1, role: 'admin' }) => {
   return sign(
@@ -54,6 +60,8 @@ export const requestAndCheckError =
     }
   };
 
+export const queueNames = ['document'];
+
 export const initApp = async () => {
   const moduleFixture: TestingModule = await Test.createTestingModule({
     imports: [AppModule],
@@ -79,4 +87,17 @@ export const initApp = async () => {
   await app.init();
 
   return { application: app, db: sequelize, adminToken: token };
+};
+
+export const afterAllTests = async (app: INestApplication) => {
+  const sequelize = app.get<Sequelize>(Sequelize);
+  const queues = queueNames.map((name) => app.get<Queue>(getQueueToken(name)));
+  await sequelize.close();
+
+  queues.forEach(async (queue) => {
+    await queue.close();
+    queue.removeAllListeners();
+  });
+  process.removeAllListeners();
+  await app.close();
 };

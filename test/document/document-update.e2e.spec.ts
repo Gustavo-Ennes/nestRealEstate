@@ -2,7 +2,12 @@ import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { Sequelize } from 'sequelize-typescript';
 import { updateMutation } from './queries';
-import { generateToken, initApp, requestAndCheckError } from '../utils';
+import {
+  afterAllTests,
+  generateToken,
+  initApp,
+  requestAndCheckError,
+} from '../utils';
 import { Tenant } from '../../src/domain/tenant/entities/tenant.entity';
 import { Document } from '../../src/domain/document/entities/document.entity';
 import { EDocumentType } from '../../src/domain/document/enum/document-type.enum';
@@ -16,12 +21,14 @@ describe('Document Module - Update (e2e)', () => {
     document: Document,
     naturalTenant: Tenant;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const { application, db, adminToken } = await initApp();
     app = application;
     token = adminToken;
     sequelize = db;
+  });
 
+  beforeEach(async () => {
     await sequelize.getQueryInterface().dropTable('Documents');
     await sequelize.sync({ force: true });
 
@@ -49,13 +56,8 @@ describe('Document Module - Update (e2e)', () => {
     });
   });
 
-  afterEach(async () => {
-    const sequelize = app.get<Sequelize>(Sequelize);
-    await sequelize.close();
-  });
-
   afterAll(async () => {
-    await app.close();
+    await afterAllTests(app);
   });
 
   it('should update a document with admin role', async () => {

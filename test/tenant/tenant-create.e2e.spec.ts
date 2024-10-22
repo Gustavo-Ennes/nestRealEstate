@@ -3,31 +3,26 @@ import * as request from 'supertest';
 import { Sequelize } from 'sequelize-typescript';
 import { createMutation } from './queries';
 import { tenantWith } from './utils';
-import { requestAndCheckError, initApp } from '../utils';
+import { requestAndCheckError, initApp, afterAllTests } from '../utils';
 
 describe('Tenant Module - Create (e2e)', () => {
   let app: INestApplication;
   let sequelize: Sequelize;
   let token: string;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const { application, adminToken, db } = await initApp();
     app = application;
     token = adminToken;
     sequelize = db;
+  });
 
+  beforeEach(async () => {
     await sequelize.getQueryInterface().dropTable('Tenants');
     await sequelize.sync({ force: true });
   });
 
-  afterEach(async () => {
-    const sequelize = app.get<Sequelize>(Sequelize);
-    await sequelize.close();
-  });
-
-  afterAll(async () => {
-    await app.close();
-  });
+  afterAll(async () => await afterAllTests(app));
 
   it('should create a tenant with admin role', async () => {
     const tenantInput = {

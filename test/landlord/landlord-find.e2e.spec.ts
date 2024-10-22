@@ -3,7 +3,7 @@ import * as request from 'supertest';
 import { Sequelize } from 'sequelize-typescript';
 import { Landlord } from '../../src/domain/landlord/entities/landlord.entity';
 import { findOneQuery, findAllQuery } from './queries';
-import { generateToken, initApp } from '../utils';
+import { afterAllTests, generateToken, initApp } from '../utils';
 import { ERole } from '../../src/application/auth/role/role.enum';
 import { EDocumentType } from '../../src/domain/document/enum/document-type.enum';
 import { Document } from '../../src/domain/document/entities/document.entity';
@@ -13,23 +13,20 @@ describe('Landlord Module - Find (e2e)', () => {
   let sequelize: Sequelize;
   let token: string;
 
-  beforeEach(async () => {
-    const { application, db, adminToken } = await initApp();
+  beforeAll(async () => {
+    const { application, adminToken, db } = await initApp();
     app = application;
     token = adminToken;
     sequelize = db;
+  });
 
+  beforeEach(async () => {
     await sequelize.getQueryInterface().dropTable('Landlords');
     await sequelize.sync({ force: true });
   });
 
-  afterEach(async () => {
-    const sequelize = app.get<Sequelize>(Sequelize);
-    await sequelize.close();
-  });
-
   afterAll(async () => {
-    await app.close();
+    await afterAllTests(app);
   });
 
   it('should find a landlord with admin role', async () => {
@@ -66,11 +63,11 @@ describe('Landlord Module - Find (e2e)', () => {
   });
 
   it('should not find a landlord with tenant role', async () => {
-    token = generateToken({ sub: 1, role: 'tenant' });
+    const tenantToken = generateToken({ sub: 1, role: ERole.Tenant });
 
     const res = await request(app.getHttpServer())
       .post('/graphql')
-      .set('Authorization', `Bearer ${token}`)
+      .set('Authorization', `Bearer ${tenantToken}`)
       .send({
         query: findOneQuery,
       })
@@ -105,11 +102,11 @@ describe('Landlord Module - Find (e2e)', () => {
   });
 
   it('should not find all landlords with tenant role', async () => {
-    token = generateToken({ sub: 1, role: 'tenant' });
+    const tenantToken = generateToken({ sub: 1, role: ERole.Tenant });
 
     const res = await request(app.getHttpServer())
       .post('/graphql')
-      .set('Authorization', `Bearer ${token}`)
+      .set('Authorization', `Bearer ${tenantToken}`)
       .send({
         query: findAllQuery,
       })

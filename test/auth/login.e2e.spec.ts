@@ -11,21 +11,19 @@ describe('Auth Module - Login (e2e)', () => {
   let app: INestApplication;
   let sequelize: Sequelize;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const { application, db } = await initApp();
     app = application;
     sequelize = db;
+  });
 
+  beforeEach(async () => {
     await sequelize.getQueryInterface().dropTable('Tenants');
     await sequelize.sync({ force: true });
   });
 
-  afterEach(async () => {
-    const sequelize = app.get<Sequelize>(Sequelize);
-    await sequelize.close();
-  });
-
   afterAll(async () => {
+    await sequelize.close();
     await app.close();
   });
 

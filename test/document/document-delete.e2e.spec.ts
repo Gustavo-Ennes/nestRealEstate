@@ -2,7 +2,7 @@ import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { Sequelize } from 'sequelize-typescript';
 import { deleteMutation } from './queries';
-import { initApp, requestAndCheckError } from '../utils';
+import { afterAllTests, initApp, requestAndCheckError } from '../utils';
 import { ERole } from '../../src/application/auth/role/role.enum';
 import { EDocumentType } from '../../src/domain/document/enum/document-type.enum';
 import { Document } from '../../src/domain/document/entities/document.entity';
@@ -13,12 +13,14 @@ describe('Document Module - Delete (e2e)', () => {
   let token: string;
   let document: Document;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const { application, db, adminToken } = await initApp();
     app = application;
     token = adminToken;
     sequelize = db;
+  });
 
+  beforeEach(async () => {
     await sequelize.getQueryInterface().dropTable('Documents');
     await sequelize.sync({ force: true });
 
@@ -30,13 +32,8 @@ describe('Document Module - Delete (e2e)', () => {
     });
   });
 
-  afterEach(async () => {
-    const sequelize = app.get<Sequelize>(Sequelize);
-    await sequelize.close();
-  });
-
   afterAll(async () => {
-    await app.close();
+    await afterAllTests(app);
   });
 
   it('should delete a tenant with admin role', async () => {

@@ -2,7 +2,7 @@ import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { Sequelize } from 'sequelize-typescript';
 import { findOneQuery } from './queries';
-import { generateToken, initApp } from '../utils';
+import { afterAllTests, generateToken, initApp } from '../utils';
 import { EDocumentType } from '../../src/domain/document/enum/document-type.enum';
 import { Document } from '../../src/domain/document/entities/document.entity';
 import { ERole } from '../../src/application/auth/role/role.enum';
@@ -13,12 +13,14 @@ describe('Document Module - Find (e2e)', () => {
   let token: string;
   let document: Document;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const { application, db, adminToken } = await initApp();
     app = application;
     token = adminToken;
     sequelize = db;
+  });
 
+  beforeEach(async () => {
     await sequelize.getQueryInterface().dropTable('Documents');
     await sequelize.sync({ force: true });
 
@@ -30,13 +32,8 @@ describe('Document Module - Find (e2e)', () => {
     });
   });
 
-  afterEach(async () => {
-    const sequelize = app.get<Sequelize>(Sequelize);
-    await sequelize.close();
-  });
-
   afterAll(async () => {
-    await app.close();
+    await afterAllTests(app);
   });
 
   it('should find a document with admin role', async () => {

@@ -2,8 +2,14 @@ import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { Sequelize } from 'sequelize-typescript';
 import { updateMutation } from './queries';
-import { generateToken, initApp, requestAndCheckError } from '../utils';
+import {
+  afterAllTests,
+  generateToken,
+  initApp,
+  requestAndCheckError,
+} from '../utils';
 import { Tenant } from '../../src/domain/tenant/entities/tenant.entity';
+import { ERole } from '../../src/application/auth/role/role.enum';
 
 describe('Tenant Module - Update (e2e)', () => {
   let app: INestApplication,
@@ -12,12 +18,14 @@ describe('Tenant Module - Update (e2e)', () => {
     naturalTenant: Tenant,
     legalTenant: Tenant;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const { application, db, adminToken } = await initApp();
     app = application;
     token = adminToken;
     sequelize = db;
+  });
 
+  beforeEach(async () => {
     await sequelize.getQueryInterface().dropTable('Tenants');
     await sequelize.sync({ force: true });
 
@@ -35,13 +43,8 @@ describe('Tenant Module - Update (e2e)', () => {
     });
   });
 
-  afterEach(async () => {
-    const sequelize = app.get<Sequelize>(Sequelize);
-    await sequelize.close();
-  });
-
   afterAll(async () => {
-    await app.close();
+    await afterAllTests(app);
   });
 
   it('should update a tenant with admin role', async () => {
@@ -83,11 +86,11 @@ describe('Tenant Module - Update (e2e)', () => {
       id: naturalTenant.id,
       name: 'new name',
     };
-    token = generateToken({ sub: 1, role: 'tenant' });
+    const tenantToken = generateToken({ sub: 1, role: ERole.Tenant });
 
     const res = await request(app.getHttpServer())
       .post('/graphql')
-      .set('Authorization', `Bearer ${token}`)
+      .set('Authorization', `Bearer ${tenantToken}`)
       .send({
         query: updateMutation,
         variables: { input: updateDto },
@@ -118,11 +121,11 @@ describe('Tenant Module - Update (e2e)', () => {
       id: naturalTenant.id,
       name: 'new name',
     };
-    token = generateToken({ sub: 1, role: 'landlord' });
+    const landlordToken = generateToken({ sub: 1, role: ERole.Landlord });
 
     const res = await request(app.getHttpServer())
       .post('/graphql')
-      .set('Authorization', `Bearer ${token}`)
+      .set('Authorization', `Bearer ${landlordToken}`)
       .send({
         query: updateMutation,
         variables: { input: updateDto },

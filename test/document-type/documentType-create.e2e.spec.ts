@@ -2,7 +2,7 @@ import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { Sequelize } from 'sequelize-typescript';
 import { createMutation } from './queries';
-import { generateToken, initApp } from '../utils';
+import { afterAllTests, generateToken, initApp } from '../utils';
 import { EDocumentType } from '../../src/domain/document/enum/document-type.enum';
 import { ERole } from '../../src/application/auth/role/role.enum';
 import { ELegalType } from '../../src/domain/enum/legal-type.enum';
@@ -17,23 +17,20 @@ describe('DocumentType Module - Create (e2e)', () => {
     legalType: ELegalType.Legal,
   };
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const { application, db, adminToken } = await initApp();
     app = application;
     token = adminToken;
     sequelize = db;
+  });
 
+  beforeEach(async () => {
     await sequelize.getQueryInterface().dropTable('DocumentTypes');
     await sequelize.sync({ force: true });
   });
 
-  afterEach(async () => {
-    const sequelize = app.get<Sequelize>(Sequelize);
-    await sequelize.close();
-  });
-
   afterAll(async () => {
-    await app.close();
+    await afterAllTests(app);
   });
 
   it('should create a document type with admin role', async () => {
