@@ -34,7 +34,10 @@ export class DocumentRequirementResolver {
     return this.documentRequirementService.findAll();
   }
 
-  @Query(() => DocumentRequirement, { name: 'documentRequirement' })
+  @Query(() => DocumentRequirement, {
+    name: 'documentRequirement',
+    nullable: true,
+  })
   findOne(@Args('id', { type: () => Int }) id: number) {
     return this.documentRequirementService.findOne(id);
   }

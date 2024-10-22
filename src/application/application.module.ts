@@ -24,7 +24,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       useFactory: async (configService: ConfigService) => {
         const isTest = process.env.NODE_ENV === 'test';
         const database = configService.get<string>(
-          isTest ? 'POSTGRES_DATABASE' : 'POSTGRES_TEST_DATABASE',
+          isTest ? 'POSTGRES_TEST_DATABASE' : 'POSTGRES_DATABASE',
         );
         const logging = !isTest;
 

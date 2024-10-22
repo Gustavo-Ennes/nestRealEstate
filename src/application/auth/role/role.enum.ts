@@ -1,4 +1,5 @@
 export enum ERole {
+  Superadmin = 'superadmin',
   Admin = 'admin',
   Landlord = 'landlord',
   Tenant = 'tenant',

@@ -52,7 +52,7 @@ describe('DocumentRequirementResolver', () => {
 
   it('should not add a document requirement without a documentTypeId', async () => {
     const dtoObj = {
-      role: ERole.Admin,
+      role: ERole.Tenant,
     };
 
     try {

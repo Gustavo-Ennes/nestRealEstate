@@ -85,7 +85,7 @@ type Query {
   landlords: [Landlord!]!
   landlord(id: Int!): Landlord
   documentRequirements: [DocumentRequirement!]!
-  documentRequirement(id: Int!): DocumentRequirement!
+  documentRequirement(id: Int!): DocumentRequirement
 }
 
 type Mutation {
