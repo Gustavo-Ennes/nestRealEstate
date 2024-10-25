@@ -1,6 +1,6 @@
 import { InputType, Int, Field } from '@nestjs/graphql';
 import { IsNotEmpty } from 'class-validator';
-import { isValidDocumentOwnerRole } from '../../validations/owner-role.validation';
+import { isValidDocumentOwnerRole } from '../../../validations/owner-role.validation';
 
 @InputType()
 export class CreateDocumentRequirementInput {

@@ -25,6 +25,19 @@ export class UserService {
     }
   }
 
+  async findById(id: number): Promise<User | undefined> {
+    try {
+      return await this.userModel.findByPk(id);
+    } catch (error) {
+      this.logger.error(
+        `${this.findById.name} -> ${error.message}`,
+        error.stack,
+        { id },
+      );
+      throw error;
+    }
+  }
+
   async create(createUserInput: CreateUserInput): Promise<User> {
     try {
       return await this.userModel.create(createUserInput as any);

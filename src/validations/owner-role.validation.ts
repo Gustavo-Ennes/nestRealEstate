@@ -1,5 +1,5 @@
 import { registerDecorator, ValidationArguments } from 'class-validator';
-import { ERole } from '../../application/auth/role/role.enum';
+import { ERole } from '../application/auth/role/role.enum';
 
 // excluding 'admin' and 'superadmin' roles here because they
 // aren't document owners, just tenants, landlords, guarantors are

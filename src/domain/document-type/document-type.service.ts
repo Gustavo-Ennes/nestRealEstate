@@ -74,9 +74,6 @@ export class DocumentTypeService {
           `Documenttype not found for document id ${input.id}`,
         );
 
-      if (input.name) documentType.name = input.name;
-      if (input.legalType) documentType.legalType = input.legalType;
-
       await this.documentTypeModel.update(input, { where: { id: input.id } });
       await documentType.reload();
 

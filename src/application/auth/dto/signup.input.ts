@@ -1,7 +1,7 @@
 import { InputType, Field } from '@nestjs/graphql';
 import { IsValidUsername } from '../validation/username.validation';
 import { IsValidPassword } from '../validation/password.validation';
-import { IsEmail } from '../../../domain/validations/email.validation';
+import { IsEmail } from '../../../validations/email.validation';
 import { IsValidRole } from '../validation/role.validation';
 
 @InputType()

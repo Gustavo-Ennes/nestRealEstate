@@ -78,7 +78,7 @@ export class DocumentRequirementService {
   async update(updateDocumentRequirementInput: UpdateDocumentRequirementInput) {
     try {
       let documentType: DocumentType;
-      const { id, documentTypeId, role } = updateDocumentRequirementInput;
+      const { id, documentTypeId } = updateDocumentRequirementInput;
       const documentRequirementToUpdate =
         await this.documentRequirementModel.findByPk(id);
 
@@ -94,11 +94,6 @@ export class DocumentRequirementService {
         throw new NotFoundException(
           'Document type not found with provided documentTypeId',
         );
-
-      if (documentType)
-        documentRequirementToUpdate.documentTypeId = documentType.id;
-
-      if (role) documentRequirementToUpdate.role = role;
 
       await this.documentRequirementModel.update(
         updateDocumentRequirementInput,

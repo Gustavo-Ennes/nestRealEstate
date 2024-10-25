@@ -104,8 +104,8 @@ describe('DocumentTypeResolver', () => {
   });
 
   it('should update a document type', async () => {
-    const documentTypeToUpdate = {
-      nome: 'name',
+    const documentTypeToUpdate: Partial<DocumentType> = {
+      name: 'name',
       legalType: ELegalType.Legal,
       id: 1,
       reload: jest.fn(),
@@ -118,9 +118,8 @@ describe('DocumentTypeResolver', () => {
     (documentTypeModel.findOne as jest.Mock).mockResolvedValueOnce(
       documentTypeToUpdate,
     );
-    (documentTypeModel.update as jest.Mock).mockResolvedValueOnce({
-      ...documentTypeToUpdate,
-      legalType: ELegalType.Natural,
+    (documentTypeModel.update as jest.Mock).mockImplementationOnce(() => {
+      documentTypeToUpdate.legalType = dtoObj.legalType;
     });
 
     const dtoInstance = Object.assign(new UpdateDocumentTypeInput(), dtoObj);
@@ -131,6 +130,7 @@ describe('DocumentTypeResolver', () => {
     });
     expect(documentTypeToUpdate.reload).toHaveBeenCalled();
   });
+
   it('should not update a document type with a empty name', async () => {
     const dtoObj: UpdateDocumentTypeInput = {
       id: 1,

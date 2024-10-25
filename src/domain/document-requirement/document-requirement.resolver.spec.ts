@@ -147,7 +147,7 @@ describe('DocumentRequirementResolver', () => {
       role: ERole.Tenant,
       documentTypeId: 1,
     };
-    const documentRequirementToUpdate = {
+    const documentRequirementToUpdate: Partial<DocumentRequirement> = {
       id: 1,
       role: ERole.Admin,
       documentTypeId: 2,
@@ -160,6 +160,12 @@ describe('DocumentRequirementResolver', () => {
     (documentTypeModel.findOne as jest.Mock).mockResolvedValueOnce({
       id: 1,
     });
+    (documentRequirementModel.update as jest.Mock).mockImplementationOnce(
+      () => {
+        documentRequirementToUpdate.role = dtoObj.role;
+        documentRequirementToUpdate.documentTypeId = dtoObj.documentTypeId;
+      },
+    );
 
     const response = await resolver.updateDocumentRequirement(dtoObj);
     expect(response).toEqual(expect.objectContaining(dtoObj));

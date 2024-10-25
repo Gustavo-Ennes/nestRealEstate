@@ -11,6 +11,7 @@ import { BullModule } from '@nestjs/bullmq';
 import { BullBoardModule } from '@bull-board/nestjs';
 import { ExpressAdapter } from '@bull-board/express';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ClientModule } from './client/client.module';
 
 @Module({
   imports: [
@@ -62,6 +63,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     UserModule,
     AuthModule,
     BucketModule,
+    ClientModule,
   ],
 })
 export class ApplicationModule {}

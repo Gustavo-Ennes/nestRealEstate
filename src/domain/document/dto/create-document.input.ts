@@ -1,5 +1,5 @@
 import { InputType, Field, Int } from '@nestjs/graphql';
-import { isValidDocumentOwnerRole } from '../../validations/owner-role.validation';
+import { isValidDocumentOwnerRole } from '../../../validations/owner-role.validation';
 import { IsNotEmpty } from 'class-validator';
 import { FileUpload } from '../document.interface';
 import * as GraphQLUpload from 'graphql-upload/GraphQLUpload.js';

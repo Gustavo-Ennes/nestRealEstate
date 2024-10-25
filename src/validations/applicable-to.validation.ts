@@ -1,5 +1,5 @@
 import { ValidationArguments, registerDecorator } from 'class-validator';
-import { ELegalType } from '../enum/legal-type.enum';
+import { ELegalType } from '../domain/enum/legal-type.enum';
 
 const validate = (value: string): boolean =>
   Object.values(ELegalType).includes(value as ELegalType);

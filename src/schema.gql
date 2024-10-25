@@ -6,6 +6,18 @@ type AuthReturn {
   access_token: String!
 }
 
+type Client {
+  id: Int!
+  userId: Int!
+  name: String!
+  phone: String!
+  email: String!
+  site: String
+  cnpj: String!
+  isActive: Boolean!
+  observation: String
+}
+
 type Document {
   id: Int!
   type: String!
@@ -76,6 +88,8 @@ type DocumentRequirement {
 }
 
 type Query {
+  clients: [Client!]!
+  client(id: Int!): Client
   documentTypes: [DocumentType!]!
   documentType(id: Int!): DocumentType
   documents: [Document!]!
@@ -91,6 +105,9 @@ type Query {
 type Mutation {
   signUp(signUpInput: SignUpInput!): AuthReturn!
   login(loginInput: LoginInput!): AuthReturn!
+  createClient(createClientInput: CreateClientInput!): Client!
+  updateClient(updateClientInput: UpdateClientInput!): Client!
+  removeClient(id: Int!): Boolean!
   createDocumentType(createDocumentTypeInput: CreateDocumentTypeInput!): DocumentType!
   updateDocumentType(updateDocumentTypeInput: UpdateDocumentTypeInput!): DocumentType!
   removeDocumentType(id: Int!): Boolean!
@@ -118,6 +135,29 @@ input SignUpInput {
 input LoginInput {
   username: String!
   password: String!
+}
+
+input CreateClientInput {
+  userId: Int!
+  name: String!
+  phone: String!
+  email: String!
+  site: String!
+  cnpj: String!
+  isActive: Boolean! = true
+  observation: String
+}
+
+input UpdateClientInput {
+  userId: Int
+  name: String
+  phone: String
+  email: String
+  site: String
+  cnpj: String
+  isActive: Boolean = true
+  observation: String
+  id: Int!
 }
 
 input CreateDocumentTypeInput {
