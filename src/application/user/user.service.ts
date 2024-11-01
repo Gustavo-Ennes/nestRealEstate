@@ -40,7 +40,7 @@ export class UserService {
 
   async create(createUserInput: CreateUserInput): Promise<User> {
     try {
-      return await this.userModel.create(createUserInput as any);
+      return await this.userModel.create(createUserInput);
     } catch (error) {
       this.logger.error(
         `${this.create.name} -> ${error.message}`,

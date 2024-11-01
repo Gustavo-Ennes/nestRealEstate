@@ -2,6 +2,15 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type User {
+  id: Int!
+  username: String!
+  password: String!
+  email: String!
+  isActive: Boolean!
+  role: String!
+}
+
 type AuthReturn {
   access_token: String!
 }
@@ -16,6 +25,7 @@ type Client {
   cnpj: String!
   isActive: Boolean!
   observation: String
+  user: User!
 }
 
 type Document {
@@ -142,7 +152,7 @@ input CreateClientInput {
   name: String!
   phone: String!
   email: String!
-  site: String!
+  site: String
   cnpj: String!
   isActive: Boolean! = true
   observation: String

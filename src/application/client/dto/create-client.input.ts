@@ -26,14 +26,14 @@ export class CreateClientInput {
   @Field(() => String)
   phone: string;
 
-  @IsNotEmpty() 
+  @IsNotEmpty()
   @IsEmail
   @Field(() => String)
   email: string;
 
   @IsSite
-  @Field(() => String)
-  site: string;
+  @Field(() => String, { nullable: true })
+  site?: string;
 
   @IsNotEmpty()
   @HasOnlyDigits

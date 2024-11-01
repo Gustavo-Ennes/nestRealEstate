@@ -50,4 +50,11 @@ export class Client extends Model<Client> {
   @Column
   @Field(() => String, { nullable: true })
   observation?: string;
+
+  @Field(() => User)
+  get user(): Promise<User> {
+    return User.findOne({
+      where: { id: this.userId },
+    });
+  }
 }
