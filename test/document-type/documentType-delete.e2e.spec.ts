@@ -49,6 +49,21 @@ describe('DocumentType Module - Delete (e2e)', () => {
     expect(res.body.data.removeDocumentType).toBeTruthy();
   });
 
+  it('should delete a document type with superadmin role', async () => {
+    const superadminToken = generateToken({ sub: 1, role: ERole.Superadmin });
+    const res = await request(app.getHttpServer())
+      .post('/graphql')
+      .set('Authorization', `Bearer ${superadminToken}`)
+      .send({
+        query: deleteMutation,
+        variables: { id: documentType.id },
+      })
+      .expect(200);
+
+    expect(res.body.data).toHaveProperty('removeDocumentType');
+    expect(res.body.data.removeDocumentType).toBeTruthy();
+  });
+
   it('should not delete a document type with tenant role', async () => {
     const tenantToken = generateToken({ sub: 1, role: ERole.Tenant });
     const res = await request(app.getHttpServer())

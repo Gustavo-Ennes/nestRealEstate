@@ -59,6 +59,21 @@ describe('DocumentRequirement Module - Delete (e2e)', () => {
     expect(res.body.data.removeDocumentRequirement).toBeTruthy();
   });
 
+  it('should remove a document requirement with superadmin role', async () => {
+    const superadminToken = generateToken({ sub: 1, role: ERole.Superadmin });
+    const res = await request(app.getHttpServer())
+      .post('/graphql')
+      .set('Authorization', `Bearer ${superadminToken}`)
+      .send({
+        query: deleteMutation,
+        variables: { id: documentRequirement.id },
+      })
+      .expect(200);
+
+    expect(res.body.data).toHaveProperty('removeDocumentRequirement');
+    expect(res.body.data.removeDocumentRequirement).toBeTruthy();
+  });
+
   it('should not remove a document requirement with tenant role', async () => {
     const tenantToken = generateToken({ sub: 1, role: ERole.Tenant });
     const res = await request(app.getHttpServer())

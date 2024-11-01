@@ -84,6 +84,44 @@ describe('Landlord Module - Update (e2e)', () => {
     expect(naturalLandlord.name).toBe('new name');
   });
 
+  it('should update a landlord with superadmin role', async () => {
+    const superadminToken = generateToken({ sub: 1, role: ERole.Superadmin });
+    const updateDto = {
+      id: naturalLandlord.id,
+      name: 'new name',
+    };
+
+    const res = await request(app.getHttpServer())
+      .post('/graphql')
+      .set('Authorization', `Bearer ${superadminToken}`)
+      .send({
+        query: updateMutation,
+        variables: { input: updateDto },
+      })
+      .expect(200);
+
+    await naturalLandlord.reload();
+
+    expect(res.body.data).toHaveProperty('updateLandlord');
+    expect(res.body.data.updateLandlord).toHaveProperty(
+      'id',
+      naturalLandlord.id,
+    );
+    expect(res.body.data.updateLandlord).toHaveProperty(
+      'name',
+      naturalLandlord.name,
+    );
+    expect(res.body.data.updateLandlord).toHaveProperty(
+      'phone',
+      naturalLandlord.phone,
+    );
+    expect(res.body.data.updateLandlord).toHaveProperty(
+      'email',
+      naturalLandlord.email,
+    );
+    expect(naturalLandlord.name).toBe('new name');
+  });
+
   it('should update a landlord with landlord role', async () => {
     const updateDto = {
       id: naturalLandlord.id,

@@ -48,6 +48,20 @@ describe('Landlord Module - Delete (e2e)', () => {
     expect(res.body.data).toEqual({ removeLandlord: true });
   });
 
+  it('should delete a landlord with superadmin role', async () => {
+    const superadminToken = generateToken({ sub: 1, role: ERole.Superadmin });
+    const res = await request(app.getHttpServer())
+      .post('/graphql')
+      .set('Authorization', `Bearer ${superadminToken}`)
+      .send({
+        query: deleteMutation,
+        variables: { input: landlord.id },
+      })
+      .expect(200);
+
+    expect(res.body.data).toEqual({ removeLandlord: true });
+  });
+
   it('should delete a landlord with landlord role', async () => {
     const landlordToken = generateToken({
       sub: landlord.id,

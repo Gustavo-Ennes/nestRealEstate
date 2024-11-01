@@ -79,6 +79,38 @@ describe('DocumentRequirement Module - Create (e2e)', () => {
     expect(res.body.data.updateDocumentRequirement).toHaveProperty('updatedAt');
   });
 
+  it('should update a document requirement with superadmin role', async () => {
+    const superadminToken = generateToken({ sub: 1, role: ERole.Superadmin });
+    const res = await request(app.getHttpServer())
+      .post('/graphql')
+      .set('Authorization', `Bearer ${superadminToken}`)
+      .send({
+        query: updateMutation,
+        variables: { input: updatePayload },
+      })
+      .expect(200);
+
+    expect(res.body.data).toHaveProperty('updateDocumentRequirement');
+    expect(res.body.data.updateDocumentRequirement).toHaveProperty(
+      'role',
+      updatePayload.role,
+    );
+    expect(res.body.data.updateDocumentRequirement).toHaveProperty(
+      'documentTypeId',
+      input.documentTypeId,
+    );
+    expect(res.body.data.updateDocumentRequirement).toHaveProperty(
+      'isRequired',
+      true,
+    );
+    expect(res.body.data.updateDocumentRequirement).toHaveProperty(
+      'documentType',
+      { id: documentType.id, name: documentType.name },
+    );
+    expect(res.body.data.updateDocumentRequirement).toHaveProperty('createdAt');
+    expect(res.body.data.updateDocumentRequirement).toHaveProperty('updatedAt');
+  });
+
   it('should not update a document requirement with tenant role', async () => {
     const tenantToken = generateToken({ sub: 1, role: ERole.Tenant });
     const res = await request(app.getHttpServer())

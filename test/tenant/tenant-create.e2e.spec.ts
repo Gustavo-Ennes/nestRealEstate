@@ -3,7 +3,13 @@ import * as request from 'supertest';
 import { Sequelize } from 'sequelize-typescript';
 import { createMutation } from './queries';
 import { tenantWith } from './utils';
-import { requestAndCheckError, initApp, afterAllTests } from '../utils';
+import {
+  requestAndCheckError,
+  initApp,
+  afterAllTests,
+  generateToken,
+} from '../utils';
+import { ERole } from '../../src/application/auth/role/role.enum';
 
 describe('Tenant Module - Create (e2e)', () => {
   let app: INestApplication;
@@ -35,6 +41,27 @@ describe('Tenant Module - Create (e2e)', () => {
     const res = await request(app.getHttpServer())
       .post('/graphql')
       .set('Authorization', `Bearer ${token}`)
+      .send({
+        query: createMutation,
+        variables: { input: tenantInput },
+      })
+      .expect(200);
+
+    expect(res.body.data).toEqual({ createTenant: { id: 1, ...tenantInput } });
+  });
+
+  it('should create a tenant with superadmin role', async () => {
+    const superadminToken = generateToken({ sub: 1, role: ERole.Superadmin });
+    const tenantInput = {
+      name: 'tenant',
+      cpf: '12312312322',
+      email: 'tenant@tenant.com',
+      phone: '12312312322',
+    };
+
+    const res = await request(app.getHttpServer())
+      .post('/graphql')
+      .set('Authorization', `Bearer ${superadminToken}`)
       .send({
         query: createMutation,
         variables: { input: tenantInput },

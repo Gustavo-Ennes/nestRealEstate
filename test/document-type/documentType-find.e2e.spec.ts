@@ -58,7 +58,78 @@ describe('DocumentType Module - Find (e2e)', () => {
     expect(res.body.data.documentTypes[0]).toHaveProperty('updatedAt');
   });
 
+  it('should find all document types with superadmin role', async () => {
+    const superadminToken = generateToken({ sub: 1, role: ERole.Superadmin });
+    const res = await request(app.getHttpServer())
+      .post('/graphql')
+      .set('Authorization', `Bearer ${superadminToken}`)
+      .send({
+        query: findAllQuery,
+      })
+      .expect(200);
+
+    expect(res.body.data).toHaveProperty('documentTypes');
+    expect(res.body.data.documentTypes).toHaveLength(1);
+    expect(res.body.data.documentTypes[0]).toHaveProperty(
+      'name',
+      documentType.name,
+    );
+    expect(res.body.data.documentTypes[0]).toHaveProperty(
+      'legalType',
+      documentType.legalType,
+    );
+    expect(res.body.data.documentTypes[0]).toHaveProperty('createdAt');
+    expect(res.body.data.documentTypes[0]).toHaveProperty('updatedAt');
+  });
+
   it('should find one document type with admin role', async () => {
+    const res = await request(app.getHttpServer())
+      .post('/graphql')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        query: findOneQuery,
+        variables: { id: documentType.id },
+      })
+      .expect(200);
+
+    expect(res.body.data).toHaveProperty('documentType');
+    expect(res.body.data.documentType).toHaveProperty(
+      'name',
+      documentType.name,
+    );
+    expect(res.body.data.documentType).toHaveProperty(
+      'legalType',
+      documentType.legalType,
+    );
+    expect(res.body.data.documentType).toHaveProperty('createdAt');
+    expect(res.body.data.documentType).toHaveProperty('updatedAt');
+  });
+
+  it('should find one document type with superadmin role', async () => {
+    const superadminToken = generateToken({ sub: 1, role: ERole.Superadmin });
+    const res = await request(app.getHttpServer())
+      .post('/graphql')
+      .set('Authorization', `Bearer ${superadminToken}`)
+      .send({
+        query: findOneQuery,
+        variables: { id: documentType.id },
+      })
+      .expect(200);
+
+    expect(res.body.data).toHaveProperty('documentType');
+    expect(res.body.data.documentType).toHaveProperty(
+      'name',
+      documentType.name,
+    );
+    expect(res.body.data.documentType).toHaveProperty(
+      'legalType',
+      documentType.legalType,
+    );
+    expect(res.body.data.documentType).toHaveProperty('createdAt');
+    expect(res.body.data.documentType).toHaveProperty('updatedAt');
+  });
+
+  it('should find one document type with superadmin role', async () => {
     const res = await request(app.getHttpServer())
       .post('/graphql')
       .set('Authorization', `Bearer ${token}`)

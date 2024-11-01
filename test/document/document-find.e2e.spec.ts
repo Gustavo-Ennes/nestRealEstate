@@ -62,6 +62,33 @@ describe('Document Module - Find (e2e)', () => {
     expect(res.body.data.document).toHaveProperty('updatedAt');
   });
 
+  it('should find a document with superadmin role', async () => {
+    const superadminToken = generateToken({ sub: 1, role: ERole.Superadmin });
+    const res = await request(app.getHttpServer())
+      .post('/graphql')
+      .set('Authorization', `Bearer ${superadminToken}`)
+      .send({
+        query: findOneQuery,
+        variables: { input: document.id },
+      })
+      .expect(200);
+
+    expect(res.body.data).toHaveProperty('document');
+    expect(res.body.data.document).toHaveProperty('type', document.type);
+    expect(res.body.data.document).toHaveProperty(
+      'ownerRole',
+      document.ownerRole,
+    );
+    expect(res.body.data.document).toHaveProperty('ownerId', document.ownerId);
+    expect(res.body.data.document).toHaveProperty('status', document.status);
+    expect(res.body.data.document).toHaveProperty(
+      'observation',
+      document.observation,
+    );
+    expect(res.body.data.document).toHaveProperty('createdAt');
+    expect(res.body.data.document).toHaveProperty('updatedAt');
+  });
+
   it('should find a document with tenant role', async () => {
     token = generateToken({ sub: 1, role: ERole.Tenant });
     const res = await request(app.getHttpServer())

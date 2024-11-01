@@ -81,6 +81,41 @@ describe('Tenant Module - Update (e2e)', () => {
     expect(naturalTenant.name).toBe('new name');
   });
 
+  it('should update a tenant with superadmin role', async () => {
+    const superadminToken = generateToken({ sub: 1, role: ERole.Superadmin });
+    const updateDto = {
+      id: naturalTenant.id,
+      name: 'new name',
+    };
+
+    const res = await request(app.getHttpServer())
+      .post('/graphql')
+      .set('Authorization', `Bearer ${superadminToken}`)
+      .send({
+        query: updateMutation,
+        variables: { input: updateDto },
+      })
+      .expect(200);
+
+    await naturalTenant.reload();
+
+    expect(res.body.data).toHaveProperty('updateTenant');
+    expect(res.body.data.updateTenant).toHaveProperty('id', naturalTenant.id);
+    expect(res.body.data.updateTenant).toHaveProperty(
+      'name',
+      naturalTenant.name,
+    );
+    expect(res.body.data.updateTenant).toHaveProperty(
+      'phone',
+      naturalTenant.phone,
+    );
+    expect(res.body.data.updateTenant).toHaveProperty(
+      'email',
+      naturalTenant.email,
+    );
+    expect(naturalTenant.name).toBe('new name');
+  });
+
   it('should update a tenant with tenant role', async () => {
     const updateDto = {
       id: naturalTenant.id,

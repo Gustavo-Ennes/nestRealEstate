@@ -53,6 +53,27 @@ describe('DocumentType Module - Create (e2e)', () => {
     expect(res.body.data.createDocumentType).toHaveProperty('updatedAt');
   });
 
+  it('should create a document type with superadmin role', async () => {
+    const superadminToken = generateToken({ sub: 1, role: ERole.Superadmin });
+    const res = await request(app.getHttpServer())
+      .post('/graphql')
+      .set('Authorization', `Bearer ${superadminToken}`)
+      .send({
+        query: createMutation,
+        variables: { input },
+      })
+      .expect(200);
+
+    expect(res.body.data).toHaveProperty('createDocumentType');
+    expect(res.body.data.createDocumentType).toHaveProperty('name', input.name);
+    expect(res.body.data.createDocumentType).toHaveProperty(
+      'legalType',
+      input.legalType,
+    );
+    expect(res.body.data.createDocumentType).toHaveProperty('createdAt');
+    expect(res.body.data.createDocumentType).toHaveProperty('updatedAt');
+  });
+
   it('should not create a document type with a tenant role', async () => {
     const tenantToken = generateToken({ sub: 1, role: ERole.Tenant });
     const res = await request(app.getHttpServer())

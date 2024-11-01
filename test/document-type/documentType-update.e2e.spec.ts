@@ -61,6 +61,32 @@ describe('DocumentType Module - Update (e2e)', () => {
     expect(res.body.data.updateDocumentType).toHaveProperty('updatedAt');
   });
 
+  it('should update a document type with superadmin role', async () => {
+    const superadminToken = generateToken({ sub: 1, role: ERole.Superadmin });
+    const input: UpdateDocumentTypeInput = {
+      id: documentType.id,
+      legalType: ELegalType.Natural,
+      name: EDocumentType.Certificate,
+    };
+    const res = await request(app.getHttpServer())
+      .post('/graphql')
+      .set('Authorization', `Bearer ${superadminToken}`)
+      .send({
+        query: updateMutation,
+        variables: { input },
+      })
+      .expect(200);
+
+    expect(res.body.data).toHaveProperty('updateDocumentType');
+    expect(res.body.data.updateDocumentType).toHaveProperty('name', input.name);
+    expect(res.body.data.updateDocumentType).toHaveProperty(
+      'legalType',
+      input.legalType,
+    );
+    expect(res.body.data.updateDocumentType).toHaveProperty('createdAt');
+    expect(res.body.data.updateDocumentType).toHaveProperty('updatedAt');
+  });
+
   it('should not update a document type with landlord role', async () => {
     const landlordToken = generateToken({ sub: 1, role: ERole.Landlord });
     const input: UpdateDocumentTypeInput = {

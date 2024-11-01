@@ -48,6 +48,20 @@ describe('Tenant Module - Delete (e2e)', () => {
     expect(res.body.data).toEqual({ removeTenant: true });
   });
 
+  it('should delete a tenant with superadmin role', async () => {
+    const superadminToken = generateToken({ sub: 1, role: ERole.Superadmin });
+    const res = await request(app.getHttpServer())
+      .post('/graphql')
+      .set('Authorization', `Bearer ${superadminToken}`)
+      .send({
+        query: deleteMutation,
+        variables: { input: tenant.id },
+      })
+      .expect(200);
+
+    expect(res.body.data).toEqual({ removeTenant: true });
+  });
+
   it('should delete a tenant with tenant role', async () => {
     const tenantToken = generateToken({ sub: tenant.id, role: ERole.Tenant });
     const res = await request(app.getHttpServer())

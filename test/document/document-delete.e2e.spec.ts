@@ -2,7 +2,12 @@ import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { Sequelize } from 'sequelize-typescript';
 import { deleteMutation } from './queries';
-import { afterAllTests, initApp, requestAndCheckError } from '../utils';
+import {
+  afterAllTests,
+  generateToken,
+  initApp,
+  requestAndCheckError,
+} from '../utils';
 import { ERole } from '../../src/application/auth/role/role.enum';
 import { EDocumentType } from '../../src/domain/document/enum/document-type.enum';
 import { Document } from '../../src/domain/document/entities/document.entity';
@@ -40,6 +45,20 @@ describe('Document Module - Delete (e2e)', () => {
     const res = await request(app.getHttpServer())
       .post('/graphql')
       .set('Authorization', `Bearer ${token}`)
+      .send({
+        query: deleteMutation,
+        variables: { input: document.id },
+      })
+      .expect(200);
+
+    expect(res.body.data.removeDocument).toEqual(true);
+  });
+
+  it('should delete a tenant with superadmin role', async () => {
+    const superadminToken = generateToken({ sub: 1, role: ERole.Superadmin });
+    const res = await request(app.getHttpServer())
+      .post('/graphql')
+      .set('Authorization', `Bearer ${superadminToken}`)
       .send({
         query: deleteMutation,
         variables: { input: document.id },

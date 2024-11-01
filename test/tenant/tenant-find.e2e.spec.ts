@@ -62,6 +62,40 @@ describe('Tenant Module - Find (e2e)', () => {
     });
   });
 
+  it('should find a tenant with superadmin role', async () => {
+    const superadminToken = generateToken({ sub: 1, role: ERole.Superadmin });
+    const tenantInput = {
+      name: 'tenant',
+      cpf: '12312312322',
+      email: 'tenant@tenant.com',
+      phone: '1231231232',
+    };
+    const documentInput = {
+      ownerId: 1,
+      ownerRole: ERole.Tenant,
+      type: EDocumentType.Cpf,
+    };
+
+    await Tenant.create(tenantInput);
+    await Document.create(documentInput);
+
+    const res = await request(app.getHttpServer())
+      .post('/graphql')
+      .set('Authorization', `Bearer ${superadminToken}`)
+      .send({
+        query: findOneQuery,
+      })
+      .expect(200);
+
+    expect(res.body.data).toEqual({
+      tenant: {
+        id: 1,
+        ...tenantInput,
+        documents: [{ id: 1, type: documentInput.type }],
+      },
+    });
+  });
+
   it('should not find a tenant with tenant role', async () => {
     const tenantToken = generateToken({ sub: 1, role: ERole.Tenant });
 

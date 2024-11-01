@@ -99,6 +99,46 @@ describe('Document Module - Update (e2e)', () => {
     expect(document.type).toBe(EDocumentType.Cpf);
   });
 
+  it('should update a document with superadmin role', async () => {
+    const superadminToken = generateToken({ sub: 1, role: ERole.Superadmin });
+    const updateDto = {
+      id: document.id,
+      type: EDocumentType.Cpf,
+    };
+
+    const res = await request(app.getHttpServer())
+      .post('/graphql')
+      .set('Authorization', `Bearer ${superadminToken}`)
+      .send({
+        query: updateMutation,
+        variables: { input: updateDto },
+      })
+      .expect(200);
+
+    await document.reload();
+    expect(res.body.data).toHaveProperty('updateDocument');
+    expect(res.body.data.updateDocument).toHaveProperty('type', document.type);
+    expect(res.body.data.updateDocument).toHaveProperty(
+      'ownerRole',
+      document.ownerRole,
+    );
+    expect(res.body.data.updateDocument).toHaveProperty(
+      'ownerId',
+      document.ownerId,
+    );
+    expect(res.body.data.updateDocument).toHaveProperty(
+      'status',
+      document.status,
+    );
+    expect(res.body.data.updateDocument).toHaveProperty(
+      'observation',
+      document.observation,
+    );
+    expect(res.body.data.updateDocument).toHaveProperty('createdAt');
+    expect(res.body.data.updateDocument).toHaveProperty('updatedAt');
+    expect(document.type).toBe(EDocumentType.Cpf);
+  });
+
   it('should update a document with tenant role', async () => {
     token = generateToken({ sub: naturalTenant.id, role: ERole.Tenant });
     const updateDto = {

@@ -3,7 +3,13 @@ import * as request from 'supertest';
 import { Sequelize } from 'sequelize-typescript';
 import { createMutation } from './queries';
 import { landlordWith } from './utils';
-import { requestAndCheckError, initApp, afterAllTests } from '../utils';
+import {
+  requestAndCheckError,
+  initApp,
+  afterAllTests,
+  generateToken,
+} from '../utils';
+import { ERole } from '../../src/application/auth/role/role.enum';
 
 describe('Landlord Module - Create (e2e)', () => {
   let app: INestApplication;
@@ -37,6 +43,29 @@ describe('Landlord Module - Create (e2e)', () => {
     const res = await request(app.getHttpServer())
       .post('/graphql')
       .set('Authorization', `Bearer ${token}`)
+      .send({
+        query: createMutation,
+        variables: { input: landlordInput },
+      })
+      .expect(200);
+
+    expect(res.body.data).toEqual({
+      createLandlord: { id: 1, ...landlordInput },
+    });
+  });
+
+  it('should create a landlord with superadmin role', async () => {
+    const superadminToken = generateToken({ sub: 1, role: ERole.Superadmin });
+    const landlordInput = {
+      name: 'landlord',
+      cpf: '12312312322',
+      email: 'landlord@landlord.com',
+      phone: '12312312322',
+    };
+
+    const res = await request(app.getHttpServer())
+      .post('/graphql')
+      .set('Authorization', `Bearer ${superadminToken}`)
       .send({
         query: createMutation,
         variables: { input: landlordInput },
