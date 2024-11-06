@@ -1,8 +1,9 @@
-import { InputType, Field } from '@nestjs/graphql';
+import { InputType, Field, Int } from '@nestjs/graphql';
 import { IsValidUsername } from '../validation/username.validation';
 import { IsValidPassword } from '../validation/password.validation';
 import { IsEmail } from '../../../validations/email.validation';
 import { IsValidRole } from '../validation/role.validation';
+import { IsNotEmpty, IsNumber } from 'class-validator';
 
 @InputType()
 export class SignUpInput {
@@ -21,4 +22,9 @@ export class SignUpInput {
   @IsValidRole
   @Field(() => String)
   role: string;
+
+  @IsNotEmpty()
+  @IsNumber()
+  @Field(() => Int)
+  clientId: number;
 }

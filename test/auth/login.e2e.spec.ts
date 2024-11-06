@@ -6,15 +6,37 @@ import { User } from '../../src/application/user/entities/user.entity';
 import { loginMutation } from './mutation';
 import { defaultLoginInput, loginWithout } from './utils';
 import { initApp, requestAndCheckError } from '../utils';
+import { Client } from '../../src/application/client/entities/client.entity';
+import { CreateClientInput } from '../../src/application/client/dto/create-client.input';
+import { CreateUserInput } from '../../src/application/user/dto/create-user.input';
+import { ERole } from '../../src/application/auth/role/role.enum';
 
 describe('Auth Module - Login (e2e)', () => {
   let app: INestApplication;
   let sequelize: Sequelize;
+  const adminUserInput: CreateUserInput = {
+    clientId: 1,
+    email: 'admin@client.com',
+    password: '123',
+    role: ERole.Admin,
+    username: 'adminClient',
+  };
+  const clientInput: CreateClientInput = {
+    cnpj: '12312312312322',
+    email: 'client@mail.com',
+    isActive: true,
+    name: 'Joseph Climber',
+    phone: '12312312322',
+    userId: 1,
+  };
 
   beforeAll(async () => {
     const { application, db } = await initApp();
     app = application;
     sequelize = db;
+
+    await User.create(adminUserInput);
+    await Client.create(clientInput);
   });
 
   beforeEach(async () => {
@@ -33,6 +55,7 @@ describe('Auth Module - Login (e2e)', () => {
       password: await hashPassword(defaultLoginInput.password),
       role: 'admin',
       email: 'teste@teste.com',
+      clientId: 1,
     });
 
     const res = await request(app.getHttpServer())

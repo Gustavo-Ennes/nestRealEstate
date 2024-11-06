@@ -7,6 +7,7 @@ export const defaultSignUpInput: SignUpInput = {
   role: ERole.Admin,
   email: 'tenant@tenant.com',
   password: '1Senha!.',
+  clientId: 1,
 };
 
 export const defaultLoginInput: LoginInput = {

@@ -6,6 +6,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthGuard } from './auth.guard';
 import { RolesGuard } from './role/role.guard';
+import { ClientModule } from '../client/client.module';
 
 export const authModuleObject = {
   imports: [
@@ -18,6 +19,7 @@ export const authModuleObject = {
         signOptions: { expiresIn: '10h' },
       }),
     }),
+    ClientModule,
   ],
   providers: [AuthResolver, AuthService, AuthGuard, RolesGuard],
   exports: [AuthService, AuthGuard, RolesGuard, JwtModule],

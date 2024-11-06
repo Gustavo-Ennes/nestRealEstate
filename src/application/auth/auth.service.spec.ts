@@ -1,53 +1,36 @@
-import { Test, TestingModule } from '@nestjs/testing';
+import { TestingModule } from '@nestjs/testing';
 import { AuthService } from './auth.service';
-import { JwtModule, JwtService } from '@nestjs/jwt';
-import { AuthResolver } from './auth.resolver';
+import { JwtService } from '@nestjs/jwt';
 import { getModelToken } from '@nestjs/sequelize';
 import { User } from '../user/entities/user.entity';
-import { UserService } from '../user/user.service';
 import { ERole } from './role/role.enum';
 import { SignUpInput } from './dto/signup.input';
 import { hashPassword, verifyAndDecodeToken } from './auth.utils';
 import { validate } from 'class-validator';
 import { LoginInput } from './dto/login.input';
+import { createAuthTestModule } from './testConfig/auth.test.config';
+import { Client } from '../client/entities/client.entity';
 
 describe('AuthService', () => {
-  let service: AuthService, jwtService: JwtService, userModel: typeof User;
+  let service: AuthService,
+    jwtService: JwtService,
+    userModel: typeof User,
+    clientModel: typeof Client;
   const signUpInput: SignUpInput = {
     email: 'gustavo@ennes.dev',
     password: '1Senha!.',
     role: ERole.Admin,
     username: 'admin',
+    clientId: 1,
   };
 
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      imports: [
-        JwtModule.register({
-          secret: process.env.JWT_SECRET,
-        }),
-      ],
-      providers: [
-        AuthResolver,
-        AuthService,
-        UserService,
-        {
-          provide: getModelToken(User),
-          useValue: {
-            findAll: jest.fn(),
-            findOne: jest.fn(),
-            findByPk: jest.fn(),
-            create: jest.fn(),
-            update: jest.fn(),
-          },
-        },
-      ],
-    }).compile();
+  beforeAll(async () => {
+    const module: TestingModule = await createAuthTestModule();
 
     service = module.get<AuthService>(AuthService);
     jwtService = module.get<JwtService>(JwtService);
     userModel = module.get<typeof User>(getModelToken(User));
-    process.env.JWT_SECRET = 'test';
+    clientModel = module.get<typeof Client>(getModelToken(Client));
   });
 
   it('should be defined', () => {
@@ -59,8 +42,10 @@ describe('AuthService', () => {
       ...signUpInput,
       id: 1,
     } as User;
-    (userModel.findOne as jest.Mock).mockResolvedValue(null);
-    (userModel.create as jest.Mock).mockResolvedValue(createdUser);
+    const client = { id: 1 };
+    (userModel.findOne as jest.Mock).mockResolvedValueOnce(null);
+    (userModel.create as jest.Mock).mockResolvedValueOnce(createdUser);
+    (clientModel.findByPk as jest.Mock).mockResolvedValueOnce(client);
 
     const res = await service.signUp(signUpInput);
     const decodedToken = await verifyAndDecodeToken(
@@ -74,6 +59,7 @@ describe('AuthService', () => {
     expect(decodedToken).toHaveProperty('username', createdUser.username);
     expect(decodedToken).toHaveProperty('email', createdUser.email);
     expect(decodedToken).toHaveProperty('role', createdUser.role);
+    expect(decodedToken).toHaveProperty('client', client);
     expect(decodedToken).toHaveProperty('iat');
   });
 
@@ -82,7 +68,7 @@ describe('AuthService', () => {
       ...signUpInput,
       id: 1,
     } as User;
-    (userModel.findOne as jest.Mock).mockResolvedValue(sameUsernameUser);
+    (userModel.findOne as jest.Mock).mockResolvedValueOnce(sameUsernameUser);
 
     try {
       await service.signUp(signUpInput);
@@ -90,6 +76,18 @@ describe('AuthService', () => {
       expect(error).toHaveProperty(
         'message',
         `Username ${sameUsernameUser.username} already taken.`,
+      );
+    }
+  });
+
+  it('should not sign up if client does not exists', async () => {
+    (clientModel.findByPk as jest.Mock).mockResolvedValueOnce(undefined);
+    try {
+      await service.signUp(signUpInput);
+    } catch (error) {
+      expect(error).toHaveProperty(
+        'message',
+        `Client not found with provided id.`,
       );
     }
   });
@@ -154,16 +152,16 @@ describe('AuthService', () => {
     );
   });
 
-  // TODO test in e2e
-  // it('should not sign up if email already registered', async () => {});
-
   it('should login', async () => {
+    const client = { id: 1 };
     const user = {
       ...signUpInput,
       id: 1,
       password: await hashPassword(signUpInput.password),
+      client: Promise.resolve(client),
     } as User;
-    (userModel.findOne as jest.Mock).mockResolvedValue(user);
+    (userModel.findOne as jest.Mock).mockResolvedValueOnce(user);
+    (clientModel.findByPk as jest.Mock).mockResolvedValueOnce(client);
 
     const res = await service.login({
       username: user.username,
@@ -180,8 +178,10 @@ describe('AuthService', () => {
     expect(decodedToken).toHaveProperty('username', user.username);
     expect(decodedToken).toHaveProperty('email', user.email);
     expect(decodedToken).toHaveProperty('role', user.role);
+    expect(decodedToken).toHaveProperty('client', client);
     expect(decodedToken).toHaveProperty('iat');
   });
+
   it('should not login if username is empty', async () => {
     const dtoObj = { password: signUpInput.password, username: '' };
     const dtoInstance = Object.assign(new LoginInput(), dtoObj);

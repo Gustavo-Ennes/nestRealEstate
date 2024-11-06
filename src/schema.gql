@@ -2,19 +2,6 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-type User {
-  id: Int!
-  username: String!
-  password: String!
-  email: String!
-  isActive: Boolean!
-  role: String!
-}
-
-type AuthReturn {
-  access_token: String!
-}
-
 type Client {
   id: Int!
   userId: Int!
@@ -26,6 +13,21 @@ type Client {
   isActive: Boolean!
   observation: String
   user: User!
+}
+
+type User {
+  id: Int!
+  username: String!
+  password: String!
+  email: String!
+  isActive: Boolean!
+  role: String!
+  clientId: Int!
+  client: Client!
+}
+
+type AuthReturn {
+  access_token: String!
 }
 
 type Document {
@@ -140,6 +142,7 @@ input SignUpInput {
   password: String!
   email: String!
   role: String!
+  clientId: Int!
 }
 
 input LoginInput {

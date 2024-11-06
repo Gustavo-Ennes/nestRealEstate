@@ -9,6 +9,7 @@ import { JwtModule } from '@nestjs/jwt';
 export const clientModuleObject = {
   imports: [SequelizeModule.forFeature([Client]), UserModule, JwtModule],
   providers: [ClientResolver, ClientService],
+  exports: [ClientService],
 };
 
 @Module(clientModuleObject)

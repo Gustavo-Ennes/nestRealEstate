@@ -5,8 +5,8 @@ import { createMutation } from './queries';
 import { afterAllTests, generateToken, initApp } from '../utils';
 import { ERole } from '../../src/application/auth/role/role.enum';
 import { User } from '../../src/application/user/entities/user.entity';
-import { CreateClientInput } from 'src/application/client/dto/create-client.input';
-import { CreateUserInput } from 'src/application/user/dto/create-user.input';
+import { CreateClientInput } from '../../src/application/client/dto/create-client.input';
+import { CreateUserInput } from '../../src/application/user/dto/create-user.input';
 import { assoc, dissoc } from 'ramda';
 
 describe('Client Module - Create (e2e)', () => {
@@ -19,6 +19,7 @@ describe('Client Module - Create (e2e)', () => {
     password: 'senha123',
     role: ERole.Admin,
     username: 'ClientAdmin',
+    clientId: 1,
   };
   const clientInput: CreateClientInput = {
     cnpj: '12312312312322',
@@ -40,7 +41,6 @@ describe('Client Module - Create (e2e)', () => {
   beforeEach(async () => {
     await sequelize.getQueryInterface().dropTable('Clients');
     await sequelize.sync({ force: true });
-
     user = await User.create(userInput);
   });
 

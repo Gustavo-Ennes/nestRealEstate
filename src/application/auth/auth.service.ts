@@ -12,11 +12,13 @@ import { hashPassword, verifyPassword } from './auth.utils';
 import { User } from '../user/entities/user.entity';
 import { LoginInput } from './dto/login.input';
 import { AuthReturn } from './auth.utils';
+import { ClientService } from '../client/client.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private usersService: UserService,
+    private clientService: ClientService,
     private jwtService: JwtService,
   ) {}
 
@@ -24,11 +26,15 @@ export class AuthService {
 
   async signUp(createUserInput: CreateUserInput): Promise<AuthReturn> {
     try {
-      const { username, password, email, role } = createUserInput;
+      const { username, password, email, role, clientId } = createUserInput;
       const sameUsernameUser = await this.usersService.findOne(username);
+      const client = await this.clientService.findOne(clientId);
 
       if (sameUsernameUser)
         throw new ConflictException(`Username ${username} already taken.`);
+
+      if (!client)
+        throw new NotFoundException('Client not found with provided id.');
 
       const hashedPassword = await hashPassword(password);
       const user: User = await this.usersService.create({
@@ -36,9 +42,10 @@ export class AuthService {
         email,
         password: hashedPassword,
         role,
+        clientId,
       });
 
-      const payload = { sub: user.id, username, email, role };
+      const payload = { sub: user.id, username, email, role, client };
       return {
         access_token: await this.jwtService.signAsync(payload),
       };
@@ -64,8 +71,14 @@ export class AuthService {
           `Password didn't match for user ${username}`,
         );
 
-      const { id, email, role } = user;
-      const payload = { sub: id, username, email, role };
+      const { id, email, role, client } = user;
+      const payload = {
+        sub: id,
+        username,
+        email,
+        role,
+        client: await client,
+      };
       return {
         access_token: await this.jwtService.signAsync(payload),
       };
