@@ -6,6 +6,8 @@ import { getMockedCacheProvider } from '../../../utils/unitTests/defaultCacheMoc
 import { JwtService } from '@nestjs/jwt';
 import { User } from '../../../application/user/entities/user.entity';
 import { userModuleObject } from '../../../application/user/user.module';
+import { clientModuleObject } from '../../../application/client/client.module';
+import { Client } from '../../../application/client/entities/client.entity';
 
 export const createLandlordTestingModule = async () =>
   await Test.createTestingModule({
@@ -13,8 +15,10 @@ export const createLandlordTestingModule = async () =>
       JwtService,
       ...landlordModuleObject.providers,
       ...userModuleObject.providers,
+      ...clientModuleObject.providers,
       getMockedEntityProvider(Landlord),
       getMockedEntityProvider(User),
+      getMockedEntityProvider(Client),
       getMockedCacheProvider(),
     ],
   }).compile();

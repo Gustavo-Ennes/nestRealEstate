@@ -10,6 +10,8 @@ import {
 } from '../utils';
 import { Landlord } from '../../src/domain/landlord/entities/landlord.entity';
 import { ERole } from '../../src/application/auth/role/role.enum';
+import { CreateClientInput } from '../../src/application/client/dto/create-client.input';
+import { Client } from '../../src/application/client/entities/client.entity';
 
 describe('Landlord Module - Update (e2e)', () => {
   let app: INestApplication,
@@ -17,6 +19,14 @@ describe('Landlord Module - Update (e2e)', () => {
     token: string,
     naturalLandlord: Landlord,
     legalLandlord: Landlord;
+  const clientInput: CreateClientInput = {
+    cnpj: '12312312312322',
+    email: 'client@mail.com',
+    isActive: true,
+    name: 'Joseph Climber',
+    phone: '12312312322',
+    userId: 1,
+  };
 
   beforeAll(async () => {
     const { application, db, adminToken } = await initApp();
@@ -28,18 +38,21 @@ describe('Landlord Module - Update (e2e)', () => {
   beforeEach(async () => {
     await sequelize.getQueryInterface().dropTable('Landlords');
     await sequelize.sync({ force: true });
+    await Client.create(clientInput);
 
     naturalLandlord = await Landlord.create({
       name: 'landlord',
       email: 'ads@dasd.com',
       phone: '12312312322',
       cpf: '12312312322',
+      clientId: 1,
     });
     legalLandlord = await Landlord.create({
       name: 'landlord',
       email: 'ads@dasd.com',
       phone: '12312312322',
       cnpj: '12312312312322',
+      clientId: 1,
     });
   });
 
@@ -81,6 +94,11 @@ describe('Landlord Module - Update (e2e)', () => {
       'email',
       naturalLandlord.email,
     );
+    expect(res.body.data.updateLandlord).toHaveProperty(
+      'clientId',
+      naturalLandlord.clientId,
+    );
+    expect(res.body.data.updateLandlord).toHaveProperty('client', { id: 1 });
     expect(naturalLandlord.name).toBe('new name');
   });
 
@@ -119,6 +137,11 @@ describe('Landlord Module - Update (e2e)', () => {
       'email',
       naturalLandlord.email,
     );
+    expect(res.body.data.updateLandlord).toHaveProperty(
+      'clientId',
+      naturalLandlord.clientId,
+    );
+    expect(res.body.data.updateLandlord).toHaveProperty('client', { id: 1 });
     expect(naturalLandlord.name).toBe('new name');
   });
 
@@ -181,6 +204,29 @@ describe('Landlord Module - Update (e2e)', () => {
       message: 'Forbidden resource',
       error: 'Forbidden',
       statusCode: 403,
+    });
+  });
+
+  it('should not update a landlord client if it does not exists', async () => {
+    const updateDto = {
+      id: naturalLandlord.id,
+      clientId: 2,
+    };
+
+    const res = await request(app.getHttpServer())
+      .post('/graphql')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        query: updateMutation,
+        variables: { input: updateDto },
+      })
+      .expect(200);
+
+    expect(res.body.errors).toBeInstanceOf(Array);
+    expect(res.body.errors[0].extensions).toHaveProperty('originalError', {
+      message: 'Client not found with provided id.',
+      error: 'Not Found',
+      statusCode: 404,
     });
   });
 

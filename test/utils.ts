@@ -101,3 +101,29 @@ export const afterAllTests = async (app: INestApplication) => {
   process.removeAllListeners();
   await app.close();
 };
+
+export const inputWithError = (defaultInput: any) => ({
+  empty: {
+    name: { ...defaultInput, name: '' },
+    phone: { ...defaultInput, phone: '' },
+    email: { ...defaultInput, email: '' },
+    cpjAndCnpj: { ...defaultInput, cpf: undefined },
+    clientId: { ...defaultInput, clientId: undefined },
+  },
+  wrong: {
+    cpfLength: { ...defaultInput, cpf: '123' },
+    cnpjLength: { ...defaultInput, cnpj: '123', cpf: undefined },
+    phoneLength: { ...defaultInput, phone: '123' },
+  },
+  lettersAndSpecialChars: {
+    inCpf: { ...defaultInput, cpf: '123asd123!!' },
+    inCnpj: { ...defaultInput, cnpj: '123asd123asd@@' },
+    inPhone: { ...defaultInput, phone: '123asd123@@' },
+  },
+  numbersAndSpecialChars: {
+    inName: { ...defaultInput, name: 'gus7@v0' },
+  },
+  invalid: {
+    emailPattern: { ...defaultInput, email: 'a23@.com.#' },
+  },
+});

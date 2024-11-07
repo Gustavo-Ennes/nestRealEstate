@@ -7,15 +7,19 @@ import { createLandlordTestingModule } from './testConfig/landlord.test.config';
 import { validate } from 'class-validator';
 import { UpdateLandlordInput } from './dto/update-landlord.input';
 import { ELegalType } from '../enum/legal-type.enum';
+import { Client } from '../../application/client/entities/client.entity';
+import { assoc, dissoc } from 'ramda';
 
 describe('LandlordResolver', () => {
   let resolver: LandlordResolver;
   let landlordModel: typeof Landlord;
+  let clientModel: typeof Client;
   const input = {
     name: 'landlord',
     cpf: '12312312322',
     email: 'gustavo@ennes.dev',
     phone: '3216549874',
+    clientId: 1,
   } as CreateLandlordInput;
 
   beforeEach(async () => {
@@ -23,6 +27,7 @@ describe('LandlordResolver', () => {
 
     resolver = module.get<LandlordResolver>(LandlordResolver);
     landlordModel = module.get<typeof Landlord>(getModelToken(Landlord));
+    clientModel = module.get<typeof Client>(getModelToken(Client));
   });
   afterEach(() => {
     jest.restoreAllMocks();
@@ -58,9 +63,11 @@ describe('LandlordResolver', () => {
 
   it('should create a landlord', async () => {
     const createdLandlord = { id: 1, ...input };
+    const client = { id: 1 };
 
     (landlordModel.create as jest.Mock).mockResolvedValue(createdLandlord);
     (landlordModel.findAll as jest.Mock).mockResolvedValue([createdLandlord]);
+    (clientModel.findByPk as jest.Mock).mockResolvedValueOnce(client);
 
     expect(await resolver.createLandlord(input)).toEqual(createdLandlord);
   });
@@ -74,6 +81,40 @@ describe('LandlordResolver', () => {
 
     const dtoValidation = await validate(dtoInstance);
     expect(dtoValidation).toBeInstanceOf(Array);
+  });
+
+  it('should not create a landlord if clientId is missing', async () => {
+    const dtoObj = dissoc('clientId', input);
+    const dtoInstance = Object.assign(new CreateLandlordInput(), dtoObj);
+
+    const dtoValidation = await validate(dtoInstance);
+
+    expect(dtoValidation).toBeInstanceOf(Array);
+    expect(dtoValidation).toHaveLength(1);
+    expect(dtoValidation[0].property).toBe('clientId');
+    expect(dtoValidation[0].constraints).toHaveProperty(
+      'isNotEmpty',
+      'clientId should not be empty',
+    );
+    expect(dtoValidation[0].constraints).toHaveProperty(
+      'isNumber',
+      'clientId must be a number conforming to the specified constraints',
+    );
+  });
+
+  it('should not create a landlord if clientId is not a number', async () => {
+    const dtoObj = assoc('clientId', '1', input);
+    const dtoInstance = Object.assign(new CreateLandlordInput(), dtoObj);
+
+    const dtoValidation = await validate(dtoInstance);
+
+    expect(dtoValidation).toBeInstanceOf(Array);
+    expect(dtoValidation).toHaveLength(1);
+    expect(dtoValidation[0].property).toBe('clientId');
+    expect(dtoValidation[0].constraints).toHaveProperty(
+      'isNumber',
+      'clientId must be a number conforming to the specified constraints',
+    );
   });
 
   it("shouldn't create a landlord with wrong cpf length", async () => {
@@ -253,11 +294,13 @@ describe('LandlordResolver', () => {
     (landlordModel.findOne as jest.Mock).mockResolvedValue(landlordToUpdate);
     (landlordModel.update as jest.Mock).mockResolvedValue(true);
     (landlordModel.findAll as jest.Mock).mockResolvedValue([landlordToUpdate]);
+    (clientModel.findByPk as jest.Mock).mockResolvedValue({ id: 2 });
 
     expect(
       await resolver.updateLandlord({
         id: landlordToUpdate.id,
         name: 'New Name',
+        clientId: 2,
       }),
     ).toEqual(landlordToUpdate);
     expect((landlordToUpdate as any).update).toHaveBeenCalled();

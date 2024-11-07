@@ -10,6 +10,10 @@ export const findOneQuery = `
         id
         type
       }
+      clientId
+      client {
+        id
+      }
     }
   }`;
 
@@ -21,6 +25,10 @@ export const findAllQuery = `
       email
       phone
       cpf
+      clientId
+      client {
+        id
+      }
     }
   }
 `;
@@ -33,6 +41,10 @@ export const createMutation = `
       email
       phone
       cpf
+      clientId
+      client {
+        id
+      }
     }
   }`;
 
@@ -44,6 +56,10 @@ export const updateMutation = `
       email
       phone
       cpf
+      clientId
+      client {
+        id
+      }
     }
   }
 `;

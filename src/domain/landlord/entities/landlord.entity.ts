@@ -10,14 +10,16 @@ import {
   CreatedAt,
   UpdatedAt,
   Model,
+  ForeignKey,
 } from 'sequelize-typescript';
 import { ERole } from '../../../application/auth/role/role.enum';
 import { Document } from '../../document/entities/document.entity';
 import { ELegalType } from '../../enum/legal-type.enum';
+import { Client } from '../../../application/client/entities/client.entity';
 
 @ObjectType()
 @Table
-export class Landlord extends Model {
+export class Landlord extends Model<Landlord> {
   @PrimaryKey
   @AutoIncrement
   @Column
@@ -66,6 +68,18 @@ export class Landlord extends Model {
   @Field(() => String)
   get landlordType(): ELegalType {
     return this.cpf ? ELegalType.Natural : ELegalType.Legal;
+  }
+
+  @ForeignKey(() => Client)
+  @Column
+  @Field(() => Int)
+  clientId: number;
+
+  @Field(() => Client)
+  get client(): Promise<Client> {
+    return Client.findOne({
+      where: { id: this.clientId },
+    });
   }
 
   @Field(() => [Document])

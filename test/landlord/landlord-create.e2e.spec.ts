@@ -10,11 +10,28 @@ import {
   generateToken,
 } from '../utils';
 import { ERole } from '../../src/application/auth/role/role.enum';
+import { Client } from '../../src/application/client/entities/client.entity';
+import { CreateClientInput } from '../../src/application/client/dto/create-client.input';
 
 describe('Landlord Module - Create (e2e)', () => {
   let app: INestApplication;
   let sequelize: Sequelize;
   let token: string;
+  const clientInput: CreateClientInput = {
+    cnpj: '12312312312322',
+    email: 'client@mail.com',
+    isActive: true,
+    name: 'Joseph Climber',
+    phone: '12312312322',
+    userId: 1,
+  };
+  const landlordInput = {
+    name: 'landlord',
+    cpf: '12312312322',
+    email: 'landlord@landlord.com',
+    phone: '12312312322',
+    clientId: 1,
+  };
 
   beforeAll(async () => {
     const { application, adminToken, db } = await initApp();
@@ -26,6 +43,7 @@ describe('Landlord Module - Create (e2e)', () => {
   beforeEach(async () => {
     await sequelize.getQueryInterface().dropTable('Landlords');
     await sequelize.sync({ force: true });
+    await Client.create(clientInput);
   });
 
   afterAll(async () => {
@@ -33,13 +51,6 @@ describe('Landlord Module - Create (e2e)', () => {
   });
 
   it('should create a landlord with admin role', async () => {
-    const landlordInput = {
-      name: 'landlord',
-      cpf: '12312312322',
-      email: 'landlord@landlord.com',
-      phone: '12312312322',
-    };
-
     const res = await request(app.getHttpServer())
       .post('/graphql')
       .set('Authorization', `Bearer ${token}`)
@@ -50,18 +61,12 @@ describe('Landlord Module - Create (e2e)', () => {
       .expect(200);
 
     expect(res.body.data).toEqual({
-      createLandlord: { id: 1, ...landlordInput },
+      createLandlord: { id: 1, ...landlordInput, client: { id: 1 } },
     });
   });
 
   it('should create a landlord with superadmin role', async () => {
     const superadminToken = generateToken({ sub: 1, role: ERole.Superadmin });
-    const landlordInput = {
-      name: 'landlord',
-      cpf: '12312312322',
-      email: 'landlord@landlord.com',
-      phone: '12312312322',
-    };
 
     const res = await request(app.getHttpServer())
       .post('/graphql')
@@ -73,8 +78,26 @@ describe('Landlord Module - Create (e2e)', () => {
       .expect(200);
 
     expect(res.body.data).toEqual({
-      createLandlord: { id: 1, ...landlordInput },
+      createLandlord: { id: 1, ...landlordInput, client: { id: 1 } },
     });
+  });
+
+  it('should no create a landlord without a clientId', async () => {
+    const res = await request(app.getHttpServer())
+      .post('/graphql')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        query: createMutation,
+        variables: { input: landlordWith.empty.clientId },
+      })
+      .expect(200);
+
+    expect(res.body).toHaveProperty('errors');
+    expect(res.body.errors).toHaveLength(1);
+    expect(res.body.errors[0]).toHaveProperty(
+      'message',
+      'Variable "$input" got invalid value { name: "landlord", cpf: "12312312322", email: "landlord@landlord.com", phone: "1231231232" }; Field "clientId" of required type "Int!" was not provided.',
+    );
   });
 
   it('should not create a landlord without cpf or cnpj', async () =>

@@ -12,6 +12,8 @@ import { InjectModel } from '@nestjs/sequelize';
 import { Landlord } from './entities/landlord.entity';
 import { UpdateLandlordInput } from './dto/update-landlord.input';
 import { ELegalType } from '../enum/legal-type.enum';
+import { ClientService } from '../../application/client/client.service';
+import { Client } from '../../application/client/entities/client.entity';
 
 @Injectable()
 export class LandlordService {
@@ -20,15 +22,22 @@ export class LandlordService {
     private readonly landlordModel: typeof Landlord,
     @Inject(CACHE_MANAGER)
     private cacheManager: Cache,
+    private readonly clientService: ClientService,
   ) {}
 
   private readonly logger = new Logger(LandlordService.name);
 
   async create(createLandlordDto: CreateLandlordInput): Promise<Landlord> {
     try {
-      const newLandlord: Landlord = await this.landlordModel.create(
-        createLandlordDto as any,
+      const client = await this.clientService.findOne(
+        createLandlordDto.clientId,
       );
+
+      if (!client)
+        throw new NotFoundException('Client not found with provided id.');
+
+      const newLandlord: Landlord =
+        await this.landlordModel.create(createLandlordDto);
 
       await this.cacheManager.set(`landlord:${newLandlord.id}`, newLandlord);
       const landlords: Landlord[] = await this.landlordModel.findAll();
@@ -91,6 +100,7 @@ export class LandlordService {
 
   async update(updateLandlordDto: UpdateLandlordInput): Promise<Landlord> {
     try {
+      let client: Client;
       const landlord = await this.landlordModel.findOne({
         where: { id: updateLandlordDto.id },
       });
@@ -116,6 +126,12 @@ export class LandlordService {
         throw new ConflictException(
           'Cannot update a cpf of a legal landlord or the cnpj of a natural landlord.',
         );
+
+      if (updateLandlordDto.clientId) {
+        client = await this.clientService.findOne(updateLandlordDto.clientId);
+      }
+      if (updateLandlordDto.clientId && !client)
+        throw new NotFoundException('Client not found with provided id.');
 
       await landlord.update(updateLandlordDto);
       await this.cacheManager.set(`landlord:${updateLandlordDto.id}`, landlord);
