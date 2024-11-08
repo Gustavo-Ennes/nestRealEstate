@@ -4,9 +4,7 @@ import { Sequelize } from 'sequelize-typescript';
 import { findOneQuery, findAllQuery } from './queries';
 import { afterAllTests, generateToken, initApp } from '../utils';
 import { ERole } from '../../src/application/auth/role/role.enum';
-import { User } from '../../src/application/user/entities/user.entity';
 import { Client } from '../../src/application/client/entities/client.entity';
-import { hashPassword } from '../../src/application/auth/auth.utils';
 import { CreateClientInput } from 'src/application/client/dto/create-client.input';
 
 describe('Client Module - Find (e2e)', () => {
@@ -14,9 +12,7 @@ describe('Client Module - Find (e2e)', () => {
   let sequelize: Sequelize;
   let superAdminToken: string;
   let client: Client;
-  let user: User;
   const clientInput: CreateClientInput = {
-    userId: 1,
     name: 'Imobiliária Gaibú',
     phone: '12312312322',
     email: 'gaibu@imobiliaria.com',
@@ -35,13 +31,6 @@ describe('Client Module - Find (e2e)', () => {
   beforeEach(async () => {
     await sequelize.getQueryInterface().dropTable('Clients');
     await sequelize.sync({ force: true });
-
-    user = await User.create({
-      username: 'username',
-      password: await hashPassword('password'),
-      role: 'superadmin',
-      email: 'teste@teste.com',
-    });
     client = await Client.create(clientInput);
   });
 
@@ -60,14 +49,6 @@ describe('Client Module - Find (e2e)', () => {
 
     expect(res.body.data).toHaveProperty('clients');
     expect(res.body.data.clients[0]).toHaveProperty('id', 1);
-    expect(res.body.data.clients[0]).toHaveProperty(
-      'userId',
-      clientInput.userId,
-    );
-    expect(res.body.data.clients[0]).toHaveProperty('user', {
-      id: user.id,
-      username: user.username,
-    });
     expect(res.body.data.clients[0]).toHaveProperty('name', clientInput.name);
     expect(res.body.data.clients[0]).toHaveProperty('phone', clientInput.phone);
     expect(res.body.data.clients[0]).toHaveProperty('email', clientInput.email);
@@ -157,11 +138,6 @@ describe('Client Module - Find (e2e)', () => {
 
     expect(res.body.data).toHaveProperty('client');
     expect(res.body.data.client).toHaveProperty('id', 1);
-    expect(res.body.data.client).toHaveProperty('userId', clientInput.userId);
-    expect(res.body.data.client).toHaveProperty('user', {
-      id: user.id,
-      username: user.username,
-    });
     expect(res.body.data.client).toHaveProperty('name', clientInput.name);
     expect(res.body.data.client).toHaveProperty('phone', clientInput.phone);
     expect(res.body.data.client).toHaveProperty('email', clientInput.email);

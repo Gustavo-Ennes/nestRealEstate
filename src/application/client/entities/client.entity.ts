@@ -5,9 +5,7 @@ import {
   AutoIncrement,
   Column,
   Model,
-  ForeignKey,
 } from 'sequelize-typescript';
-import { User } from '../../user/entities/user.entity';
 
 @ObjectType()
 @Table
@@ -17,11 +15,6 @@ export class Client extends Model<Client> {
   @Column
   @Field(() => Int)
   id: number;
-
-  @ForeignKey(() => User)
-  @Column
-  @Field(() => Int)
-  userId: number;
 
   @Column
   @Field(() => String)
@@ -50,11 +43,4 @@ export class Client extends Model<Client> {
   @Column
   @Field(() => String, { nullable: true })
   observation?: string;
-
-  @Field(() => User)
-  get user(): Promise<User> {
-    return User.findOne({
-      where: { id: this.userId },
-    });
-  }
 }

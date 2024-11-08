@@ -2,11 +2,6 @@ export const createMutation = `
   mutation CreateClient($input: CreateClientInput!) {
     createClient(createClientInput: $input) {
       id
-      userId
-      user {
-        id
-        username
-      }
       name
       phone
       email
@@ -22,11 +17,6 @@ export const updateMutation = `
   mutation UpdateClient($input: UpdateClientInput!) {
     updateClient(updateClientInput: $input) {
       id
-      userId
-      user {
-        id
-        username
-      }
       name
       phone
       email
@@ -42,11 +32,6 @@ export const findAllQuery = `
   query Clients {
     clients {    
       id
-      userId
-      user {
-        id
-        username
-      }
       name
       phone
       email
@@ -62,11 +47,6 @@ export const findOneQuery = `
   query Client($input: Int!) {
     client(id: $input) {    
       id
-      userId
-      user {
-        id
-        username
-      }
       name
       phone
       email

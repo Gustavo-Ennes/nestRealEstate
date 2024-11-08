@@ -4,9 +4,7 @@ import { Sequelize } from 'sequelize-typescript';
 import { updateMutation } from './queries';
 import { afterAllTests, generateToken, initApp } from '../utils';
 import { ERole } from '../../src/application/auth/role/role.enum';
-import { User } from '../../src/application/user/entities/user.entity';
 import { Client } from '../../src/application/client/entities/client.entity';
-import { hashPassword } from '../../src/application/auth/auth.utils';
 import { UpdateClientInput } from 'src/application/client/dto/update-client.input';
 import { assoc } from 'ramda';
 import { CreateClientInput } from 'src/application/client/dto/create-client.input';
@@ -15,9 +13,7 @@ describe('Client Module - Update (e2e)', () => {
   let app: INestApplication;
   let sequelize: Sequelize;
   let superadminToken: string;
-  let user: User;
   const clientInput: CreateClientInput = {
-    userId: 1,
     name: 'Imobiliária Gaibú',
     phone: '12312312322',
     email: 'gaibu@imobiliaria.com',
@@ -39,13 +35,6 @@ describe('Client Module - Update (e2e)', () => {
   beforeEach(async () => {
     await sequelize.getQueryInterface().dropTable('Clients');
     await sequelize.sync({ force: true });
-
-    user = await User.create({
-      username: 'username',
-      password: await hashPassword('password'),
-      role: 'superadmin',
-      email: 'teste@teste.com',
-    });
     await Client.create(clientInput);
   });
 
@@ -66,14 +55,6 @@ describe('Client Module - Update (e2e)', () => {
 
     expect(res.body.data).toHaveProperty('updateClient');
     expect(res.body.data.updateClient).toHaveProperty('id', 1);
-    expect(res.body.data.updateClient).toHaveProperty(
-      'userId',
-      clientInput.userId,
-    );
-    expect(res.body.data.updateClient).toHaveProperty('user', {
-      id: user.id,
-      username: user.username,
-    });
     expect(res.body.data.updateClient).toHaveProperty(
       'name',
       inputToUpdate.name,
@@ -164,30 +145,6 @@ describe('Client Module - Update (e2e)', () => {
         statusCode: 403,
       },
     });
-  });
-
-  it('should not update a client if user does not exists', async () => {
-    const input = assoc('userId', 666, updateInput);
-    const res = await request(app.getHttpServer())
-      .post('/graphql')
-      .set('Authorization', `Bearer ${superadminToken}`)
-      .send({
-        query: updateMutation,
-        variables: { input },
-      })
-      .expect(200);
-
-    expect(res.body).toHaveProperty('errors');
-    expect(res.body.errors).toHaveLength(1);
-    expect(res.body.errors[0]).toHaveProperty('extensions');
-    expect(res.body.errors[0].extensions).toHaveProperty(
-      'code',
-      'INTERNAL_SERVER_ERROR',
-    );
-    expect(res.body.errors[0].extensions.originalError).toHaveProperty(
-      'message',
-      'No user found with provided userId.',
-    );
   });
 
   it('should not update a client with an empty name', async () => {

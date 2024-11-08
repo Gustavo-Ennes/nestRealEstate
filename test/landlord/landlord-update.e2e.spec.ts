@@ -25,7 +25,6 @@ describe('Landlord Module - Update (e2e)', () => {
     isActive: true,
     name: 'Joseph Climber',
     phone: '12312312322',
-    userId: 1,
   };
 
   beforeAll(async () => {

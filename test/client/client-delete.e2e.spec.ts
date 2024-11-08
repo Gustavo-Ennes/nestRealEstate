@@ -5,8 +5,6 @@ import { deleteMutation } from './queries';
 import { afterAllTests, generateToken, initApp } from '../utils';
 import { ERole } from '../../src/application/auth/role/role.enum';
 import { Client } from '../../src/application/client/entities/client.entity';
-import { User } from '../../src/application/user/entities/user.entity';
-import { hashPassword } from '../../src/application/auth/auth.utils';
 import { CreateClientInput } from 'src/application/client/dto/create-client.input';
 
 describe('Client Module - Delete (e2e)', () => {
@@ -15,7 +13,6 @@ describe('Client Module - Delete (e2e)', () => {
   let superadminToken: string;
   let client: Client;
   const clientInput: CreateClientInput = {
-    userId: 1,
     name: 'Imobiliária Gaibú',
     phone: '12312312322',
     email: 'gaibu@imobiliaria.com',
@@ -34,13 +31,6 @@ describe('Client Module - Delete (e2e)', () => {
   beforeEach(async () => {
     await sequelize.getQueryInterface().dropTable('Clients');
     await sequelize.sync({ force: true });
-
-    await User.create({
-      username: 'username',
-      password: await hashPassword('password'),
-      role: 'superadmin',
-      email: 'teste@teste.com',
-    });
     client = await Client.create(clientInput);
   });
 

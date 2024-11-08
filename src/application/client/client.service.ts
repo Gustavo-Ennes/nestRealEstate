@@ -1,36 +1,19 @@
-import {
-  Injectable,
-  Logger,
-  NotAcceptableException,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { CreateClientInput } from './dto/create-client.input';
 import { UpdateClientInput } from './dto/update-client.input';
 import { InjectModel } from '@nestjs/sequelize';
 import { Client } from './entities/client.entity';
-import { UserService } from '../user/user.service';
-import { ERole } from '../auth/role/role.enum';
-import { User } from '../user/entities/user.entity';
 
 @Injectable()
 export class ClientService {
   constructor(
     @InjectModel(Client) private readonly clientModel: typeof Client,
-    private readonly userService: UserService,
   ) {}
 
   private readonly logger = new Logger(ClientService.name);
 
   async create(createClientInput: CreateClientInput) {
     try {
-      const { userId } = createClientInput;
-      const user = await this.userService.findById(userId);
-
-      if (!user)
-        throw new NotFoundException('User not found with provided userId.');
-      if (user.role !== ERole.Admin)
-        throw new NotAcceptableException("User must have 'admin' role.");
-
       const client = await this.clientModel.create(createClientInput);
       return client;
     } catch (error) {
@@ -71,20 +54,11 @@ export class ClientService {
 
   async update(updateClientInput: UpdateClientInput) {
     try {
-      let user: User;
-      const { id, userId } = updateClientInput;
+      const { id } = updateClientInput;
       const clientToUpdate = await this.clientModel.findByPk(id);
 
       if (!clientToUpdate)
         throw new NotFoundException('No client found with provided id.');
-
-      if (userId) {
-        user = await this.userService.findById(userId);
-      }
-      if (!user && userId)
-        throw new NotFoundException('No user found with provided userId.');
-      if (user && user.role !== ERole.Admin)
-        throw new NotAcceptableException("User must have 'admin' role.");
 
       await this.clientModel.update(updateClientInput, { where: { id } });
       await clientToUpdate.reload();

@@ -4,30 +4,19 @@ import { Sequelize } from 'sequelize-typescript';
 import { createMutation } from './queries';
 import { afterAllTests, generateToken, initApp } from '../utils';
 import { ERole } from '../../src/application/auth/role/role.enum';
-import { User } from '../../src/application/user/entities/user.entity';
 import { CreateClientInput } from '../../src/application/client/dto/create-client.input';
-import { CreateUserInput } from '../../src/application/user/dto/create-user.input';
 import { assoc, dissoc } from 'ramda';
 
 describe('Client Module - Create (e2e)', () => {
   let app: INestApplication;
   let sequelize: Sequelize;
   let superadminToken: string;
-  let user: User;
-  const userInput: CreateUserInput = {
-    email: 'user@client.com',
-    password: 'senha123',
-    role: ERole.Admin,
-    username: 'ClientAdmin',
-    clientId: 1,
-  };
   const clientInput: CreateClientInput = {
     cnpj: '12312312312322',
     email: 'client@client.com',
     name: 'Franz Kafka',
     phone: '12312312322',
     site: 'client.com',
-    userId: 1,
     isActive: true,
   };
 
@@ -41,7 +30,6 @@ describe('Client Module - Create (e2e)', () => {
   beforeEach(async () => {
     await sequelize.getQueryInterface().dropTable('Clients');
     await sequelize.sync({ force: true });
-    user = await User.create(userInput);
   });
 
   afterAll(async () => {
@@ -61,11 +49,6 @@ describe('Client Module - Create (e2e)', () => {
     expect(res.body.data).not.toBeNull();
     expect(res.body.data).toHaveProperty('createClient');
     expect(res.body.data.createClient).toHaveProperty('id', 1);
-    expect(res.body.data.createClient).toHaveProperty('userId', user.id);
-    expect(res.body.data.createClient).toHaveProperty('user', {
-      id: user.id,
-      username: user.username,
-    });
     expect(res.body.data.createClient).toHaveProperty('name', clientInput.name);
     expect(res.body.data.createClient).toHaveProperty(
       'phone',
@@ -152,54 +135,6 @@ describe('Client Module - Create (e2e)', () => {
     });
   });
 
-  it('should not create a client if user id is missing', async () => {
-    const inputWithoutUserId = dissoc('userId', clientInput);
-    const res = await request(app.getHttpServer())
-      .post('/graphql')
-      .set('Authorization', `Bearer ${superadminToken}`)
-      .send({
-        query: createMutation,
-        variables: { input: inputWithoutUserId },
-      })
-      .expect(200);
-
-    expect(res.body).toHaveProperty('errors');
-    expect(res.body.errors).toHaveLength(1);
-    expect(res.body.errors[0]).toHaveProperty('extensions');
-    expect(res.body.errors[0].extensions).toHaveProperty(
-      'code',
-      'BAD_USER_INPUT',
-    );
-    expect(res.body.errors[0]).toHaveProperty(
-      'message',
-      'Variable "$input" got invalid value { cnpj: "12312312312322", email: "client@client.com", name: "Franz Kafka", phone: "12312312322", site: "client.com", isActive: true }; Field "userId" of required type "Int!" was not provided.',
-    );
-  });
-
-  it('should not create a client if user does not exists', async () => {
-    const inputWithInexistentUser = assoc('userId', 666, clientInput);
-    const res = await request(app.getHttpServer())
-      .post('/graphql')
-      .set('Authorization', `Bearer ${superadminToken}`)
-      .send({
-        query: createMutation,
-        variables: { input: inputWithInexistentUser },
-      })
-      .expect(200);
-
-    expect(res.body).toHaveProperty('errors');
-    expect(res.body.errors).toHaveLength(1);
-    expect(res.body.errors[0]).toHaveProperty('extensions');
-    expect(res.body.errors[0].extensions).toHaveProperty(
-      'code',
-      'INTERNAL_SERVER_ERROR',
-    );
-    expect(res.body.errors[0].extensions.originalError).toHaveProperty(
-      'message',
-      'User not found with provided userId.',
-    );
-  });
-
   it('should not create a client without a name', async () => {
     const inputWithoutName = dissoc('name', clientInput);
     const res = await request(app.getHttpServer())
@@ -220,7 +155,7 @@ describe('Client Module - Create (e2e)', () => {
     );
     expect(res.body.errors[0]).toHaveProperty(
       'message',
-      'Variable "$input" got invalid value { cnpj: "12312312312322", email: "client@client.com", phone: "12312312322", site: "client.com", userId: 1, isActive: true }; Field "name" of required type "String!" was not provided.',
+      'Variable "$input" got invalid value { cnpj: "12312312312322", email: "client@client.com", phone: "12312312322", site: "client.com", isActive: true }; Field "name" of required type "String!" was not provided.',
     );
   });
 
@@ -281,7 +216,7 @@ describe('Client Module - Create (e2e)', () => {
     );
     expect(res.body.errors[0]).toHaveProperty(
       'message',
-      'Variable "$input" got invalid value { cnpj: "12312312312322", email: "client@client.com", name: "Franz Kafka", site: "client.com", userId: 1, isActive: true }; Field "phone" of required type "String!" was not provided.',
+      'Variable "$input" got invalid value { cnpj: "12312312312322", email: "client@client.com", name: "Franz Kafka", site: "client.com", isActive: true }; Field "phone" of required type "String!" was not provided.',
     );
   });
 
@@ -344,7 +279,7 @@ describe('Client Module - Create (e2e)', () => {
     );
     expect(res.body.errors[0]).toHaveProperty(
       'message',
-      'Variable "$input" got invalid value { cnpj: "12312312312322", name: "Franz Kafka", phone: "12312312322", site: "client.com", userId: 1, isActive: true }; Field "email" of required type "String!" was not provided.',
+      'Variable "$input" got invalid value { cnpj: "12312312312322", name: "Franz Kafka", phone: "12312312322", site: "client.com", isActive: true }; Field "email" of required type "String!" was not provided.',
     );
   });
 
@@ -438,7 +373,7 @@ describe('Client Module - Create (e2e)', () => {
     );
     expect(res.body.errors[0]).toHaveProperty(
       'message',
-      'Variable "$input" got invalid value { email: "client@client.com", name: "Franz Kafka", phone: "12312312322", site: "client.com", userId: 1, isActive: true }; Field "cnpj" of required type "String!" was not provided.',
+      'Variable "$input" got invalid value { email: "client@client.com", name: "Franz Kafka", phone: "12312312322", site: "client.com", isActive: true }; Field "cnpj" of required type "String!" was not provided.',
     );
   });
 

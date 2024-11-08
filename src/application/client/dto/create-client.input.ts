@@ -1,4 +1,4 @@
-import { InputType, Int, Field } from '@nestjs/graphql';
+import { InputType, Field } from '@nestjs/graphql';
 import { IsNotEmpty } from 'class-validator';
 import { IsEmail } from '../../../validations/email.validation';
 import {
@@ -11,10 +11,6 @@ import { HasOnlyLetters } from '../../../validations/only-letters.validation';
 
 @InputType()
 export class CreateClientInput {
-  @IsNotEmpty()
-  @Field(() => Int)
-  userId: number;
-
   @IsNotEmpty()
   @HasOnlyLetters
   @Field(() => String)

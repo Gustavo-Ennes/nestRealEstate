@@ -1,18 +1,15 @@
 import { TestingModule } from '@nestjs/testing';
 import { ClientResolver } from './client.resolver';
 import { createClientTestingModule } from './testConfig/client.test.config';
-import { User } from '../user/entities/user.entity';
 import { getModelToken } from '@nestjs/sequelize';
 import { Client } from './entities/client.entity';
 import { CreateClientInput } from './dto/create-client.input';
-import { ERole } from '../auth/role/role.enum';
 import { assoc, dissoc } from 'ramda';
 import { validationPipe } from '../pipes/validation.pipe';
 import { UpdateClientInput } from './dto/update-client.input';
 
 describe('ClientResolver', () => {
   let resolver: ClientResolver;
-  let userModel: typeof User;
   let clientModel: typeof Client;
   const clientInput: CreateClientInput = {
     cnpj: '12312312312322',
@@ -21,7 +18,6 @@ describe('ClientResolver', () => {
     name: 'Client',
     phone: '12312312322',
     site: 'client.com',
-    userId: 1,
   };
 
   beforeEach(async () => {
@@ -29,7 +25,6 @@ describe('ClientResolver', () => {
 
     resolver = module.get<ClientResolver>(ClientResolver);
 
-    userModel = module.get<typeof User>(getModelToken(User));
     clientModel = module.get<typeof Client>(getModelToken(Client));
   });
 
@@ -39,10 +34,6 @@ describe('ClientResolver', () => {
 
   describe('Client create', () => {
     it('should create a client', async () => {
-      (userModel.findByPk as jest.Mock).mockResolvedValueOnce({
-        id: 1,
-        role: ERole.Admin,
-      });
       (clientModel.create as jest.Mock).mockResolvedValueOnce({
         id: 1,
         ...clientInput,
@@ -50,31 +41,6 @@ describe('ClientResolver', () => {
 
       const response = await resolver.createClient(clientInput);
       expect(response).toEqual({ id: 1, ...clientInput });
-    });
-
-    it('should not create a client if user id is missing', async () => {
-      const inputWithoutUserId = dissoc('userId', clientInput);
-      try {
-        await resolver.createClient(inputWithoutUserId as CreateClientInput);
-      } catch (error) {
-        expect(error.response).toHaveProperty(
-          'message',
-          'User not found with provided userId.',
-        );
-        expect(error.response).toHaveProperty('error', 'Not Found');
-      }
-    });
-
-    it('should not create a client if user does not exists', async () => {
-      try {
-        await resolver.createClient(clientInput);
-      } catch (error) {
-        expect(error.response).toHaveProperty(
-          'message',
-          'User not found with provided userId.',
-        );
-        expect(error.response).toHaveProperty('error', 'Not Found');
-      }
     });
 
     it('should not create a client with an empty name', async () => {
@@ -315,25 +281,6 @@ describe('ClientResolver', () => {
 
       const response = await resolver.updateClient(updatePayload);
       expect(response).toEqual(expect.objectContaining(updatePayload));
-    });
-
-    it('should not update a client if user does not exists', async () => {
-      const inputWithoutUserId = assoc(
-        'id',
-        1,
-        assoc('userId', 666, clientInput),
-      );
-      (clientModel.findByPk as jest.Mock).mockResolvedValueOnce({ id: 1 });
-
-      try {
-        await resolver.updateClient(inputWithoutUserId);
-      } catch (error) {
-        expect(error.response).toHaveProperty(
-          'message',
-          'No user found with provided userId.',
-        );
-        expect(error.response).toHaveProperty('error', 'Not Found');
-      }
     });
 
     it('should not update a client with an empty name', async () => {

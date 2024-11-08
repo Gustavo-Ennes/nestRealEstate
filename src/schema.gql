@@ -4,7 +4,6 @@
 
 type Client {
   id: Int!
-  userId: Int!
   name: String!
   phone: String!
   email: String!
@@ -12,18 +11,6 @@ type Client {
   cnpj: String!
   isActive: Boolean!
   observation: String
-  user: User!
-}
-
-type User {
-  id: Int!
-  username: String!
-  password: String!
-  email: String!
-  isActive: Boolean!
-  role: String!
-  clientId: Int!
-  client: Client!
 }
 
 type AuthReturn {
@@ -155,7 +142,6 @@ input LoginInput {
 }
 
 input CreateClientInput {
-  userId: Int!
   name: String!
   phone: String!
   email: String!
@@ -166,7 +152,6 @@ input CreateClientInput {
 }
 
 input UpdateClientInput {
-  userId: Int
   name: String
   phone: String
   email: String
