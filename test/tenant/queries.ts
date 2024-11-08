@@ -6,9 +6,14 @@ export const findOneQuery = `
       email
       phone
       cpf
+      cnpj
       documents {
         id
         type
+      }
+      clientId
+      client {
+        id
       }
     }
   }`;
@@ -21,6 +26,11 @@ export const findAllQuery = `
       email
       phone
       cpf
+      cnpj
+      clientId
+      client {
+        id
+      }
     }
   }
 `;
@@ -33,6 +43,11 @@ export const createMutation = `
       email
       phone
       cpf
+      cnpj
+      clientId
+      client {
+        id
+      }
     }
   }`;
 
@@ -44,6 +59,11 @@ export const updateMutation = `
       email
       phone
       cpf
+      cnpj
+      clientId
+      client {
+        id
+      }
     }
   }
 `;

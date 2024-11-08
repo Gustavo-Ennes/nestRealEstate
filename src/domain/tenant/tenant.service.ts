@@ -12,6 +12,8 @@ import { InjectModel } from '@nestjs/sequelize';
 import { Tenant } from './entities/tenant.entity';
 import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
 import { ELegalType } from '../enum/legal-type.enum';
+import { ClientService } from '../../application/client/client.service';
+import { Client } from '../../application/client/entities/client.entity';
 
 @Injectable()
 export class TenantService {
@@ -20,12 +22,18 @@ export class TenantService {
     private readonly tenantModel: typeof Tenant,
     @Inject(CACHE_MANAGER)
     private cacheManager: Cache,
+    private readonly clientService: ClientService,
   ) {}
 
   private readonly logger = new Logger(TenantService.name);
 
   async create(createTenantDto: CreateTenantInput): Promise<Tenant> {
     try {
+      const client = await this.clientService.findOne(createTenantDto.clientId);
+
+      if (!client)
+        throw new NotFoundException('Client not found with provided id.');
+
       const newTenant: Tenant = await this.tenantModel.create(createTenantDto);
 
       await this.cacheManager.set(`tenant:${newTenant.id}`, newTenant);
@@ -89,6 +97,7 @@ export class TenantService {
 
   async update(updateTenantDto: UpdateTenantInput): Promise<Tenant> {
     try {
+      let client: Client;
       const tenant = await this.tenantModel.findOne({
         where: { id: updateTenantDto.id },
       });
@@ -112,6 +121,12 @@ export class TenantService {
         throw new ConflictException(
           'Cannot update a cpf of a legal tenant or the cnpj of a natural tenant.',
         );
+
+      if (updateTenantDto.clientId) {
+        client = await this.clientService.findOne(updateTenantDto.clientId);
+      }
+      if (updateTenantDto.clientId && !client)
+        throw new NotFoundException('Client not found with provided id.');
 
       await tenant.update(updateTenantDto);
       await this.cacheManager.set(`tenant:${updateTenantDto.id}`, tenant);

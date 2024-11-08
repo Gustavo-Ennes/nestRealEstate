@@ -7,11 +7,35 @@ import { afterAllTests, generateToken, initApp } from '../utils';
 import { ERole } from '../../src/application/auth/role/role.enum';
 import { EDocumentType } from '../../src/domain/document/enum/document-type.enum';
 import { Document } from '../../src/domain/document/entities/document.entity';
+import { Client } from '../../src/application/client/entities/client.entity';
+import { CreateClientInput } from '../../src/application/client/dto/create-client.input';
+import { CreateTenantInput } from '../../src/domain/tenant/dto/create-tenant.input';
 
 describe('Tenant Module - Find (e2e)', () => {
   let app: INestApplication;
   let sequelize: Sequelize;
   let token: string;
+  const tenantInput: CreateTenantInput = {
+    name: 'tenant',
+    cpf: '12312312322',
+    cnpj: null,
+    email: 'tenant@tenant.com',
+    phone: '1231231232',
+    clientId: 1,
+  };
+  const documentInput = {
+    ownerId: 1,
+    ownerRole: ERole.Tenant,
+    type: EDocumentType.Cpf,
+  };
+  const clientInput: CreateClientInput = {
+    cnpj: '12312312312322',
+    email: 'client@mail.com',
+    isActive: true,
+    name: 'Joseph Climber',
+    phone: '12312312322',
+    userId: 1,
+  };
 
   beforeAll(async () => {
     const { application, db, adminToken } = await initApp();
@@ -23,6 +47,10 @@ describe('Tenant Module - Find (e2e)', () => {
   beforeEach(async () => {
     await sequelize.getQueryInterface().dropTable('Tenants');
     await sequelize.sync({ force: true });
+
+    await Client.create(clientInput);
+    await Tenant.create(tenantInput);
+    await Document.create(documentInput);
   });
 
   afterAll(async () => {
@@ -30,21 +58,6 @@ describe('Tenant Module - Find (e2e)', () => {
   });
 
   it('should find a tenant with admin role', async () => {
-    const tenantInput = {
-      name: 'tenant',
-      cpf: '12312312322',
-      email: 'tenant@tenant.com',
-      phone: '1231231232',
-    };
-    const documentInput = {
-      ownerId: 1,
-      ownerRole: ERole.Tenant,
-      type: EDocumentType.Cpf,
-    };
-
-    await Tenant.create(tenantInput);
-    await Document.create(documentInput);
-
     const res = await request(app.getHttpServer())
       .post('/graphql')
       .set('Authorization', `Bearer ${token}`)
@@ -58,26 +71,13 @@ describe('Tenant Module - Find (e2e)', () => {
         id: 1,
         ...tenantInput,
         documents: [{ id: 1, type: documentInput.type }],
+        client: { id: 1 },
       },
     });
   });
 
   it('should find a tenant with superadmin role', async () => {
     const superadminToken = generateToken({ sub: 1, role: ERole.Superadmin });
-    const tenantInput = {
-      name: 'tenant',
-      cpf: '12312312322',
-      email: 'tenant@tenant.com',
-      phone: '1231231232',
-    };
-    const documentInput = {
-      ownerId: 1,
-      ownerRole: ERole.Tenant,
-      type: EDocumentType.Cpf,
-    };
-
-    await Tenant.create(tenantInput);
-    await Document.create(documentInput);
 
     const res = await request(app.getHttpServer())
       .post('/graphql')
@@ -92,6 +92,7 @@ describe('Tenant Module - Find (e2e)', () => {
         id: 1,
         ...tenantInput,
         documents: [{ id: 1, type: documentInput.type }],
+        client: { id: 1 },
       },
     });
   });
@@ -116,14 +117,6 @@ describe('Tenant Module - Find (e2e)', () => {
   });
 
   it('should find all tenants with admin role', async () => {
-    const tenantInput = {
-      name: 'tenant',
-      cpf: '12312312322',
-      email: 'tenant@tenant.com',
-      phone: '1231231232',
-    };
-    await Tenant.create(tenantInput);
-
     const res = await request(app.getHttpServer())
       .post('/graphql')
       .set('Authorization', `Bearer ${token}`)
@@ -132,12 +125,13 @@ describe('Tenant Module - Find (e2e)', () => {
       })
       .expect(200);
 
-    expect(res.body.data).toEqual({ tenants: [{ id: 1, ...tenantInput }] });
+    expect(res.body.data).toEqual({
+      tenants: [{ id: 1, ...tenantInput, client: { id: 1 } }],
+    });
   });
 
   it('should not find all tenants with tenant role', async () => {
     const tenantToken = generateToken({ sub: 1, role: ERole.Tenant });
-    token = generateToken({ sub: 1, role: 'tenant' });
 
     const res = await request(app.getHttpServer())
       .post('/graphql')

@@ -10,10 +10,12 @@ import {
   Default,
   CreatedAt,
   UpdatedAt,
+  ForeignKey,
 } from 'sequelize-typescript';
 import { ELegalType } from '../../enum/legal-type.enum';
 import { Document } from '../../document/entities/document.entity';
 import { ERole } from '../../../application/auth/role/role.enum';
+import { Client } from '../../../application/client/entities/client.entity';
 
 @ObjectType()
 @Table
@@ -66,6 +68,18 @@ export class Tenant extends Model<Tenant> {
   @Field(() => String)
   get tenantType(): ELegalType {
     return this.cpf ? ELegalType.Natural : ELegalType.Legal;
+  }
+
+  @ForeignKey(() => Client)
+  @Column
+  @Field(() => Int)
+  clientId: number;
+
+  @Field(() => Client)
+  get client(): Promise<Client> {
+    return Client.findOne({
+      where: { id: this.clientId },
+    });
   }
 
   @Field(() => [Document])

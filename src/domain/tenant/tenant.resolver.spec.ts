@@ -7,15 +7,18 @@ import { createTenantTestingModule } from './testConfig/tenant.test.config';
 import { validate } from 'class-validator';
 import { UpdateTenantInput } from './dto/update-tenant.input';
 import { ELegalType } from '../enum/legal-type.enum';
+import { Client } from '../../application/client/entities/client.entity';
 
 describe('TenantResolver', () => {
   let resolver: TenantResolver;
   let tenantModel: typeof Tenant;
+  let clientModel: typeof Client;
   const input = {
     name: 'tenant',
     cpf: '12312312322',
     email: 'gustavo@ennes.dev',
     phone: '3216549874',
+    clientId: 1,
   } as CreateTenantInput;
 
   beforeEach(async () => {
@@ -23,6 +26,7 @@ describe('TenantResolver', () => {
 
     resolver = module.get<TenantResolver>(TenantResolver);
     tenantModel = module.get<typeof Tenant>(getModelToken(Tenant));
+    clientModel = module.get<typeof Client>(getModelToken(Client));
   });
   afterEach(() => {
     jest.restoreAllMocks();
@@ -55,9 +59,11 @@ describe('TenantResolver', () => {
 
   it('should create a tenant', async () => {
     const createdTenant = { id: 1, ...input };
+    const client = { id: 2 };
 
     (tenantModel.create as jest.Mock).mockResolvedValue(createdTenant);
     (tenantModel.findAll as jest.Mock).mockResolvedValue([createdTenant]);
+    (clientModel.findByPk as jest.Mock).mockResolvedValueOnce(client);
 
     expect(await resolver.createTenant(input)).toEqual(createdTenant);
   });
@@ -250,6 +256,7 @@ describe('TenantResolver', () => {
     (tenantModel.findOne as jest.Mock).mockResolvedValue(tenantToUpdate);
     (tenantModel.update as jest.Mock).mockResolvedValue(true);
     (tenantModel.findAll as jest.Mock).mockResolvedValue([tenantToUpdate]);
+    (clientModel.findByPk as jest.Mock).mockResolvedValue({ id: 2 });
 
     expect(
       await resolver.updateTenant({ id: tenantToUpdate.id, name: 'New Name' }),

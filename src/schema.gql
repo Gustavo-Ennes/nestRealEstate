@@ -71,6 +71,8 @@ type Tenant {
   createdAt: DateTime!
   updatedAt: DateTime!
   tenantType: String!
+  clientId: Int!
+  client: Client!
   documents: [Document!]!
 }
 
@@ -212,6 +214,7 @@ input CreateTenantInput {
   cnpj: String
   email: String!
   phone: String!
+  clientId: Int!
 }
 
 input UpdateTenantInput {
@@ -220,6 +223,7 @@ input UpdateTenantInput {
   cnpj: String
   email: String
   phone: String
+  clientId: Int
   id: Int!
   isActive: Boolean
   annotations: [String!]

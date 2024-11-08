@@ -10,6 +10,9 @@ import {
 } from '../utils';
 import { Tenant } from '../../src/domain/tenant/entities/tenant.entity';
 import { ERole } from '../../src/application/auth/role/role.enum';
+import { CreateClientInput } from '../../src/application/client/dto/create-client.input';
+import { CreateTenantInput } from '../../src/domain/tenant/dto/create-tenant.input';
+import { Client } from '../../src/application/client/entities/client.entity';
 
 describe('Tenant Module - Update (e2e)', () => {
   let app: INestApplication,
@@ -17,6 +20,30 @@ describe('Tenant Module - Update (e2e)', () => {
     token: string,
     naturalTenant: Tenant,
     legalTenant: Tenant;
+  const clientInput: CreateClientInput = {
+    cnpj: '12312312312322',
+    email: 'client@mail.com',
+    isActive: true,
+    name: 'Joseph Climber',
+    phone: '12312312322',
+    userId: 1,
+  };
+  const naturalTenantInput: CreateTenantInput = {
+    name: 'tenant',
+    email: 'ads@dasd.com',
+    phone: '12312312322',
+    cpf: '12312312322',
+    cnpj: null,
+    clientId: 1,
+  };
+  const legalTenantInput: CreateTenantInput = {
+    name: 'tenant',
+    email: 'ads@dasd.com',
+    phone: '12312312322',
+    cnpj: '12312312312322',
+    cpf: null,
+    clientId: 1,
+  };
 
   beforeAll(async () => {
     const { application, db, adminToken } = await initApp();
@@ -29,18 +56,9 @@ describe('Tenant Module - Update (e2e)', () => {
     await sequelize.getQueryInterface().dropTable('Tenants');
     await sequelize.sync({ force: true });
 
-    naturalTenant = await Tenant.create({
-      name: 'tenant',
-      email: 'ads@dasd.com',
-      phone: '12312312322',
-      cpf: '12312312322',
-    });
-    legalTenant = await Tenant.create({
-      name: 'tenant',
-      email: 'ads@dasd.com',
-      phone: '12312312322',
-      cnpj: '12312312312322',
-    });
+    await Client.create(clientInput);
+    naturalTenant = await Tenant.create(naturalTenantInput);
+    legalTenant = await Tenant.create(legalTenantInput);
   });
 
   afterAll(async () => {
@@ -78,6 +96,11 @@ describe('Tenant Module - Update (e2e)', () => {
       'email',
       naturalTenant.email,
     );
+    expect(res.body.data.updateTenant).toHaveProperty(
+      'clientId',
+      naturalTenant.clientId,
+    );
+    expect(res.body.data.updateTenant).toHaveProperty('client', { id: 1 });
     expect(naturalTenant.name).toBe('new name');
   });
 
@@ -113,6 +136,11 @@ describe('Tenant Module - Update (e2e)', () => {
       'email',
       naturalTenant.email,
     );
+    expect(res.body.data.updateTenant).toHaveProperty(
+      'clientId',
+      naturalTenant.clientId,
+    );
+    expect(res.body.data.updateTenant).toHaveProperty('client', { id: 1 });
     expect(naturalTenant.name).toBe('new name');
   });
 
@@ -148,6 +176,11 @@ describe('Tenant Module - Update (e2e)', () => {
       'email',
       naturalTenant.email,
     );
+    expect(res.body.data.updateTenant).toHaveProperty(
+      'clientId',
+      naturalTenant.clientId,
+    );
+    expect(res.body.data.updateTenant).toHaveProperty('client', { id: 1 });
     expect(naturalTenant.name).toBe('new name');
   });
 
@@ -172,6 +205,29 @@ describe('Tenant Module - Update (e2e)', () => {
       message: 'Forbidden resource',
       error: 'Forbidden',
       statusCode: 403,
+    });
+  });
+
+  it('should not update a tenant client if it does not exists', async () => {
+    const updateDto = {
+      id: naturalTenant.id,
+      clientId: 2,
+    };
+
+    const res = await request(app.getHttpServer())
+      .post('/graphql')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        query: updateMutation,
+        variables: { input: updateDto },
+      })
+      .expect(200);
+
+    expect(res.body.errors).toBeInstanceOf(Array);
+    expect(res.body.errors[0].extensions).toHaveProperty('originalError', {
+      message: 'Client not found with provided id.',
+      error: 'Not Found',
+      statusCode: 404,
     });
   });
 

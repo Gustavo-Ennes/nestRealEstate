@@ -1,5 +1,5 @@
-import { InputType, Field } from '@nestjs/graphql';
-import { IsNotEmpty } from 'class-validator';
+import { InputType, Field, Int } from '@nestjs/graphql';
+import { IsNotEmpty, IsNumber } from 'class-validator';
 import { ContainsCpfOrCnpj } from '../../../validations/cpf-or-cnpj.validation';
 import {
   IsCnpjLength,
@@ -38,4 +38,9 @@ export class CreateTenantInput {
   @HasOnlyDigits
   @Field(() => String)
   phone: string;
+
+  @IsNotEmpty()
+  @IsNumber()
+  @Field(() => Int)
+  clientId: number;
 }

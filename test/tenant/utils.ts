@@ -5,6 +5,7 @@ const defaultTenantInput = {
   cpf: '12312312322',
   email: 'tenant@tenant.com',
   phone: '1231231232',
+  clientId: 1,
 };
 
 const tenantWith = inputWithError(defaultTenantInput);
