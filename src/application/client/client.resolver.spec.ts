@@ -24,7 +24,6 @@ describe('ClientResolver', () => {
     const module: TestingModule = await createClientTestingModule();
 
     resolver = module.get<ClientResolver>(ClientResolver);
-
     clientModel = module.get<typeof Client>(getModelToken(Client));
   });
 

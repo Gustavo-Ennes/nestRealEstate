@@ -17,6 +17,18 @@ type AuthReturn {
   access_token: String!
 }
 
+type Address {
+  id: Int!
+  street: String!
+  number: String!
+  complement: String
+  neighborhood: String!
+  city: String!
+  state: String!
+  additionalInfo: String
+  postalCode: String!
+}
+
 type Document {
   id: Int!
   type: String!
@@ -93,6 +105,8 @@ type DocumentRequirement {
 type Query {
   clients: [Client!]!
   client(id: Int!): Client
+  addresses: [Address!]!
+  address(id: Int!): Address
   documentTypes: [DocumentType!]!
   documentType(id: Int!): DocumentType
   documents: [Document!]!
@@ -111,6 +125,9 @@ type Mutation {
   createClient(createClientInput: CreateClientInput!): Client!
   updateClient(updateClientInput: UpdateClientInput!): Client!
   removeClient(id: Int!): Boolean!
+  createAddress(createAddressInput: CreateAddressInput!): Address!
+  updateAddress(updateAddressInput: UpdateAddressInput!): Address!
+  removeAddress(id: Int!): Boolean!
   createDocumentType(createDocumentTypeInput: CreateDocumentTypeInput!): DocumentType!
   updateDocumentType(updateDocumentTypeInput: UpdateDocumentTypeInput!): DocumentType!
   removeDocumentType(id: Int!): Boolean!
@@ -159,6 +176,29 @@ input UpdateClientInput {
   cnpj: String
   isActive: Boolean = true
   observation: String
+  id: Int!
+}
+
+input CreateAddressInput {
+  street: String!
+  number: String!
+  complement: String
+  neighborhood: String!
+  city: String!
+  state: String!
+  additionalInfo: String
+  postalCode: String!
+}
+
+input UpdateAddressInput {
+  street: String
+  number: String
+  complement: String
+  neighborhood: String
+  city: String
+  state: String
+  additionalInfo: String
+  postalCode: String
   id: Int!
 }
 
