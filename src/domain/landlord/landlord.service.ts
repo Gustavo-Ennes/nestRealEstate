@@ -14,6 +14,8 @@ import { UpdateLandlordInput } from './dto/update-landlord.input';
 import { ELegalType } from '../enum/legal-type.enum';
 import { ClientService } from '../../application/client/client.service';
 import { Client } from '../../application/client/entities/client.entity';
+import { AddressService } from '../../application/address/address.service';
+import { Address } from '../../application/address/entities/address.entity';
 
 @Injectable()
 export class LandlordService {
@@ -23,18 +25,24 @@ export class LandlordService {
     @Inject(CACHE_MANAGER)
     private cacheManager: Cache,
     private readonly clientService: ClientService,
+    private readonly addressService: AddressService,
   ) {}
 
   private readonly logger = new Logger(LandlordService.name);
 
   async create(createLandlordDto: CreateLandlordInput): Promise<Landlord> {
     try {
-      const client = await this.clientService.findOne(
-        createLandlordDto.clientId,
-      );
+      const { addressId, clientId } = createLandlordDto;
+      const client = await this.clientService.findOne(clientId);
+      const address = await this.addressService.findOne(addressId);
 
       if (!client)
         throw new NotFoundException('Client not found with provided id.');
+
+      if (!address)
+        throw new NotFoundException(
+          'No address found with provided addressId.',
+        );
 
       const newLandlord: Landlord =
         await this.landlordModel.create(createLandlordDto);
@@ -101,8 +109,10 @@ export class LandlordService {
   async update(updateLandlordDto: UpdateLandlordInput): Promise<Landlord> {
     try {
       let client: Client;
+      let address: Address;
+      const { id, addressId, clientId, cpf, cnpj } = updateLandlordDto;
       const landlord = await this.landlordModel.findOne({
-        where: { id: updateLandlordDto.id },
+        where: { id },
       });
       const { landlordType } = landlord;
 
@@ -118,29 +128,35 @@ export class LandlordService {
         );
 
       if (
-        (landlordType === ELegalType.Legal &&
-          updateLandlordDto.cpf?.length > 0) ||
-        (landlordType === ELegalType.Natural &&
-          updateLandlordDto.cnpj?.length > 0)
+        (landlordType === ELegalType.Legal && cpf?.length > 0) ||
+        (landlordType === ELegalType.Natural && cnpj?.length > 0)
       )
         throw new ConflictException(
           'Cannot update a cpf of a legal landlord or the cnpj of a natural landlord.',
         );
 
-      if (updateLandlordDto.clientId) {
-        client = await this.clientService.findOne(updateLandlordDto.clientId);
+      if (clientId) {
+        client = await this.clientService.findOne(clientId);
       }
-      if (updateLandlordDto.clientId && !client)
+      if (clientId && !client)
         throw new NotFoundException('Client not found with provided id.');
 
+      if (addressId) address = await this.addressService.findOne(addressId);
+      if (addressId && !address)
+        throw new NotFoundException(
+          'No address found with provided addressId.',
+        );
+
       await landlord.update(updateLandlordDto);
-      await this.cacheManager.set(`landlord:${updateLandlordDto.id}`, landlord);
+      await this.cacheManager.set(`landlord:${id}`, landlord);
       const landlords: Landlord[] = await this.landlordModel.findAll();
       await this.cacheManager.set(
         'landlords',
         landlords.sort((a, b) => a.id - b.id),
       );
+
       await landlord.reload();
+
       return landlord;
     } catch (error) {
       this.logger.error(

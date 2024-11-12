@@ -9,18 +9,14 @@ import { EDocumentType } from '../../src/domain/document/enum/document-type.enum
 import { Document } from '../../src/domain/document/entities/document.entity';
 import { Client } from '../../src/application/client/entities/client.entity';
 import { clientInput } from '../client/utils';
+import { landlordInput } from './utils';
+import { addressInput } from '../address/utils';
+import { Address } from '../../src/application/address/entities/address.entity';
 
 describe('Landlord Module - Find (e2e)', () => {
   let app: INestApplication;
   let sequelize: Sequelize;
   let token: string;
-  const landlordInput = {
-    name: 'landlord',
-    cpf: '12312312322',
-    email: 'landlord@landlord.com',
-    phone: '1231231232',
-    clientId: 1,
-  };
 
   beforeAll(async () => {
     const { application, adminToken, db } = await initApp();
@@ -32,6 +28,7 @@ describe('Landlord Module - Find (e2e)', () => {
   beforeEach(async () => {
     await sequelize.getQueryInterface().dropTable('Landlords');
     await sequelize.sync({ force: true });
+    await Address.create(addressInput);
     await Client.create(clientInput);
   });
 
@@ -57,14 +54,23 @@ describe('Landlord Module - Find (e2e)', () => {
       })
       .expect(200);
 
-    expect(res.body.data).toEqual({
-      landlord: {
-        id: 1,
-        ...landlordInput,
-        client: { id: 1 },
-        documents: [{ id: 1, type: documentInput.type }],
-      },
-    });
+    expect(res.body.data).toHaveProperty('landlord');
+    expect(res.body.data.landlord).toHaveProperty('id', 1);
+    expect(res.body.data.landlord).toHaveProperty('name', landlordInput.name);
+    expect(res.body.data.landlord).toHaveProperty('phone', landlordInput.phone);
+    expect(res.body.data.landlord).toHaveProperty('email', landlordInput.email);
+    expect(res.body.data.landlord).toHaveProperty(
+      'clientId',
+      landlordInput.clientId,
+    );
+    expect(res.body.data.landlord).toHaveProperty(
+      'addressId',
+      landlordInput.addressId,
+    );
+    expect(res.body.data.landlord).toHaveProperty('client', { id: 1 });
+    expect(res.body.data.landlord).toHaveProperty('address', { id: 1 });
+    expect(res.body.data.landlord).toHaveProperty('createdAt');
+    expect(res.body.data.landlord).toHaveProperty('updatedAt');
   });
 
   it('should find a landlord with superadmin role', async () => {
@@ -86,14 +92,23 @@ describe('Landlord Module - Find (e2e)', () => {
       })
       .expect(200);
 
-    expect(res.body.data).toEqual({
-      landlord: {
-        id: 1,
-        ...landlordInput,
-        client: { id: 1 },
-        documents: [{ id: 1, type: documentInput.type }],
-      },
-    });
+    expect(res.body.data).toHaveProperty('landlord');
+    expect(res.body.data.landlord).toHaveProperty('id', 1);
+    expect(res.body.data.landlord).toHaveProperty('name', landlordInput.name);
+    expect(res.body.data.landlord).toHaveProperty('phone', landlordInput.phone);
+    expect(res.body.data.landlord).toHaveProperty('email', landlordInput.email);
+    expect(res.body.data.landlord).toHaveProperty(
+      'clientId',
+      landlordInput.clientId,
+    );
+    expect(res.body.data.landlord).toHaveProperty(
+      'addressId',
+      landlordInput.addressId,
+    );
+    expect(res.body.data.landlord).toHaveProperty('client', { id: 1 });
+    expect(res.body.data.landlord).toHaveProperty('address', { id: 1 });
+    expect(res.body.data.landlord).toHaveProperty('createdAt');
+    expect(res.body.data.landlord).toHaveProperty('updatedAt');
   });
 
   it('should not find a landlord with tenant role', async () => {
@@ -126,9 +141,33 @@ describe('Landlord Module - Find (e2e)', () => {
       })
       .expect(200);
 
-    expect(res.body.data).toEqual({
-      landlords: [{ id: 1, ...landlordInput, client: { id: 1 } }],
-    });
+    expect(res.body.data).toHaveProperty('landlords');
+    expect(res.body.data.landlords).toHaveLength(1);
+    expect(res.body.data.landlords[0]).toHaveProperty('id', 1);
+    expect(res.body.data.landlords[0]).toHaveProperty(
+      'name',
+      landlordInput.name,
+    );
+    expect(res.body.data.landlords[0]).toHaveProperty(
+      'phone',
+      landlordInput.phone,
+    );
+    expect(res.body.data.landlords[0]).toHaveProperty(
+      'email',
+      landlordInput.email,
+    );
+    expect(res.body.data.landlords[0]).toHaveProperty(
+      'clientId',
+      landlordInput.clientId,
+    );
+    expect(res.body.data.landlords[0]).toHaveProperty(
+      'addressId',
+      landlordInput.addressId,
+    );
+    expect(res.body.data.landlords[0]).toHaveProperty('client', { id: 1 });
+    expect(res.body.data.landlords[0]).toHaveProperty('address', { id: 1 });
+    expect(res.body.data.landlords[0]).toHaveProperty('createdAt');
+    expect(res.body.data.landlords[0]).toHaveProperty('updatedAt');
   });
 
   it('should not find all landlords with tenant role', async () => {

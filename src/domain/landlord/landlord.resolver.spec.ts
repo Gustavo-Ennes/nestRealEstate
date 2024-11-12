@@ -9,18 +9,22 @@ import { UpdateLandlordInput } from './dto/update-landlord.input';
 import { ELegalType } from '../enum/legal-type.enum';
 import { Client } from '../../application/client/entities/client.entity';
 import { assoc, dissoc } from 'ramda';
+import { Address } from '../../application/address/entities/address.entity';
 
 describe('LandlordResolver', () => {
   let resolver: LandlordResolver;
   let landlordModel: typeof Landlord;
   let clientModel: typeof Client;
-  const input = {
+  let addressModel: typeof Address;
+  const input: CreateLandlordInput = {
     name: 'landlord',
     cpf: '12312312322',
     email: 'gustavo@ennes.dev',
     phone: '3216549874',
     clientId: 1,
-  } as CreateLandlordInput;
+    addressId: 1,
+    cnpj: null,
+  };
 
   beforeEach(async () => {
     const module: TestingModule = await createLandlordTestingModule();
@@ -28,6 +32,7 @@ describe('LandlordResolver', () => {
     resolver = module.get<LandlordResolver>(LandlordResolver);
     landlordModel = module.get<typeof Landlord>(getModelToken(Landlord));
     clientModel = module.get<typeof Client>(getModelToken(Client));
+    addressModel = module.get<typeof Address>(getModelToken(Address));
   });
   afterEach(() => {
     jest.restoreAllMocks();
@@ -68,6 +73,7 @@ describe('LandlordResolver', () => {
     (landlordModel.create as jest.Mock).mockResolvedValue(createdLandlord);
     (landlordModel.findAll as jest.Mock).mockResolvedValue([createdLandlord]);
     (clientModel.findByPk as jest.Mock).mockResolvedValueOnce(client);
+    (addressModel.findByPk as jest.Mock).mockResolvedValueOnce({ id: 1 });
 
     expect(await resolver.createLandlord(input)).toEqual(createdLandlord);
   });
@@ -99,6 +105,25 @@ describe('LandlordResolver', () => {
     expect(dtoValidation[0].constraints).toHaveProperty(
       'isNumber',
       'clientId must be a number conforming to the specified constraints',
+    );
+  });
+
+  it('should not create a landlord if addressId is missing', async () => {
+    const dtoObj = dissoc('addressId', input);
+    const dtoInstance = Object.assign(new CreateLandlordInput(), dtoObj);
+
+    const dtoValidation = await validate(dtoInstance);
+
+    expect(dtoValidation).toBeInstanceOf(Array);
+    expect(dtoValidation).toHaveLength(1);
+    expect(dtoValidation[0].property).toBe('addressId');
+    expect(dtoValidation[0].constraints).toHaveProperty(
+      'isNotEmpty',
+      'addressId should not be empty',
+    );
+    expect(dtoValidation[0].constraints).toHaveProperty(
+      'isNumber',
+      'addressId must be a number conforming to the specified constraints',
     );
   });
 
@@ -287,6 +312,7 @@ describe('LandlordResolver', () => {
       id: 1,
       ...input,
       landlordType: ELegalType.Natural,
+      addressId: 2,
       update: jest.fn(),
       reload: jest.fn(),
     } as UpdateLandlordInput;
@@ -295,6 +321,7 @@ describe('LandlordResolver', () => {
     (landlordModel.update as jest.Mock).mockResolvedValue(true);
     (landlordModel.findAll as jest.Mock).mockResolvedValue([landlordToUpdate]);
     (clientModel.findByPk as jest.Mock).mockResolvedValue({ id: 2 });
+    (addressModel.findByPk as jest.Mock).mockResolvedValueOnce({ id: 2 });
 
     expect(
       await resolver.updateLandlord({

@@ -1,13 +1,16 @@
+import { CreateLandlordInput } from '../../src/domain/landlord/dto/create-landlord.input';
 import { inputWithError } from '../utils';
 
-const defaultLandlordInput = {
+const landlordInput: CreateLandlordInput = {
   name: 'landlord',
   cpf: '12312312322',
   email: 'landlord@landlord.com',
-  phone: '1231231232',
+  phone: '12312312322',
   clientId: 1,
+  addressId: 1,
+  cnpj: null,
 };
 
-const landlordWith = inputWithError(defaultLandlordInput);
+const landlordWith = inputWithError(landlordInput);
 
-export { defaultLandlordInput, landlordWith };
+export { landlordInput, landlordWith };

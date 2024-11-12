@@ -12,6 +12,9 @@ import { Landlord } from '../../src/domain/landlord/entities/landlord.entity';
 import { ERole } from '../../src/application/auth/role/role.enum';
 import { Client } from '../../src/application/client/entities/client.entity';
 import { clientInput } from '../client/utils';
+import { landlordInput } from './utils';
+import { Address } from '../../src/application/address/entities/address.entity';
+import { addressInput } from '../address/utils';
 
 describe('Landlord Module - Update (e2e)', () => {
   let app: INestApplication,
@@ -30,21 +33,18 @@ describe('Landlord Module - Update (e2e)', () => {
   beforeEach(async () => {
     await sequelize.getQueryInterface().dropTable('Landlords');
     await sequelize.sync({ force: true });
+    await Address.create(addressInput);
     await Client.create(clientInput);
 
     naturalLandlord = await Landlord.create({
-      name: 'landlord',
-      email: 'ads@dasd.com',
-      phone: '12312312322',
-      cpf: '12312312322',
+      ...landlordInput,
+      cnpj: undefined,
       clientId: 1,
     });
     legalLandlord = await Landlord.create({
-      name: 'landlord',
-      email: 'ads@dasd.com',
-      phone: '12312312322',
+      ...landlordInput,
       cnpj: '12312312312322',
-      clientId: 1,
+      cpf: undefined,
     });
   });
 
@@ -91,6 +91,13 @@ describe('Landlord Module - Update (e2e)', () => {
       naturalLandlord.clientId,
     );
     expect(res.body.data.updateLandlord).toHaveProperty('client', { id: 1 });
+    expect(res.body.data.updateLandlord).toHaveProperty(
+      'addressId',
+      naturalLandlord.clientId,
+    );
+    expect(res.body.data.updateLandlord).toHaveProperty('address', { id: 1 });
+    expect(res.body.data.updateLandlord).toHaveProperty('createdAt');
+    expect(res.body.data.updateLandlord).toHaveProperty('updatedAt');
     expect(naturalLandlord.name).toBe('new name');
   });
 
@@ -134,6 +141,13 @@ describe('Landlord Module - Update (e2e)', () => {
       naturalLandlord.clientId,
     );
     expect(res.body.data.updateLandlord).toHaveProperty('client', { id: 1 });
+    expect(res.body.data.updateLandlord).toHaveProperty(
+      'addressId',
+      naturalLandlord.clientId,
+    );
+    expect(res.body.data.updateLandlord).toHaveProperty('address', { id: 1 });
+    expect(res.body.data.updateLandlord).toHaveProperty('createdAt');
+    expect(res.body.data.updateLandlord).toHaveProperty('updatedAt');
     expect(naturalLandlord.name).toBe('new name');
   });
 
@@ -172,6 +186,13 @@ describe('Landlord Module - Update (e2e)', () => {
       'email',
       naturalLandlord.email,
     );
+    expect(res.body.data.updateLandlord).toHaveProperty(
+      'addressId',
+      naturalLandlord.clientId,
+    );
+    expect(res.body.data.updateLandlord).toHaveProperty('address', { id: 1 });
+    expect(res.body.data.updateLandlord).toHaveProperty('createdAt');
+    expect(res.body.data.updateLandlord).toHaveProperty('updatedAt');
     expect(naturalLandlord.name).toBe('new name');
   });
 
@@ -217,6 +238,29 @@ describe('Landlord Module - Update (e2e)', () => {
     expect(res.body.errors).toBeInstanceOf(Array);
     expect(res.body.errors[0].extensions).toHaveProperty('originalError', {
       message: 'Client not found with provided id.',
+      error: 'Not Found',
+      statusCode: 404,
+    });
+  });
+
+  it('should not update a landlord address if it does not exists', async () => {
+    const updateDto = {
+      id: naturalLandlord.id,
+      addressId: 2,
+    };
+
+    const res = await request(app.getHttpServer())
+      .post('/graphql')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        query: updateMutation,
+        variables: { input: updateDto },
+      })
+      .expect(200);
+
+    expect(res.body.errors).toBeInstanceOf(Array);
+    expect(res.body.errors[0].extensions).toHaveProperty('originalError', {
+      message: 'No address found with provided addressId.',
       error: 'Not Found',
       statusCode: 404,
     });

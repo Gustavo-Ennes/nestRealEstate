@@ -16,6 +16,7 @@ import { ERole } from '../../../application/auth/role/role.enum';
 import { Document } from '../../document/entities/document.entity';
 import { ELegalType } from '../../enum/legal-type.enum';
 import { Client } from '../../../application/client/entities/client.entity';
+import { Address } from '../../../application/address/entities/address.entity';
 
 @ObjectType()
 @Table
@@ -79,6 +80,18 @@ export class Landlord extends Model<Landlord> {
   get client(): Promise<Client> {
     return Client.findOne({
       where: { id: this.clientId },
+    });
+  }
+
+  @ForeignKey(() => Address)
+  @Column
+  @Field(() => Int)
+  addressId: number;
+
+  @Field(() => Address)
+  get address(): Promise<Address> {
+    return Address.findOne({
+      where: { id: this.addressId },
     });
   }
 

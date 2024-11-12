@@ -5,6 +5,7 @@ import { deleteMutation } from './queries';
 import { afterAllTests, generateToken, initApp } from '../utils';
 import { Landlord } from '../../src/domain/landlord/entities/landlord.entity';
 import { ERole } from '../../src/application/auth/role/role.enum';
+import { landlordInput } from './utils';
 
 describe('Landlord Module - Delete (e2e)', () => {
   let app: INestApplication,
@@ -23,12 +24,7 @@ describe('Landlord Module - Delete (e2e)', () => {
     await sequelize.getQueryInterface().dropTable('Landlords');
     await sequelize.sync({ force: true });
 
-    landlord = await Landlord.create({
-      name: 'landlord',
-      email: 'ads@dasd.com',
-      phone: '12312312322',
-      cpf: '12312312322',
-    });
+    landlord = await Landlord.create(landlordInput);
   });
 
   afterAll(async () => {

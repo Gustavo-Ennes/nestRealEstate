@@ -14,6 +14,12 @@ export const findOneQuery = `
       client {
         id
       }
+      addressId
+      address {
+        id
+      }
+      createdAt
+      updatedAt
     }
   }`;
 
@@ -29,6 +35,12 @@ export const findAllQuery = `
       client {
         id
       }
+      addressId
+      address {
+        id
+      }
+      createdAt
+      updatedAt
     }
   }
 `;
@@ -45,6 +57,12 @@ export const createMutation = `
       client {
         id
       }
+      addressId
+      address {
+        id
+      }
+      createdAt
+      updatedAt
     }
   }`;
 
@@ -60,6 +78,12 @@ export const updateMutation = `
       client {
         id
       }
+      addressId
+      address {
+        id
+      }
+      createdAt
+      updatedAt
     }
   }
 `;

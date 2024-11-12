@@ -43,4 +43,9 @@ export class CreateLandlordInput {
   @IsNumber()
   @Field(() => Int)
   clientId: number;
+
+  @IsNotEmpty()
+  @IsNumber()
+  @Field(() => Int)
+  addressId: number;
 }
