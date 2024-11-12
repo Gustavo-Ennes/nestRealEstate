@@ -3,18 +3,30 @@ import { CreateClientInput } from './dto/create-client.input';
 import { UpdateClientInput } from './dto/update-client.input';
 import { InjectModel } from '@nestjs/sequelize';
 import { Client } from './entities/client.entity';
+import { AddressService } from '../address/address.service';
+import { Address } from '../address/entities/address.entity';
 
 @Injectable()
 export class ClientService {
   constructor(
     @InjectModel(Client) private readonly clientModel: typeof Client,
+    private addressService: AddressService,
   ) {}
 
   private readonly logger = new Logger(ClientService.name);
 
   async create(createClientInput: CreateClientInput) {
     try {
+      const { addressId } = createClientInput;
+      const address = await this.addressService.findOne(addressId);
+
+      if (!address)
+        throw new NotFoundException(
+          'No address found with provided addressId.',
+        );
+
       const client = await this.clientModel.create(createClientInput);
+
       return client;
     } catch (error) {
       this.logger.error(
@@ -54,11 +66,18 @@ export class ClientService {
 
   async update(updateClientInput: UpdateClientInput) {
     try {
-      const { id } = updateClientInput;
+      let address: Address;
+      const { id, addressId } = updateClientInput;
       const clientToUpdate = await this.clientModel.findByPk(id);
 
       if (!clientToUpdate)
         throw new NotFoundException('No client found with provided id.');
+
+      if (addressId) address = await this.addressService.findOne(addressId);
+      if (addressId && !address)
+        throw new NotFoundException(
+          'No address found with provided addressId.',
+        );
 
       await this.clientModel.update(updateClientInput, { where: { id } });
       await clientToUpdate.reload();

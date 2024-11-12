@@ -5,21 +5,15 @@ import { findOneQuery, findAllQuery } from './queries';
 import { afterAllTests, generateToken, initApp } from '../utils';
 import { ERole } from '../../src/application/auth/role/role.enum';
 import { Client } from '../../src/application/client/entities/client.entity';
-import { CreateClientInput } from 'src/application/client/dto/create-client.input';
+import { clientInput } from './utils';
+import { Address } from '../../src/application/address/entities/address.entity';
+import { addressInput } from '../address/utils';
 
 describe('Client Module - Find (e2e)', () => {
   let app: INestApplication;
   let sequelize: Sequelize;
   let superAdminToken: string;
   let client: Client;
-  const clientInput: CreateClientInput = {
-    name: 'Imobiliária Gaibú',
-    phone: '12312312322',
-    email: 'gaibu@imobiliaria.com',
-    cnpj: '32132132132122',
-    isActive: true,
-    site: 'client.site',
-  };
 
   beforeAll(async () => {
     const { application, db } = await initApp();
@@ -31,6 +25,8 @@ describe('Client Module - Find (e2e)', () => {
   beforeEach(async () => {
     await sequelize.getQueryInterface().dropTable('Clients');
     await sequelize.sync({ force: true });
+
+    await Address.create(addressInput);
     client = await Client.create(clientInput);
   });
 
@@ -47,6 +43,7 @@ describe('Client Module - Find (e2e)', () => {
       })
       .expect(200);
 
+    console.log('🚀 ~ it ~ res:', JSON.stringify(res.body, null, 2));
     expect(res.body.data).toHaveProperty('clients');
     expect(res.body.data.clients[0]).toHaveProperty('id', 1);
     expect(res.body.data.clients[0]).toHaveProperty('name', clientInput.name);
@@ -58,6 +55,8 @@ describe('Client Module - Find (e2e)', () => {
       'isActive',
       clientInput.isActive,
     );
+    expect(res.body.data.clients[0]).toHaveProperty('createdAt');
+    expect(res.body.data.clients[0]).toHaveProperty('updatedAt');
   });
 
   it('should not find all clients with admin role', async () => {
@@ -147,6 +146,8 @@ describe('Client Module - Find (e2e)', () => {
       'isActive',
       clientInput.isActive,
     );
+    expect(res.body.data.client).toHaveProperty('createdAt');
+    expect(res.body.data.client).toHaveProperty('updatedAt');
   });
 
   it('should throw if a client is not found(findOne)', async () => {

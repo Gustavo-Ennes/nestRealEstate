@@ -5,21 +5,13 @@ import { deleteMutation } from './queries';
 import { afterAllTests, generateToken, initApp } from '../utils';
 import { ERole } from '../../src/application/auth/role/role.enum';
 import { Client } from '../../src/application/client/entities/client.entity';
-import { CreateClientInput } from 'src/application/client/dto/create-client.input';
+import { clientInput } from './utils';
 
 describe('Client Module - Delete (e2e)', () => {
   let app: INestApplication;
   let sequelize: Sequelize;
   let superadminToken: string;
   let client: Client;
-  const clientInput: CreateClientInput = {
-    name: 'Imobiliária Gaibú',
-    phone: '12312312322',
-    email: 'gaibu@imobiliaria.com',
-    cnpj: '32132132132122',
-    isActive: true,
-    site: 'client.site',
-  };
 
   beforeAll(async () => {
     const { application, db } = await initApp();

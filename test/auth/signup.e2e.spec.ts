@@ -6,20 +6,13 @@ import { signUpMutation } from './mutation';
 import { requestAndCheckError } from '../utils';
 import { defaultSignUpInput, signupWithout } from './utils';
 import { User } from '../../src/application/user/entities/user.entity';
-import { CreateClientInput } from '../../src/application/client/dto/create-client.input';
 import { Client } from '../../src/application/client/entities/client.entity';
+import { clientInput } from '../client/utils';
 
 describe('Auth Module - SignUp (e2e)', () => {
   let app: INestApplication;
   let sequelize: Sequelize;
   let token: string;
-  const clientInput: CreateClientInput = {
-    cnpj: '12312312312322',
-    email: 'client@mail.com',
-    isActive: true,
-    name: 'Joseph Climber',
-    phone: '12312312322',
-  };
 
   beforeAll(async () => {
     const { application, db } = await initApp();

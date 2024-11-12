@@ -5,12 +5,16 @@ import { getMockedEntityProvider } from '../../../utils/unitTests/defaultEntityM
 import { Client } from '../entities/client.entity';
 import { clientModuleObject } from '../client.module';
 import { JwtService } from '@nestjs/jwt';
+import { addressModuleObject } from '../../../application/address/address.module';
+import { Address } from '../../../application/address/entities/address.entity';
 
 const clientTestModuleObject = {
   providers: [
     JwtService,
     ...clientModuleObject.providers,
+    ...addressModuleObject.providers,
     getMockedEntityProvider(Client),
+    getMockedEntityProvider(Address),
     {
       provide: ValidationPipe,
       useValue: validationPipe,

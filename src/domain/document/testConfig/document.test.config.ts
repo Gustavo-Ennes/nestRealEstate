@@ -19,6 +19,8 @@ import { clientModuleObject } from '../../../application/client/client.module';
 import { Client } from '../../../application/client/entities/client.entity';
 import { userModuleObject } from '../../../application/user/user.module';
 import { User } from '../../../application/user/entities/user.entity';
+import { addressModuleObject } from '../../../application/address/address.module';
+import { Address } from '../../../application/address/entities/address.entity';
 
 const documentTestModuleObject = {
   imports: [
@@ -34,12 +36,14 @@ const documentTestModuleObject = {
     ...documentModuleObject.providers,
     ...clientModuleObject.providers,
     ...userModuleObject.providers,
+    ...addressModuleObject.providers,
     getMockedEntityProvider(Tenant),
     getMockedEntityProvider(Landlord),
     getMockedEntityProvider(DocumentType),
     getMockedEntityProvider(Document),
     getMockedEntityProvider(Client),
     getMockedEntityProvider(User),
+    getMockedEntityProvider(Address),
     getMockedCacheProvider(),
     {
       provide: APP_PIPE,

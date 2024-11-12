@@ -7,10 +7,12 @@ import { CreateClientInput } from './dto/create-client.input';
 import { assoc, dissoc } from 'ramda';
 import { validationPipe } from '../pipes/validation.pipe';
 import { UpdateClientInput } from './dto/update-client.input';
+import { Address } from '../address/entities/address.entity';
 
 describe('ClientResolver', () => {
   let resolver: ClientResolver;
   let clientModel: typeof Client;
+  let addressModel: typeof Address;
   const clientInput: CreateClientInput = {
     cnpj: '12312312312322',
     email: 'client@business.org',
@@ -18,6 +20,7 @@ describe('ClientResolver', () => {
     name: 'Client',
     phone: '12312312322',
     site: 'client.com',
+    addressId: 1,
   };
 
   beforeEach(async () => {
@@ -25,6 +28,7 @@ describe('ClientResolver', () => {
 
     resolver = module.get<ClientResolver>(ClientResolver);
     clientModel = module.get<typeof Client>(getModelToken(Client));
+    addressModel = module.get<typeof Address>(getModelToken(Address));
   });
 
   it('should be defined', () => {
@@ -36,6 +40,9 @@ describe('ClientResolver', () => {
       (clientModel.create as jest.Mock).mockResolvedValueOnce({
         id: 1,
         ...clientInput,
+      });
+      (addressModel.findByPk as jest.Mock).mockResolvedValueOnce({
+        id: 1,
       });
 
       const response = await resolver.createClient(clientInput);
@@ -58,6 +65,66 @@ describe('ClientResolver', () => {
           isNotEmpty: 'name should not be empty',
         });
         expect(error.response).toHaveProperty('error', 'Bad Request');
+      }
+    });
+
+    it('should not create a client without an address id', async () => {
+      const inputWithoutAddressId = dissoc('addressId', clientInput);
+
+      try {
+        await validationPipe.transform(inputWithoutAddressId, {
+          type: 'body',
+          metatype: CreateClientInput,
+        });
+      } catch (error) {
+        expect(error.response).toHaveProperty('message');
+        expect(error.response.message).toHaveLength(1);
+        expect(error.response.message[0]).toHaveProperty(
+          'property',
+          'addressId',
+        );
+        expect(error.response.message[0]).toHaveProperty('constraints', {
+          isNotEmpty: 'addressId should not be empty',
+          isNumber:
+            'addressId must be a number conforming to the specified constraints',
+        });
+        expect(error.response).toHaveProperty('error', 'Bad Request');
+      }
+    });
+
+    it('should not create a client with an empty string in addressId', async () => {
+      const inputWithoutAddressId = assoc('addressId', '', clientInput);
+
+      try {
+        await validationPipe.transform(inputWithoutAddressId, {
+          type: 'body',
+          metatype: CreateClientInput,
+        });
+      } catch (error) {
+        expect(error.response).toHaveProperty('message');
+        expect(error.response.message).toHaveLength(1);
+        expect(error.response.message[0]).toHaveProperty(
+          'property',
+          'addressId',
+        );
+        expect(error.response.message[0]).toHaveProperty('constraints', {
+          isNotEmpty: 'addressId should not be empty',
+          isNumber:
+            'addressId must be a number conforming to the specified constraints',
+        });
+        expect(error.response).toHaveProperty('error', 'Bad Request');
+      }
+    });
+
+    it('should throw if no address found with provided addressId', async () => {
+      try {
+        await resolver.createClient(clientInput);
+      } catch (error) {
+        expect(error).toHaveProperty('response', {
+          message: 'No address found with provided addressId.',
+          error: 'Not Found',
+          statusCode: 404,
+        });
       }
     });
 
@@ -274,6 +341,9 @@ describe('ClientResolver', () => {
         reload: jest.fn(),
       };
       (clientModel.findByPk as jest.Mock).mockResolvedValueOnce(client);
+      (addressModel.findByPk as jest.Mock).mockResolvedValueOnce({
+        id: 1,
+      });
       (clientModel.update as jest.Mock).mockImplementationOnce(() => {
         client.name = updatePayload.name;
       });

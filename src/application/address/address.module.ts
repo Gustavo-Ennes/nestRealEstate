@@ -8,6 +8,7 @@ import { JwtModule } from '@nestjs/jwt';
 export const addressModuleObject = {
   imports: [JwtModule, SequelizeModule.forFeature([Address])],
   providers: [AddressResolver, AddressService],
+  exports: [AddressService],
 };
 
 @Module(addressModuleObject)

@@ -8,8 +8,8 @@ import { ERole } from '../../src/application/auth/role/role.enum';
 import { EDocumentType } from '../../src/domain/document/enum/document-type.enum';
 import { Document } from '../../src/domain/document/entities/document.entity';
 import { Client } from '../../src/application/client/entities/client.entity';
-import { CreateClientInput } from '../../src/application/client/dto/create-client.input';
 import { CreateTenantInput } from '../../src/domain/tenant/dto/create-tenant.input';
+import { clientInput } from '../client/utils';
 
 describe('Tenant Module - Find (e2e)', () => {
   let app: INestApplication;
@@ -27,13 +27,6 @@ describe('Tenant Module - Find (e2e)', () => {
     ownerId: 1,
     ownerRole: ERole.Tenant,
     type: EDocumentType.Cpf,
-  };
-  const clientInput: CreateClientInput = {
-    cnpj: '12312312312322',
-    email: 'client@mail.com',
-    isActive: true,
-    name: 'Joseph Climber',
-    phone: '12312312322',
   };
 
   beforeAll(async () => {

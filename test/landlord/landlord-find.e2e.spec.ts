@@ -7,8 +7,8 @@ import { afterAllTests, generateToken, initApp } from '../utils';
 import { ERole } from '../../src/application/auth/role/role.enum';
 import { EDocumentType } from '../../src/domain/document/enum/document-type.enum';
 import { Document } from '../../src/domain/document/entities/document.entity';
-import { CreateClientInput } from '../../src/application/client/dto/create-client.input';
 import { Client } from '../../src/application/client/entities/client.entity';
+import { clientInput } from '../client/utils';
 
 describe('Landlord Module - Find (e2e)', () => {
   let app: INestApplication;
@@ -20,13 +20,6 @@ describe('Landlord Module - Find (e2e)', () => {
     email: 'landlord@landlord.com',
     phone: '1231231232',
     clientId: 1,
-  };
-  const clientInput: CreateClientInput = {
-    cnpj: '12312312312322',
-    email: 'client@mail.com',
-    isActive: true,
-    name: 'Joseph Climber',
-    phone: '12312312322',
   };
 
   beforeAll(async () => {

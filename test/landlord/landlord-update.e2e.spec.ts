@@ -10,8 +10,8 @@ import {
 } from '../utils';
 import { Landlord } from '../../src/domain/landlord/entities/landlord.entity';
 import { ERole } from '../../src/application/auth/role/role.enum';
-import { CreateClientInput } from '../../src/application/client/dto/create-client.input';
 import { Client } from '../../src/application/client/entities/client.entity';
+import { clientInput } from '../client/utils';
 
 describe('Landlord Module - Update (e2e)', () => {
   let app: INestApplication,
@@ -19,13 +19,6 @@ describe('Landlord Module - Update (e2e)', () => {
     token: string,
     naturalLandlord: Landlord,
     legalLandlord: Landlord;
-  const clientInput: CreateClientInput = {
-    cnpj: '12312312312322',
-    email: 'client@mail.com',
-    isActive: true,
-    name: 'Joseph Climber',
-    phone: '12312312322',
-  };
 
   beforeAll(async () => {
     const { application, db, adminToken } = await initApp();

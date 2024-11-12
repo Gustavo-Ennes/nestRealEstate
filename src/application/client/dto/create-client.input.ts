@@ -1,5 +1,5 @@
-import { InputType, Field } from '@nestjs/graphql';
-import { IsNotEmpty } from 'class-validator';
+import { InputType, Field, Int } from '@nestjs/graphql';
+import { IsNotEmpty, IsNumber } from 'class-validator';
 import { IsEmail } from '../../../validations/email.validation';
 import {
   IsCnpjLength,
@@ -36,6 +36,11 @@ export class CreateClientInput {
   @IsCnpjLength
   @Field(() => String)
   cnpj: string;
+
+  @IsNotEmpty()
+  @IsNumber()
+  @Field(() => Int)
+  addressId: number;
 
   @Field(() => Boolean, { defaultValue: true })
   isActive: boolean;

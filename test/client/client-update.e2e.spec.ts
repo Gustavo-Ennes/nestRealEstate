@@ -5,22 +5,17 @@ import { updateMutation } from './queries';
 import { afterAllTests, generateToken, initApp } from '../utils';
 import { ERole } from '../../src/application/auth/role/role.enum';
 import { Client } from '../../src/application/client/entities/client.entity';
-import { UpdateClientInput } from 'src/application/client/dto/update-client.input';
+import { UpdateClientInput } from '../../src/application/client/dto/update-client.input';
 import { assoc } from 'ramda';
-import { CreateClientInput } from 'src/application/client/dto/create-client.input';
+import { clientInput } from './utils';
+import { Address } from '../../src/application/address/entities/address.entity';
+import { addressInput } from '../address/utils';
 
 describe('Client Module - Update (e2e)', () => {
   let app: INestApplication;
   let sequelize: Sequelize;
   let superadminToken: string;
-  const clientInput: CreateClientInput = {
-    name: 'Imobiliária Gaibú',
-    phone: '12312312322',
-    email: 'gaibu@imobiliaria.com',
-    cnpj: '32132132132122',
-    isActive: true,
-    site: 'client.site',
-  };
+  let address: Address;
   const updateInput: UpdateClientInput = {
     id: 1,
   };
@@ -35,6 +30,8 @@ describe('Client Module - Update (e2e)', () => {
   beforeEach(async () => {
     await sequelize.getQueryInterface().dropTable('Clients');
     await sequelize.sync({ force: true });
+
+    address = await Address.create(addressInput);
     await Client.create(clientInput);
   });
 
@@ -73,6 +70,8 @@ describe('Client Module - Update (e2e)', () => {
       'isActive',
       clientInput.isActive,
     );
+    expect(res.body.data.updateClient).toHaveProperty('createdAt');
+    expect(res.body.data.updateClient).toHaveProperty('updatedAt');
   });
 
   it('should not update a client with admin role', async () => {
@@ -121,6 +120,33 @@ describe('Client Module - Update (e2e)', () => {
         statusCode: 403,
       },
     });
+  });
+
+  it('should not update a client address if address was not found', async () => {
+    await address.destroy();
+
+    const superadminToken = generateToken({ sub: 1, role: ERole.Superadmin });
+    const input = assoc('addressId', address.id, updateInput);
+    const res = await request(app.getHttpServer())
+      .post('/graphql')
+      .set('Authorization', `Bearer ${superadminToken}`)
+      .send({
+        query: updateMutation,
+        variables: { input },
+      })
+      .expect(200);
+
+    expect(res.body).toHaveProperty('errors');
+    expect(res.body.errors).toHaveLength(1);
+    expect(res.body.errors[0]).toHaveProperty('extensions');
+    expect(res.body.errors[0].extensions).toHaveProperty(
+      'code',
+      'INTERNAL_SERVER_ERROR',
+    );
+    expect(res.body.errors[0].extensions.originalError).toHaveProperty(
+      'message',
+      'No address found with provided addressId.',
+    );
   });
 
   it('should not update a client with landlord role', async () => {

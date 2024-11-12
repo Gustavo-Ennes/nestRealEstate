@@ -9,6 +9,12 @@ export const createMutation = `
       cnpj
       isActive
       observation
+      address {
+        id
+      }
+      addressId
+      createdAt
+      updatedAt
     }
   }
 `;
@@ -24,6 +30,12 @@ export const updateMutation = `
       cnpj
       isActive
       observation
+      address {
+        id
+      }
+      addressId
+      createdAt
+      updatedAt
     }
   }
 `;
@@ -39,6 +51,12 @@ export const findAllQuery = `
       cnpj
       isActive
       observation
+      address {
+        id
+      }
+      addressId
+      createdAt
+      updatedAt
     }
   }
 `;
@@ -54,6 +72,12 @@ export const findOneQuery = `
       cnpj
       isActive
       observation 
+      address {
+        id
+      }
+      addressId
+      createdAt
+      updatedAt
     }
   }
 `;

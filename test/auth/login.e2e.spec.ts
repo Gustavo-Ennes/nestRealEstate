@@ -7,18 +7,11 @@ import { loginMutation } from './mutation';
 import { defaultLoginInput, loginWithout } from './utils';
 import { initApp, requestAndCheckError } from '../utils';
 import { Client } from '../../src/application/client/entities/client.entity';
-import { CreateClientInput } from '../../src/application/client/dto/create-client.input';
+import { clientInput } from '../client/utils';
 
 describe('Auth Module - Login (e2e)', () => {
   let app: INestApplication;
   let sequelize: Sequelize;
-  const clientInput: CreateClientInput = {
-    cnpj: '12312312312322',
-    email: 'client@mail.com',
-    isActive: true,
-    name: 'Joseph Climber',
-    phone: '12312312322',
-  };
 
   beforeAll(async () => {
     const { application, db } = await initApp();

@@ -8,6 +8,8 @@ import { User } from '../../../application/user/entities/user.entity';
 import { JwtService } from '@nestjs/jwt';
 import { Client } from '../../../application/client/entities/client.entity';
 import { clientModuleObject } from '../../../application/client/client.module';
+import { addressModuleObject } from '../../../application/address/address.module';
+import { Address } from '../../../application/address/entities/address.entity';
 
 export const documentTypeTestModuleObject = {
   providers: [
@@ -16,9 +18,11 @@ export const documentTypeTestModuleObject = {
     ...authModuleObject.providers,
     ...userModuleObject.providers,
     ...clientModuleObject.providers,
+    ...addressModuleObject.providers,
     getMockedEntityProvider(DocumentType),
     getMockedEntityProvider(User),
     getMockedEntityProvider(Client),
+    getMockedEntityProvider(Address),
   ],
 };
 export const createDocumentTypeTestingModule = async () =>

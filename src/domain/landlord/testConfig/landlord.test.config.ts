@@ -8,6 +8,8 @@ import { User } from '../../../application/user/entities/user.entity';
 import { userModuleObject } from '../../../application/user/user.module';
 import { clientModuleObject } from '../../../application/client/client.module';
 import { Client } from '../../../application/client/entities/client.entity';
+import { addressModuleObject } from '../../../application/address/address.module';
+import { Address } from '../../../application/address/entities/address.entity';
 
 export const createLandlordTestingModule = async () =>
   await Test.createTestingModule({
@@ -16,9 +18,11 @@ export const createLandlordTestingModule = async () =>
       ...landlordModuleObject.providers,
       ...userModuleObject.providers,
       ...clientModuleObject.providers,
+      ...addressModuleObject.providers,
       getMockedEntityProvider(Landlord),
       getMockedEntityProvider(User),
       getMockedEntityProvider(Client),
+      getMockedEntityProvider(Address),
       getMockedCacheProvider(),
     ],
   }).compile();
