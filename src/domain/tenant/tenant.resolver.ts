@@ -35,13 +35,6 @@ export class TenantResolver {
     return this.tenantService.findOne(id);
   }
 
-  // @Query(() => Tenant, { name: 'tenantByLandlord' })
-  // @Roles(ERole.Landlord, ERole.Admin)
-  // findTenantsByLandlord(@Args('id', { type: () => Int }) id: number) {
-  //   return this.tenantService.findOne({where:{landlordId: id}});
-  // }
-
-  // if !isActive, update isActive first and do another update as you want
   @Mutation(() => Tenant)
   @Roles(ERole.Tenant, ERole.Admin)
   updateTenant(

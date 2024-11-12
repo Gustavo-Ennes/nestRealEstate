@@ -2,7 +2,7 @@ import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { Sequelize } from 'sequelize-typescript';
 import { createMutation } from './queries';
-import { tenantWith } from './utils';
+import { tenantInput, tenantWith } from './utils';
 import {
   requestAndCheckError,
   initApp,
@@ -11,21 +11,14 @@ import {
 } from '../utils';
 import { ERole } from '../../src/application/auth/role/role.enum';
 import { Client } from '../../src/application/client/entities/client.entity';
-import { CreateTenantInput } from '../../src/domain/tenant/dto/create-tenant.input';
 import { clientInput } from '../client/utils';
+import { Address } from '../../src/application/address/entities/address.entity';
+import { addressInput } from '../address/utils';
 
 describe('Tenant Module - Create (e2e)', () => {
   let app: INestApplication;
   let sequelize: Sequelize;
   let token: string;
-  const tenantInput: CreateTenantInput = {
-    name: 'tenant',
-    cpf: '12312312322',
-    email: 'tenant@tenant.com',
-    phone: '12312312322',
-    cnpj: '12312312312322',
-    clientId: 1,
-  };
 
   beforeAll(async () => {
     const { application, adminToken, db } = await initApp();
@@ -38,6 +31,7 @@ describe('Tenant Module - Create (e2e)', () => {
     await sequelize.getQueryInterface().dropTable('Tenants');
     await sequelize.sync({ force: true });
     await Client.create(clientInput);
+    await Address.create(addressInput);
   });
 
   afterAll(async () => await afterAllTests(app));
@@ -52,9 +46,17 @@ describe('Tenant Module - Create (e2e)', () => {
       })
       .expect(200);
 
-    expect(res.body.data).toEqual({
-      createTenant: { id: 1, ...tenantInput, client: { id: 1 } },
-    });
+    expect(res.body.data).toHaveProperty('createTenant');
+    expect(res.body.data.createTenant).toEqual(
+      expect.objectContaining({
+        id: 1,
+        ...tenantInput,
+        client: { id: 1 },
+        address: { id: 1 },
+      }),
+    );
+    expect(res.body.data.createTenant).toHaveProperty('createdAt');
+    expect(res.body.data.createTenant).toHaveProperty('updatedAt');
   });
 
   it('should create a tenant with superadmin role', async () => {
@@ -69,9 +71,17 @@ describe('Tenant Module - Create (e2e)', () => {
       })
       .expect(200);
 
-    expect(res.body.data).toEqual({
-      createTenant: { id: 1, ...tenantInput, client: { id: 1 } },
-    });
+    expect(res.body.data).toHaveProperty('createTenant');
+    expect(res.body.data.createTenant).toEqual(
+      expect.objectContaining({
+        id: 1,
+        ...tenantInput,
+        client: { id: 1 },
+        address: { id: 1 },
+      }),
+    );
+    expect(res.body.data.createTenant).toHaveProperty('createdAt');
+    expect(res.body.data.createTenant).toHaveProperty('updatedAt');
   });
 
   it('should no create a tenant without a clientId', async () => {
@@ -88,7 +98,25 @@ describe('Tenant Module - Create (e2e)', () => {
     expect(res.body.errors).toHaveLength(1);
     expect(res.body.errors[0]).toHaveProperty(
       'message',
-      'Variable "$input" got invalid value { name: "tenant", cpf: "12312312322", email: "tenant@tenant.com", phone: "1231231232" }; Field "clientId" of required type "Int!" was not provided.',
+      'Variable "$input" got invalid value { name: "tenant", cpf: "12312312322", email: "tenant@tenant.com", phone: "12312312322", cnpj: "12312312312322", addressId: 1 }; Field "clientId" of required type "Int!" was not provided.',
+    );
+  });
+
+  it('should no create a tenant without a addressId', async () => {
+    const res = await request(app.getHttpServer())
+      .post('/graphql')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        query: createMutation,
+        variables: { input: tenantWith.empty.addressId },
+      })
+      .expect(200);
+
+    expect(res.body).toHaveProperty('errors');
+    expect(res.body.errors).toHaveLength(1);
+    expect(res.body.errors[0]).toHaveProperty(
+      'message',
+      'Variable "$input" got invalid value { name: "tenant", cpf: "12312312322", email: "tenant@tenant.com", phone: "12312312322", cnpj: "12312312312322", clientId: 1 }; Field "addressId" of required type "Int!" was not provided.',
     );
   });
 

@@ -61,6 +61,10 @@ describe('Client Module - Create (e2e)', () => {
       'isActive',
       clientInput.isActive,
     );
+    expect(res.body.data.createClient).toHaveProperty('addressId', 1);
+    expect(res.body.data.createClient).toHaveProperty('address', {
+      id: 1,
+    });
     expect(res.body.data.createClient).toHaveProperty('createdAt');
     expect(res.body.data.createClient).toHaveProperty('updatedAt');
   });

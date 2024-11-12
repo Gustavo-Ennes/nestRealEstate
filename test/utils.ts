@@ -107,8 +107,9 @@ export const inputWithError = (defaultInput: any) => ({
     name: { ...defaultInput, name: '' },
     phone: { ...defaultInput, phone: '' },
     email: { ...defaultInput, email: '' },
-    cpjAndCnpj: { ...defaultInput, cpf: undefined },
+    cpjAndCnpj: { ...defaultInput, cpf: undefined, cnpj: undefined },
     clientId: { ...defaultInput, clientId: undefined },
+    addressId: { ...defaultInput, addressId: undefined },
   },
   wrong: {
     cpfLength: { ...defaultInput, cpf: '123' },

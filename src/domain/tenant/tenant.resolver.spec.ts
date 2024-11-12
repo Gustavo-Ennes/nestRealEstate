@@ -8,18 +8,22 @@ import { validate } from 'class-validator';
 import { UpdateTenantInput } from './dto/update-tenant.input';
 import { ELegalType } from '../enum/legal-type.enum';
 import { Client } from '../../application/client/entities/client.entity';
+import { Address } from '../../application/address/entities/address.entity';
 
 describe('TenantResolver', () => {
   let resolver: TenantResolver;
   let tenantModel: typeof Tenant;
   let clientModel: typeof Client;
-  const input = {
+  let addressModel: typeof Address;
+  const input: CreateTenantInput = {
     name: 'tenant',
     cpf: '12312312322',
     email: 'gustavo@ennes.dev',
     phone: '3216549874',
     clientId: 1,
-  } as CreateTenantInput;
+    addressId: 1,
+    cnpj: null,
+  };
 
   beforeEach(async () => {
     const module: TestingModule = await createTenantTestingModule();
@@ -27,6 +31,7 @@ describe('TenantResolver', () => {
     resolver = module.get<TenantResolver>(TenantResolver);
     tenantModel = module.get<typeof Tenant>(getModelToken(Tenant));
     clientModel = module.get<typeof Client>(getModelToken(Client));
+    addressModel = module.get<typeof Address>(getModelToken(Address));
   });
   afterEach(() => {
     jest.restoreAllMocks();
@@ -38,6 +43,7 @@ describe('TenantResolver', () => {
 
   it('should return an array of tenants', async () => {
     const tenants = [{ name: 'tenant' }, { name: 'tenant2' }] as Tenant[];
+    (addressModel.findOne as jest.Mock).mockResolvedValue({ id: 1 });
     (tenantModel.findAll as jest.Mock).mockResolvedValue(tenants);
 
     expect(await resolver.findAll()).toEqual(tenants);
@@ -45,9 +51,12 @@ describe('TenantResolver', () => {
 
   it('should return a tenant if found', async () => {
     const tenant = { name: 'tenant2', id: 1 } as Tenant;
-    (tenantModel.findByPk as jest.Mock).mockResolvedValue(tenant);
+    (addressModel.findOne as jest.Mock).mockResolvedValueOnce({ id: 1 });
+    (tenantModel.findByPk as jest.Mock).mockResolvedValueOnce(tenant);
 
-    expect(await resolver.findOne(1)).toEqual(tenant);
+    const res = await resolver.findOne(1);
+
+    expect(res).toEqual(tenant);
   });
 
   it('should return null if no tenant found', async () => {
@@ -63,6 +72,7 @@ describe('TenantResolver', () => {
 
     (tenantModel.create as jest.Mock).mockResolvedValue(createdTenant);
     (tenantModel.findAll as jest.Mock).mockResolvedValue([createdTenant]);
+    (addressModel.findByPk as jest.Mock).mockResolvedValue({ id: 1 });
     (clientModel.findByPk as jest.Mock).mockResolvedValueOnce(client);
 
     expect(await resolver.createTenant(input)).toEqual(createdTenant);
@@ -249,11 +259,13 @@ describe('TenantResolver', () => {
       id: 1,
       ...input,
       tenantType: ELegalType.Natural,
+      addressId: 2,
       update: jest.fn(),
       reload: jest.fn(),
     } as UpdateTenantInput;
 
     (tenantModel.findOne as jest.Mock).mockResolvedValue(tenantToUpdate);
+    (addressModel.findByPk as jest.Mock).mockResolvedValue({ id: 2 });
     (tenantModel.update as jest.Mock).mockResolvedValue(true);
     (tenantModel.findAll as jest.Mock).mockResolvedValue([tenantToUpdate]);
     (clientModel.findByPk as jest.Mock).mockResolvedValue({ id: 2 });

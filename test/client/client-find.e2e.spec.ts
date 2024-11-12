@@ -43,7 +43,6 @@ describe('Client Module - Find (e2e)', () => {
       })
       .expect(200);
 
-    console.log('🚀 ~ it ~ res:', JSON.stringify(res.body, null, 2));
     expect(res.body.data).toHaveProperty('clients');
     expect(res.body.data.clients[0]).toHaveProperty('id', 1);
     expect(res.body.data.clients[0]).toHaveProperty('name', clientInput.name);
@@ -55,6 +54,10 @@ describe('Client Module - Find (e2e)', () => {
       'isActive',
       clientInput.isActive,
     );
+    expect(res.body.data.clients[0]).toHaveProperty('addressId', 1);
+    expect(res.body.data.clients[0]).toHaveProperty('address', {
+      id: 1,
+    });
     expect(res.body.data.clients[0]).toHaveProperty('createdAt');
     expect(res.body.data.clients[0]).toHaveProperty('updatedAt');
   });
@@ -146,6 +149,10 @@ describe('Client Module - Find (e2e)', () => {
       'isActive',
       clientInput.isActive,
     );
+    expect(res.body.data.client).toHaveProperty('addressId', 1);
+    expect(res.body.data.client).toHaveProperty('address', {
+      id: 1,
+    });
     expect(res.body.data.client).toHaveProperty('createdAt');
     expect(res.body.data.client).toHaveProperty('updatedAt');
   });

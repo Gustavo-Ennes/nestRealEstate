@@ -13,6 +13,9 @@ import { ERole } from '../../src/application/auth/role/role.enum';
 import { CreateTenantInput } from '../../src/domain/tenant/dto/create-tenant.input';
 import { Client } from '../../src/application/client/entities/client.entity';
 import { clientInput } from '../client/utils';
+import { tenantInput } from './utils';
+import { addressInput } from '../address/utils';
+import { Address } from '../../src/application/address/entities/address.entity';
 
 describe('Tenant Module - Update (e2e)', () => {
   let app: INestApplication,
@@ -21,20 +24,14 @@ describe('Tenant Module - Update (e2e)', () => {
     naturalTenant: Tenant,
     legalTenant: Tenant;
   const naturalTenantInput: CreateTenantInput = {
-    name: 'tenant',
-    email: 'ads@dasd.com',
-    phone: '12312312322',
+    ...tenantInput,
     cpf: '12312312322',
     cnpj: null,
-    clientId: 1,
   };
   const legalTenantInput: CreateTenantInput = {
-    name: 'tenant',
-    email: 'ads@dasd.com',
-    phone: '12312312322',
+    ...tenantInput,
     cnpj: '12312312312322',
     cpf: null,
-    clientId: 1,
   };
 
   beforeAll(async () => {
@@ -49,6 +46,7 @@ describe('Tenant Module - Update (e2e)', () => {
     await sequelize.sync({ force: true });
 
     await Client.create(clientInput);
+    await Address.create(addressInput);
     naturalTenant = await Tenant.create(naturalTenantInput);
     legalTenant = await Tenant.create(legalTenantInput);
   });
@@ -92,7 +90,14 @@ describe('Tenant Module - Update (e2e)', () => {
       'clientId',
       naturalTenant.clientId,
     );
+    expect(res.body.data.updateTenant).toHaveProperty(
+      'addressId',
+      naturalTenant.addressId,
+    );
     expect(res.body.data.updateTenant).toHaveProperty('client', { id: 1 });
+    expect(res.body.data.updateTenant).toHaveProperty('address', { id: 1 });
+    expect(res.body.data.updateTenant).toHaveProperty('createdAt');
+    expect(res.body.data.updateTenant).toHaveProperty('updatedAt');
     expect(naturalTenant.name).toBe('new name');
   });
 
@@ -132,7 +137,14 @@ describe('Tenant Module - Update (e2e)', () => {
       'clientId',
       naturalTenant.clientId,
     );
+    expect(res.body.data.updateTenant).toHaveProperty(
+      'addressId',
+      naturalTenant.addressId,
+    );
     expect(res.body.data.updateTenant).toHaveProperty('client', { id: 1 });
+    expect(res.body.data.updateTenant).toHaveProperty('address', { id: 1 });
+    expect(res.body.data.updateTenant).toHaveProperty('createdAt');
+    expect(res.body.data.updateTenant).toHaveProperty('updatedAt');
     expect(naturalTenant.name).toBe('new name');
   });
 
@@ -172,7 +184,14 @@ describe('Tenant Module - Update (e2e)', () => {
       'clientId',
       naturalTenant.clientId,
     );
+    expect(res.body.data.updateTenant).toHaveProperty(
+      'addressId',
+      naturalTenant.addressId,
+    );
     expect(res.body.data.updateTenant).toHaveProperty('client', { id: 1 });
+    expect(res.body.data.updateTenant).toHaveProperty('address', { id: 1 });
+    expect(res.body.data.updateTenant).toHaveProperty('createdAt');
+    expect(res.body.data.updateTenant).toHaveProperty('updatedAt');
     expect(naturalTenant.name).toBe('new name');
   });
 
@@ -218,6 +237,29 @@ describe('Tenant Module - Update (e2e)', () => {
     expect(res.body.errors).toBeInstanceOf(Array);
     expect(res.body.errors[0].extensions).toHaveProperty('originalError', {
       message: 'Client not found with provided id.',
+      error: 'Not Found',
+      statusCode: 404,
+    });
+  });
+
+  it('should not update a tenant address if it does not exists', async () => {
+    const updateDto = {
+      id: naturalTenant.id,
+      addressId: 2,
+    };
+
+    const res = await request(app.getHttpServer())
+      .post('/graphql')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        query: updateMutation,
+        variables: { input: updateDto },
+      })
+      .expect(200);
+
+    expect(res.body.errors).toBeInstanceOf(Array);
+    expect(res.body.errors[0].extensions).toHaveProperty('originalError', {
+      message: 'No address found with provided addressId.',
       error: 'Not Found',
       statusCode: 404,
     });

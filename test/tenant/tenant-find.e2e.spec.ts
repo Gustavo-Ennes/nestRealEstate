@@ -8,21 +8,15 @@ import { ERole } from '../../src/application/auth/role/role.enum';
 import { EDocumentType } from '../../src/domain/document/enum/document-type.enum';
 import { Document } from '../../src/domain/document/entities/document.entity';
 import { Client } from '../../src/application/client/entities/client.entity';
-import { CreateTenantInput } from '../../src/domain/tenant/dto/create-tenant.input';
 import { clientInput } from '../client/utils';
+import { tenantInput } from './utils';
+import { Address } from '../../src/application/address/entities/address.entity';
+import { addressInput } from '../address/utils';
 
 describe('Tenant Module - Find (e2e)', () => {
   let app: INestApplication;
   let sequelize: Sequelize;
   let token: string;
-  const tenantInput: CreateTenantInput = {
-    name: 'tenant',
-    cpf: '12312312322',
-    cnpj: null,
-    email: 'tenant@tenant.com',
-    phone: '1231231232',
-    clientId: 1,
-  };
   const documentInput = {
     ownerId: 1,
     ownerRole: ERole.Tenant,
@@ -40,6 +34,7 @@ describe('Tenant Module - Find (e2e)', () => {
     await sequelize.getQueryInterface().dropTable('Tenants');
     await sequelize.sync({ force: true });
 
+    await Address.create(addressInput);
     await Client.create(clientInput);
     await Tenant.create(tenantInput);
     await Document.create(documentInput);
@@ -58,14 +53,18 @@ describe('Tenant Module - Find (e2e)', () => {
       })
       .expect(200);
 
-    expect(res.body.data).toEqual({
-      tenant: {
+    expect(res.body.data).toHaveProperty('tenant');
+    expect(res.body.data.tenant).toEqual(
+      expect.objectContaining({
         id: 1,
         ...tenantInput,
         documents: [{ id: 1, type: documentInput.type }],
         client: { id: 1 },
-      },
-    });
+        address: { id: 1 },
+      }),
+    );
+    expect(res.body.data.tenant).toHaveProperty('createdAt');
+    expect(res.body.data.tenant).toHaveProperty('updatedAt');
   });
 
   it('should find a tenant with superadmin role', async () => {
@@ -79,14 +78,18 @@ describe('Tenant Module - Find (e2e)', () => {
       })
       .expect(200);
 
-    expect(res.body.data).toEqual({
-      tenant: {
+    expect(res.body.data).toHaveProperty('tenant');
+    expect(res.body.data.tenant).toEqual(
+      expect.objectContaining({
         id: 1,
         ...tenantInput,
         documents: [{ id: 1, type: documentInput.type }],
         client: { id: 1 },
-      },
-    });
+        address: { id: 1 },
+      }),
+    );
+    expect(res.body.data.tenant).toHaveProperty('createdAt');
+    expect(res.body.data.tenant).toHaveProperty('updatedAt');
   });
 
   it('should not find a tenant with tenant role', async () => {
@@ -117,9 +120,17 @@ describe('Tenant Module - Find (e2e)', () => {
       })
       .expect(200);
 
-    expect(res.body.data).toEqual({
-      tenants: [{ id: 1, ...tenantInput, client: { id: 1 } }],
-    });
+    expect(res.body.data).toHaveProperty('tenants');
+    expect(res.body.data.tenants[0]).toEqual(
+      expect.objectContaining({
+        id: 1,
+        ...tenantInput,
+        client: { id: 1 },
+        address: { id: 1 },
+      }),
+    );
+    expect(res.body.data.tenants[0]).toHaveProperty('createdAt');
+    expect(res.body.data.tenants[0]).toHaveProperty('updatedAt');
   });
 
   it('should not find all tenants with tenant role', async () => {

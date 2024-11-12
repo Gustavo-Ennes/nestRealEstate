@@ -5,6 +5,7 @@ import { deleteMutation } from './queries';
 import { afterAllTests, generateToken, initApp } from '../utils';
 import { Tenant } from '../../src/domain/tenant/entities/tenant.entity';
 import { ERole } from '../../src/application/auth/role/role.enum';
+import { tenantInput } from './utils';
 
 describe('Tenant Module - Delete (e2e)', () => {
   let app: INestApplication,
@@ -23,12 +24,7 @@ describe('Tenant Module - Delete (e2e)', () => {
     await sequelize.getQueryInterface().dropTable('Tenants');
     await sequelize.sync({ force: true });
 
-    tenant = await Tenant.create({
-      name: 'tenant',
-      email: 'ads@dasd.com',
-      phone: '12312312322',
-      cpf: '12312312322',
-    });
+    tenant = await Tenant.create(tenantInput);
   });
 
   afterAll(async () => {
