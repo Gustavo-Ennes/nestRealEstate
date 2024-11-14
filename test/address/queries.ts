@@ -10,6 +10,15 @@ export const createMutation = `
       state
       additionalInfo
       postalCode
+      tenant {
+        id
+      }
+      landlord {
+        id
+      }
+      client {
+        id
+      }
     }
   }
 `;
@@ -25,7 +34,16 @@ export const updateMutation = `
       city
       state
       additionalInfo
-      postalCode
+      postalCode 
+      tenant {
+        id
+      }
+      landlord {
+        id
+      }
+      client {
+        id
+      }
     }
   }
 `;
@@ -41,7 +59,16 @@ export const findOneQuery = `
       city
       state
       additionalInfo
-      postalCode
+      postalCode 
+      tenant {
+        id
+      }
+      landlord {
+        id
+      }
+      client {
+        id
+      }
     }
   }
 `;
@@ -57,7 +84,16 @@ export const findAllQuery = `
       city
       state
       additionalInfo
-      postalCode
+      postalCode 
+      tenant {
+        id
+      }
+      landlord {
+        id
+      }
+      client {
+        id
+      }
     }
   }
 `;

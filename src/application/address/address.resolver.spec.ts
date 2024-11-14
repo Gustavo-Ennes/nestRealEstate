@@ -33,13 +33,18 @@ describe('AddressResolver', () => {
 
   describe('Create', () => {
     it('should create an address', async () => {
-      (addressModel.create as jest.Mock).mockResolvedValueOnce({
+      const address = {
         id: 1,
         ...addressInput,
-      });
+        reload: jest.fn(),
+      };
+      (addressModel.create as jest.Mock).mockResolvedValueOnce(address);
 
       const response = await resolver.createAddress(addressInput);
-      expect(response).toEqual({ id: 1, ...addressInput });
+      expect(response).toEqual(
+        expect.objectContaining({ id: 1, ...addressInput }),
+      );
+      expect(address.reload).toHaveBeenCalled();
     });
 
     it('should not create an address without a street', async () => {

@@ -8,6 +8,7 @@ import {
   ForeignKey,
   CreatedAt,
   UpdatedAt,
+  BelongsTo,
 } from 'sequelize-typescript';
 import { Address } from '../../address/entities/address.entity';
 
@@ -49,12 +50,9 @@ export class Client extends Model<Client> {
   @Field(() => Int)
   addressId: number;
 
+  @BelongsTo(() => Address)
   @Field(() => Address)
-  get address(): Promise<Address> {
-    return Address.findOne({
-      where: { id: this.addressId },
-    });
-  }
+  address: Address;
 
   @Column
   @Field(() => String, { nullable: true })

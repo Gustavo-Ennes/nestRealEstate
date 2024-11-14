@@ -37,16 +37,21 @@ describe('ClientResolver', () => {
 
   describe('Client create', () => {
     it('should create a client', async () => {
-      (clientModel.create as jest.Mock).mockResolvedValueOnce({
+      const client = {
         id: 1,
         ...clientInput,
-      });
+        reload: jest.fn(),
+      };
+      (clientModel.create as jest.Mock).mockResolvedValueOnce(client);
       (addressModel.findByPk as jest.Mock).mockResolvedValueOnce({
         id: 1,
       });
 
       const response = await resolver.createClient(clientInput);
-      expect(response).toEqual({ id: 1, ...clientInput });
+      expect(response).toEqual(
+        expect.objectContaining({ id: 1, ...clientInput }),
+      );
+      expect(client.reload).toHaveBeenCalled();
     });
 
     it('should not create a client with an empty name', async () => {

@@ -6,6 +6,8 @@ import { afterAllTests, generateToken, initApp } from '../utils';
 import { ERole } from '../../src/application/auth/role/role.enum';
 import { Client } from '../../src/application/client/entities/client.entity';
 import { clientInput } from './utils';
+import { Address } from '../../src/application/address/entities/address.entity';
+import { addressInput } from '../address/utils';
 
 describe('Client Module - Delete (e2e)', () => {
   let app: INestApplication;
@@ -21,8 +23,9 @@ describe('Client Module - Delete (e2e)', () => {
   });
 
   beforeEach(async () => {
-    await sequelize.getQueryInterface().dropTable('Clients');
+    await sequelize.getQueryInterface().dropAllTables();
     await sequelize.sync({ force: true });
+    await Address.create(addressInput);
     client = await Client.create(clientInput);
   });
 

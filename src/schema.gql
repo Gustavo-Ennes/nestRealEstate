@@ -2,42 +2,6 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-type Address {
-  id: Int!
-  street: String!
-  number: String!
-  complement: String
-  neighborhood: String!
-  city: String!
-  state: String!
-  additionalInfo: String
-  postalCode: String!
-}
-
-type Client {
-  id: Int!
-  name: String!
-  phone: String!
-  email: String!
-  site: String
-  cnpj: String!
-  isActive: Boolean!
-  addressId: Int!
-  address: Address!
-  observation: String
-  createdAt: DateTime!
-  updatedAt: DateTime!
-}
-
-"""
-A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
-"""
-scalar DateTime
-
-type AuthReturn {
-  access_token: String!
-}
-
 type Document {
   id: Int!
   type: String!
@@ -50,16 +14,28 @@ type Document {
   updatedAt: DateTime!
 }
 
-type FileOutput {
-  jobId: String!
-}
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
 
-type DocumentType {
+type Landlord {
   id: Int!
   name: String!
-  legalType: String!
+  cpf: String
+  cnpj: String
+  email: String!
+  phone: String!
+  isActive: Boolean!
+  annotations: [String!]
   createdAt: DateTime!
   updatedAt: DateTime!
+  landlordType: String!
+  clientId: Int!
+  client: Client!
+  documents: [Document!]!
+  addressId: Int!
+  address: Address!
 }
 
 type Tenant {
@@ -81,23 +57,50 @@ type Tenant {
   documents: [Document!]!
 }
 
-type Landlord {
+type Address {
+  id: Int!
+  street: String!
+  number: String!
+  complement: String
+  neighborhood: String!
+  city: String!
+  state: String!
+  additionalInfo: String
+  postalCode: String!
+  tenant: Tenant
+  landlord: Landlord
+  client: Client
+}
+
+type Client {
   id: Int!
   name: String!
-  cpf: String
-  cnpj: String
-  email: String!
   phone: String!
+  email: String!
+  site: String
+  cnpj: String!
   isActive: Boolean!
-  annotations: [String!]
-  createdAt: DateTime!
-  updatedAt: DateTime!
-  landlordType: String!
-  clientId: Int!
-  client: Client!
   addressId: Int!
   address: Address!
-  documents: [Document!]!
+  observation: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type AuthReturn {
+  access_token: String!
+}
+
+type FileOutput {
+  jobId: String!
+}
+
+type DocumentType {
+  id: Int!
+  name: String!
+  legalType: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
 }
 
 type DocumentRequirement {

@@ -42,11 +42,11 @@ describe('Tenant Module - Update (e2e)', () => {
   });
 
   beforeEach(async () => {
-    await sequelize.getQueryInterface().dropTable('Tenants');
+    await sequelize.getQueryInterface().dropAllTables();
     await sequelize.sync({ force: true });
 
-    await Client.create(clientInput);
     await Address.create(addressInput);
+    await Client.create(clientInput);
     naturalTenant = await Tenant.create(naturalTenantInput);
     legalTenant = await Tenant.create(legalTenantInput);
   });

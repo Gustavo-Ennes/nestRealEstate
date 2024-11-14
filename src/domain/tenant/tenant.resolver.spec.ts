@@ -67,15 +67,16 @@ describe('TenantResolver', () => {
   });
 
   it('should create a tenant', async () => {
-    const createdTenant = { id: 1, ...input };
+    const createdTenant = { id: 1, ...input, reload: jest.fn() };
     const client = { id: 2 };
 
     (tenantModel.create as jest.Mock).mockResolvedValue(createdTenant);
     (tenantModel.findAll as jest.Mock).mockResolvedValue([createdTenant]);
-    (addressModel.findByPk as jest.Mock).mockResolvedValue({ id: 1 });
+    (addressModel.findByPk as jest.Mock).mockResolvedValueOnce({ id: 1 });
     (clientModel.findByPk as jest.Mock).mockResolvedValueOnce(client);
 
     expect(await resolver.createTenant(input)).toEqual(createdTenant);
+    expect(createdTenant.reload).toHaveBeenCalled();
   });
 
   it("shouldn't create a tenant without cpf or cnpj in input", async () => {
@@ -265,10 +266,10 @@ describe('TenantResolver', () => {
     } as UpdateTenantInput;
 
     (tenantModel.findOne as jest.Mock).mockResolvedValue(tenantToUpdate);
-    (addressModel.findByPk as jest.Mock).mockResolvedValue({ id: 2 });
+    (addressModel.findByPk as jest.Mock).mockResolvedValueOnce({ id: 2 });
     (tenantModel.update as jest.Mock).mockResolvedValue(true);
     (tenantModel.findAll as jest.Mock).mockResolvedValue([tenantToUpdate]);
-    (clientModel.findByPk as jest.Mock).mockResolvedValue({ id: 2 });
+    (clientModel.findByPk as jest.Mock).mockResolvedValueOnce({ id: 2 });
 
     expect(
       await resolver.updateTenant({ id: tenantToUpdate.id, name: 'New Name' }),

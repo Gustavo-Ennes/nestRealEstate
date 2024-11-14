@@ -67,7 +67,7 @@ describe('LandlordResolver', () => {
   });
 
   it('should create a landlord', async () => {
-    const createdLandlord = { id: 1, ...input };
+    const createdLandlord = { id: 1, ...input, reload: jest.fn() };
     const client = { id: 1 };
 
     (landlordModel.create as jest.Mock).mockResolvedValue(createdLandlord);
@@ -76,6 +76,7 @@ describe('LandlordResolver', () => {
     (addressModel.findByPk as jest.Mock).mockResolvedValueOnce({ id: 1 });
 
     expect(await resolver.createLandlord(input)).toEqual(createdLandlord);
+    expect(createdLandlord.reload).toHaveBeenCalled();
   });
 
   it("shouldn't create a landlord without cpf or cnpj in input", async () => {
@@ -320,7 +321,7 @@ describe('LandlordResolver', () => {
     (landlordModel.findOne as jest.Mock).mockResolvedValue(landlordToUpdate);
     (landlordModel.update as jest.Mock).mockResolvedValue(true);
     (landlordModel.findAll as jest.Mock).mockResolvedValue([landlordToUpdate]);
-    (clientModel.findByPk as jest.Mock).mockResolvedValue({ id: 2 });
+    (clientModel.findByPk as jest.Mock).mockResolvedValueOnce({ id: 2 });
     (addressModel.findByPk as jest.Mock).mockResolvedValueOnce({ id: 2 });
 
     expect(

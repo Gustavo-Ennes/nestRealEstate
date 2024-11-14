@@ -15,7 +15,7 @@ describe('Client Module - Update (e2e)', () => {
   let app: INestApplication;
   let sequelize: Sequelize;
   let superadminToken: string;
-  let address: Address;
+  let client: Client;
   const updateInput: UpdateClientInput = {
     id: 1,
   };
@@ -28,11 +28,12 @@ describe('Client Module - Update (e2e)', () => {
   });
 
   beforeEach(async () => {
-    await sequelize.getQueryInterface().dropTable('Clients');
+    await sequelize.getQueryInterface().dropAllTables();
     await sequelize.sync({ force: true });
 
-    address = await Address.create(addressInput);
-    await Client.create(clientInput);
+    await Address.create(addressInput);
+    client = await Client.create(clientInput);
+    updateInput.id = client.id;
   });
 
   afterAll(async () => {
@@ -127,10 +128,8 @@ describe('Client Module - Update (e2e)', () => {
   });
 
   it('should not update a client address if address was not found', async () => {
-    await address.destroy();
-
     const superadminToken = generateToken({ sub: 1, role: ERole.Superadmin });
-    const input = assoc('addressId', address.id, updateInput);
+    const input = assoc('addressId', 666, updateInput);
     const res = await request(app.getHttpServer())
       .post('/graphql')
       .set('Authorization', `Bearer ${superadminToken}`)

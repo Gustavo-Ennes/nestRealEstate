@@ -8,6 +8,8 @@ import { defaultSignUpInput, signupWithout } from './utils';
 import { User } from '../../src/application/user/entities/user.entity';
 import { Client } from '../../src/application/client/entities/client.entity';
 import { clientInput } from '../client/utils';
+import { Address } from '../../src/application/address/entities/address.entity';
+import { addressInput } from '../address/utils';
 
 describe('Auth Module - SignUp (e2e)', () => {
   let app: INestApplication;
@@ -21,8 +23,9 @@ describe('Auth Module - SignUp (e2e)', () => {
   });
 
   beforeEach(async () => {
-    await sequelize.getQueryInterface().dropTable('Users');
+    await sequelize.getQueryInterface().dropAllTables();
     await sequelize.sync({ force: true });
+    await Address.create(addressInput);
     await Client.create(clientInput);
   });
 

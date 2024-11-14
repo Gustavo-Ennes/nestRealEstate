@@ -4,4 +4,5 @@ export enum ERole {
   Landlord = 'landlord',
   Tenant = 'tenant',
   Guarantor = 'guarantor',
+  Guest = 'guest',
 }

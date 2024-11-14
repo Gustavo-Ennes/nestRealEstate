@@ -10,11 +10,13 @@ import { clientModuleObject } from '../../../application/client/client.module';
 import { Client } from '../../../application/client/entities/client.entity';
 import { addressModuleObject } from '../../../application/address/address.module';
 import { Address } from '../../../application/address/entities/address.entity';
+import { SchedulerRegistry } from '@nestjs/schedule';
 
 export const createLandlordTestingModule = async () =>
   await Test.createTestingModule({
     providers: [
       JwtService,
+      SchedulerRegistry,
       ...landlordModuleObject.providers,
       ...userModuleObject.providers,
       ...clientModuleObject.providers,

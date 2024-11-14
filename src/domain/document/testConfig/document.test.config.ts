@@ -21,6 +21,7 @@ import { userModuleObject } from '../../../application/user/user.module';
 import { User } from '../../../application/user/entities/user.entity';
 import { addressModuleObject } from '../../../application/address/address.module';
 import { Address } from '../../../application/address/entities/address.entity';
+import { SchedulerRegistry } from '@nestjs/schedule';
 
 const documentTestModuleObject = {
   imports: [
@@ -30,6 +31,7 @@ const documentTestModuleObject = {
   ],
   providers: [
     JwtService,
+    SchedulerRegistry,
     ...tenantModuleObject.providers,
     ...landlordModuleObject.providers,
     ...documentTypeModuleObject.providers,

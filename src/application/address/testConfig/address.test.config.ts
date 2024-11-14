@@ -5,10 +5,12 @@ import { getMockedEntityProvider } from '../../../utils/unitTests/defaultEntityM
 import { Address } from '../entities/address.entity';
 import { validationPipe } from '../../../application/pipes/validation.pipe';
 import { JwtService } from '@nestjs/jwt';
+import { SchedulerRegistry } from '@nestjs/schedule';
 
 export const addressTestConfigObject = {
   providers: [
     JwtService,
+    SchedulerRegistry,
     ...addressModuleObject.providers,
     getMockedEntityProvider(Address),
     {

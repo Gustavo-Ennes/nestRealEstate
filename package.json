@@ -18,8 +18,8 @@
     "test:cov": "jest --coverage",
     "test:debug": "NODE_ENV=test node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "NODE_ENV=test jest --config ./test/jest-e2e.json --runInBand",
-    "test:path": "NODE_ENV=test jest --testPathPattern",
-    "test:path:e2e": "NODE_ENV=test jest --config ./test/jest-e2e.json --testPathPattern",
+    "test:path": "NODE_ENV=test jest --runInBand  --testPathPattern",
+    "test:path:e2e": "NODE_ENV=test jest --config ./test/jest-e2e.json --runInBand --testPathPattern",
     "test:file": "NODE_ENV=test jest --config ./test/jest-e2e.json --runInBand --runTestsByPath"
   },
   "dependencies": {
@@ -37,6 +37,7 @@
     "@nestjs/graphql": "^12.2.0",
     "@nestjs/jwt": "^10.2.0",
     "@nestjs/platform-express": "^10.0.0",
+    "@nestjs/schedule": "^4.1.1",
     "@nestjs/sequelize": "^10.0.1",
     "bcrypt": "^5.1.1",
     "bullmq": "^5.12.14",

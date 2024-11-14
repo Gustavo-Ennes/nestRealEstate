@@ -45,6 +45,7 @@ export class TenantService {
         );
 
       const newTenant: Tenant = await this.tenantModel.create(createTenantDto);
+      await newTenant.reload({ include: [{ model: Address }] });
 
       await this.cacheManager.set(`tenant:${newTenant.id}`, newTenant);
       const tenants: Tenant[] = await this.tenantModel.findAll();
@@ -70,7 +71,9 @@ export class TenantService {
         await this.cacheManager.get('tenants');
       if (chacheTenants) return chacheTenants;
 
-      const tenants: Tenant[] = await this.tenantModel.findAll();
+      const tenants: Tenant[] = await this.tenantModel.findAll({
+        include: [{ model: Address }],
+      });
       await this.cacheManager.set(
         'tenants',
         tenants.sort((a, b) => a.id - b.id),
@@ -92,7 +95,9 @@ export class TenantService {
       );
       if (cacheTenant) return cacheTenant;
 
-      const tenant: Tenant = await this.tenantModel.findByPk(id);
+      const tenant: Tenant = await this.tenantModel.findByPk(id, {
+        include: [{ model: Address }],
+      });
       await this.cacheManager.set(`tenant:${id}`, tenant);
       return tenant;
     } catch (error) {
@@ -153,7 +158,7 @@ export class TenantService {
         'tenants',
         tenants.sort((a, b) => a.id - b.id),
       );
-      await tenant.reload();
+      await tenant.reload({ include: [{ model: Address }] });
 
       return tenant;
     } catch (error) {

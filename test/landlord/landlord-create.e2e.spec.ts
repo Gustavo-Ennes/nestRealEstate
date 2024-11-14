@@ -28,7 +28,7 @@ describe('Landlord Module - Create (e2e)', () => {
   });
 
   beforeEach(async () => {
-    await sequelize.getQueryInterface().dropTable('Landlords');
+    await sequelize.getQueryInterface().dropAllTables();
     await sequelize.sync({ force: true });
     await Address.create(addressInput);
     await Client.create(clientInput);

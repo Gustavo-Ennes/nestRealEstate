@@ -8,6 +8,8 @@ import { defaultLoginInput, loginWithout } from './utils';
 import { initApp, requestAndCheckError } from '../utils';
 import { Client } from '../../src/application/client/entities/client.entity';
 import { clientInput } from '../client/utils';
+import { Address } from '../../src/application/address/entities/address.entity';
+import { addressInput } from '../address/utils';
 
 describe('Auth Module - Login (e2e)', () => {
   let app: INestApplication;
@@ -17,13 +19,14 @@ describe('Auth Module - Login (e2e)', () => {
     const { application, db } = await initApp();
     app = application;
     sequelize = db;
-
-    await Client.create(clientInput);
   });
 
   beforeEach(async () => {
-    await sequelize.getQueryInterface().dropTable('Tenants');
+    await sequelize.getQueryInterface().dropAllTables();
     await sequelize.sync({ force: true });
+
+    await Address.create(addressInput);
+    await Client.create(clientInput);
   });
 
   afterAll(async () => {

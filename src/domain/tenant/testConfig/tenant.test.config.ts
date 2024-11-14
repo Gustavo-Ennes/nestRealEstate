@@ -10,10 +10,12 @@ import { clientModuleObject } from '../../../application/client/client.module';
 import { Client } from '../../../application/client/entities/client.entity';
 import { addressModuleObject } from '../../../application/address/address.module';
 import { Address } from '../../../application/address/entities/address.entity';
+import { SchedulerRegistry } from '@nestjs/schedule';
 
 const tenantTestModuleObject = {
   providers: [
     JwtService,
+    SchedulerRegistry,
     ...tenantModuleObject.providers,
     ...userModuleObject.providers,
     ...clientModuleObject.providers,

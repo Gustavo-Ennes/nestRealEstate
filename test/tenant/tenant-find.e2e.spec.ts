@@ -31,7 +31,7 @@ describe('Tenant Module - Find (e2e)', () => {
   });
 
   beforeEach(async () => {
-    await sequelize.getQueryInterface().dropTable('Tenants');
+    await sequelize.getQueryInterface().dropAllTables();
     await sequelize.sync({ force: true });
 
     await Address.create(addressInput);

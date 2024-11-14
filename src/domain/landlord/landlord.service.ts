@@ -46,9 +46,12 @@ export class LandlordService {
 
       const newLandlord: Landlord =
         await this.landlordModel.create(createLandlordDto);
+      await newLandlord.reload({ include: [{ model: Address }] });
 
       await this.cacheManager.set(`landlord:${newLandlord.id}`, newLandlord);
-      const landlords: Landlord[] = await this.landlordModel.findAll();
+      const landlords: Landlord[] = await this.landlordModel.findAll({
+        include: [{ model: Address }],
+      });
       await this.cacheManager.set(
         'landlords',
         landlords.sort((a, b) => a.id - b.id),
@@ -71,7 +74,9 @@ export class LandlordService {
         await this.cacheManager.get('landlords');
       if (cacheLandlords) return cacheLandlords;
 
-      const landlords: Landlord[] = await this.landlordModel.findAll();
+      const landlords: Landlord[] = await this.landlordModel.findAll({
+        include: [{ model: Address }],
+      });
       await this.cacheManager.set(
         'landlords',
         landlords.sort((a, b) => a.id - b.id),
@@ -93,9 +98,11 @@ export class LandlordService {
       );
       if (cacheLandlords) return cacheLandlords;
 
-      const landlord: Landlord = await this.landlordModel.findByPk(id);
+      const landlord: Landlord = await this.landlordModel.findByPk(id, {
+        include: [{ model: Address }],
+      });
       await this.cacheManager.set(`landlord:${id}`, landlord);
-      return await this.landlordModel.findByPk(id);
+      return landlord;
     } catch (error) {
       this.logger.error(
         `${this.findOne.name} -> ${error.message}`,
@@ -155,7 +162,7 @@ export class LandlordService {
         landlords.sort((a, b) => a.id - b.id),
       );
 
-      await landlord.reload();
+      await landlord.reload({ include: [{ model: Address }] });
 
       return landlord;
     } catch (error) {

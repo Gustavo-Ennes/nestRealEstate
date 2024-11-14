@@ -11,6 +11,7 @@ import {
   CreatedAt,
   UpdatedAt,
   ForeignKey,
+  BelongsTo,
 } from 'sequelize-typescript';
 import { ELegalType } from '../../enum/legal-type.enum';
 import { Document } from '../../document/entities/document.entity';
@@ -88,12 +89,9 @@ export class Tenant extends Model<Tenant> {
   @Field(() => Int)
   addressId: number;
 
+  @BelongsTo(() => Address)
   @Field(() => Address)
-  get address(): Promise<Address> {
-    return Address.findOne({
-      where: { id: this.addressId },
-    });
-  }
+  address: Address;
 
   @Field(() => [Document])
   get documents(): Promise<Document[]> {

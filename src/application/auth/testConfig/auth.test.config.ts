@@ -9,6 +9,7 @@ import { userModuleObject } from '../../../application/user/user.module';
 import { clientModuleObject } from '../../../application/client/client.module';
 import { addressModuleObject } from '../../../application/address/address.module';
 import { Address } from '../../../application/address/entities/address.entity';
+import { SchedulerRegistry } from '@nestjs/schedule';
 
 const authTestModuleConfig = {
   imports: [
@@ -19,6 +20,7 @@ const authTestModuleConfig = {
   providers: [
     AuthResolver,
     AuthService,
+    SchedulerRegistry,
     ...userModuleObject.providers,
     ...clientModuleObject.providers,
     ...addressModuleObject.providers,

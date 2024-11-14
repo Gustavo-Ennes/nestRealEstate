@@ -13,6 +13,7 @@ import { User } from '../user/entities/user.entity';
 import { LoginInput } from './dto/login.input';
 import { AuthReturn } from './auth.utils';
 import { ClientService } from '../client/client.service';
+import { ERole } from './role/role.enum';
 
 @Injectable()
 export class AuthService {
@@ -33,7 +34,7 @@ export class AuthService {
       if (sameUsernameUser)
         throw new ConflictException(`Username ${username} already taken.`);
 
-      if (!client)
+      if (!client && role !== ERole.Superadmin)
         throw new NotFoundException('Client not found with provided id.');
 
       const hashedPassword = await hashPassword(password);

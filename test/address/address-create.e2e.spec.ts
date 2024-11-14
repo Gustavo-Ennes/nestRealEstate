@@ -20,7 +20,7 @@ describe('Address module - Create (e2e)', () => {
   });
 
   beforeEach(async () => {
-    await sequelize.getQueryInterface().dropTable('Addresses');
+    await sequelize.getQueryInterface().dropAllTables();
     await sequelize.sync({ force: true });
   });
 

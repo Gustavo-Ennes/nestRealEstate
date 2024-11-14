@@ -6,6 +6,8 @@ import { afterAllTests, generateToken, initApp } from '../utils';
 import { Landlord } from '../../src/domain/landlord/entities/landlord.entity';
 import { ERole } from '../../src/application/auth/role/role.enum';
 import { landlordInput } from './utils';
+import { Address } from '../../src/application/address/entities/address.entity';
+import { addressInput } from '../address/utils';
 
 describe('Landlord Module - Delete (e2e)', () => {
   let app: INestApplication,
@@ -23,7 +25,7 @@ describe('Landlord Module - Delete (e2e)', () => {
   beforeEach(async () => {
     await sequelize.getQueryInterface().dropTable('Landlords');
     await sequelize.sync({ force: true });
-
+    await Address.create(addressInput);
     landlord = await Landlord.create(landlordInput);
   });
 

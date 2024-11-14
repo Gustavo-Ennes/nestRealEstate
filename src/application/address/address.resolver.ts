@@ -5,13 +5,12 @@ import { CreateAddressInput } from './dto/create-address.input';
 import { UpdateAddressInput } from './dto/update-address.input';
 import { UseGuards, UsePipes } from '@nestjs/common';
 import { validationPipe } from '../pipes/validation.pipe';
-import { AuthGuard } from '../auth/auth.guard';
 import { RolesGuard } from '../auth/role/role.guard';
 import { ERole } from '../auth/role/role.enum';
 import { Roles } from '../auth/role/role.decorator';
+import { AuthGuard } from '../auth/auth.guard';
 
 @UsePipes(validationPipe)
-@UseGuards(AuthGuard, RolesGuard)
 @Resolver(() => Address)
 export class AddressResolver {
   constructor(private readonly addressService: AddressService) {}
@@ -23,6 +22,7 @@ export class AddressResolver {
     return this.addressService.create(createAddressInput);
   }
 
+  @UseGuards(AuthGuard, RolesGuard)
   @Roles(ERole.Superadmin)
   @Query(() => [Address], { name: 'addresses' })
   findAll() {

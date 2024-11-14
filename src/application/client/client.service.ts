@@ -26,6 +26,7 @@ export class ClientService {
         );
 
       const client = await this.clientModel.create(createClientInput);
+      await client.reload({ include: [{ model: Address }] });
 
       return client;
     } catch (error) {
@@ -40,7 +41,9 @@ export class ClientService {
 
   async findAll() {
     try {
-      const clients = await this.clientModel.findAll();
+      const clients = await this.clientModel.findAll({
+        include: [{ model: Address }],
+      });
       return clients;
     } catch (error) {
       this.logger.error(
@@ -53,7 +56,9 @@ export class ClientService {
 
   async findOne(id: number) {
     try {
-      const client = await this.clientModel.findByPk(id);
+      const client = await this.clientModel.findByPk(id, {
+        include: [{ model: Address }],
+      });
       return client;
     } catch (error) {
       this.logger.error(
@@ -80,7 +85,7 @@ export class ClientService {
         );
 
       await this.clientModel.update(updateClientInput, { where: { id } });
-      await clientToUpdate.reload();
+      await clientToUpdate.reload({ include: [{ model: Address }] });
 
       return clientToUpdate;
     } catch (error) {

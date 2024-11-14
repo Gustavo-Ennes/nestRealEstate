@@ -4,10 +4,11 @@ import { AddressResolver } from './address.resolver';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { Address } from './entities/address.entity';
 import { JwtModule } from '@nestjs/jwt';
+import { AddressCronService } from './cron/address.cron';
 
 export const addressModuleObject = {
   imports: [JwtModule, SequelizeModule.forFeature([Address])],
-  providers: [AddressResolver, AddressService],
+  providers: [AddressResolver, AddressService, AddressCronService],
   exports: [AddressService],
 };
 

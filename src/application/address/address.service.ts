@@ -3,6 +3,9 @@ import { CreateAddressInput } from './dto/create-address.input';
 import { UpdateAddressInput } from './dto/update-address.input';
 import { Address } from './entities/address.entity';
 import { InjectModel } from '@nestjs/sequelize';
+import { Client } from '../client/entities/client.entity';
+import { Tenant } from '../../domain/tenant/entities/tenant.entity';
+import { Landlord } from '../../domain/landlord/entities/landlord.entity';
 
 @Injectable()
 export class AddressService {
@@ -11,10 +14,14 @@ export class AddressService {
   ) {}
 
   private readonly logger = new Logger(AddressService.name);
+  private readonly includeOptions = {
+    include: [{ model: Tenant }, { model: Client }, { model: Landlord }],
+  };
 
   async create(createAddressInput: CreateAddressInput) {
     try {
       const address = await this.addressModel.create(createAddressInput);
+      await address.reload(this.includeOptions);
 
       return address;
     } catch (error) {
@@ -29,7 +36,7 @@ export class AddressService {
 
   async findAll() {
     try {
-      const addresses = await this.addressModel.findAll();
+      const addresses = await this.addressModel.findAll(this.includeOptions);
 
       return addresses;
     } catch (error) {
@@ -43,7 +50,7 @@ export class AddressService {
 
   async findOne(id: number) {
     try {
-      const address = await this.addressModel.findByPk(id);
+      const address = await this.addressModel.findByPk(id, this.includeOptions);
 
       return address;
     } catch (error) {
@@ -67,7 +74,7 @@ export class AddressService {
         throw new NotFoundException('Address not found with provided id.');
 
       await this.addressModel.update(updateAddressInput, { where: { id } });
-      await addressToUpdate.reload();
+      await addressToUpdate.reload(this.includeOptions);
 
       return addressToUpdate;
     } catch (error) {

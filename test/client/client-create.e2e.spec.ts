@@ -23,7 +23,7 @@ describe('Client Module - Create (e2e)', () => {
   });
 
   beforeEach(async () => {
-    await sequelize.getQueryInterface().dropTable('Clients');
+    await sequelize.getQueryInterface().dropAllTables();
     await sequelize.sync({ force: true });
 
     address = await Address.create(addressInput);

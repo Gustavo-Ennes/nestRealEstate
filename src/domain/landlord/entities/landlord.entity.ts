@@ -11,6 +11,7 @@ import {
   UpdatedAt,
   Model,
   ForeignKey,
+  BelongsTo,
 } from 'sequelize-typescript';
 import { ERole } from '../../../application/auth/role/role.enum';
 import { Document } from '../../document/entities/document.entity';
@@ -83,22 +84,19 @@ export class Landlord extends Model<Landlord> {
     });
   }
 
-  @ForeignKey(() => Address)
-  @Column
-  @Field(() => Int)
-  addressId: number;
-
-  @Field(() => Address)
-  get address(): Promise<Address> {
-    return Address.findOne({
-      where: { id: this.addressId },
-    });
-  }
-
   @Field(() => [Document])
   get documents(): Promise<Document[]> {
     return Document.findAll({
       where: { ownerId: this.id, ownerRole: ERole.Landlord },
     });
   }
+
+  @ForeignKey(() => Address)
+  @Column
+  @Field(() => Int)
+  addressId: number;
+
+  @BelongsTo(() => Address)
+  @Field(() => Address)
+  address: Address;
 }
