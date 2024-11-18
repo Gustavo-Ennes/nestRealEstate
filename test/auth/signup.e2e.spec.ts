@@ -10,23 +10,27 @@ import { Client } from '../../src/application/client/entities/client.entity';
 import { clientInput } from '../client/utils';
 import { Address } from '../../src/application/address/entities/address.entity';
 import { addressInput } from '../address/utils';
+import { JwtService } from '@nestjs/jwt';
 
 describe('Auth Module - SignUp (e2e)', () => {
   let app: INestApplication;
   let sequelize: Sequelize;
   let token: string;
+  let jwtService: JwtService;
+  let client: Client;
 
   beforeAll(async () => {
     const { application, db } = await initApp();
     app = application;
     sequelize = db;
+    jwtService = app.get<JwtService>(JwtService);
   });
 
   beforeEach(async () => {
     await sequelize.getQueryInterface().dropAllTables();
     await sequelize.sync({ force: true });
     await Address.create(addressInput);
-    await Client.create(clientInput);
+    client = await Client.create(clientInput);
   });
 
   afterAll(async () => {
@@ -43,10 +47,27 @@ describe('Auth Module - SignUp (e2e)', () => {
       })
       .expect(200);
 
+    const accessToken = res.body.data.signUp.access_token;
+    const decodedToken = await jwtService.decode(accessToken);
+
+    expect(decodedToken).toHaveProperty('sub', 1);
+    expect(decodedToken).toHaveProperty(
+      'username',
+      defaultSignUpInput.username,
+    );
     expect(res.body.data).toHaveProperty('signUp');
     expect(res.body.data.signUp).toHaveProperty('access_token');
     expect(res.body.data.signUp.access_token).not.toBeUndefined();
     expect(res.body.data.signUp.access_token).not.toBeNull();
+
+    expect(decodedToken).toHaveProperty('email', defaultSignUpInput.email);
+    expect(decodedToken).toHaveProperty('role', defaultSignUpInput.role);
+    expect(decodedToken).toHaveProperty(
+      'client',
+      expect.objectContaining({ id: client.id }),
+    );
+    expect(decodedToken.client).toHaveProperty('users', []);
+    expect(decodedToken).toHaveProperty('iat');
   });
 
   it('should not sign up if username do not match criteria', async () =>

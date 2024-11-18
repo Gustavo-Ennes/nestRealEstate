@@ -9,8 +9,10 @@ import {
   CreatedAt,
   UpdatedAt,
   BelongsTo,
+  HasMany,
 } from 'sequelize-typescript';
 import { Address } from '../../address/entities/address.entity';
+import { User } from '../../user/entities/user.entity';
 
 @ObjectType()
 @Table
@@ -65,4 +67,8 @@ export class Client extends Model<Client> {
   @UpdatedAt
   @Field(() => Date)
   updatedAt: Date;
+
+  @HasMany(() => User)
+  @Field(() => [User], { nullable: true })
+  users: User[];
 }

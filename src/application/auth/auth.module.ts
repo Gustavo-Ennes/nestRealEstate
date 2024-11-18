@@ -15,7 +15,7 @@ export const authModuleObject = {
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
-        secret: configService.get<string>('JWT_SECRET'),
+        secret: configService.get<string>('JWT_SECRET') || '123',
         signOptions: { expiresIn: '10h' },
       }),
     }),

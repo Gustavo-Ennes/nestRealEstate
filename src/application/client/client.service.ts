@@ -5,6 +5,7 @@ import { InjectModel } from '@nestjs/sequelize';
 import { Client } from './entities/client.entity';
 import { AddressService } from '../address/address.service';
 import { Address } from '../address/entities/address.entity';
+import { User } from '../user/entities/user.entity';
 
 @Injectable()
 export class ClientService {
@@ -14,6 +15,9 @@ export class ClientService {
   ) {}
 
   private readonly logger = new Logger(ClientService.name);
+  private readonly includeOptions = {
+    include: [{ model: Address }, { model: User }],
+  };
 
   async create(createClientInput: CreateClientInput) {
     try {
@@ -26,7 +30,7 @@ export class ClientService {
         );
 
       const client = await this.clientModel.create(createClientInput);
-      await client.reload({ include: [{ model: Address }] });
+      await client.reload(this.includeOptions);
 
       return client;
     } catch (error) {
@@ -41,9 +45,7 @@ export class ClientService {
 
   async findAll() {
     try {
-      const clients = await this.clientModel.findAll({
-        include: [{ model: Address }],
-      });
+      const clients = await this.clientModel.findAll(this.includeOptions);
       return clients;
     } catch (error) {
       this.logger.error(
@@ -56,9 +58,7 @@ export class ClientService {
 
   async findOne(id: number) {
     try {
-      const client = await this.clientModel.findByPk(id, {
-        include: [{ model: Address }],
-      });
+      const client = await this.clientModel.findByPk(id, this.includeOptions);
       return client;
     } catch (error) {
       this.logger.error(
@@ -85,7 +85,7 @@ export class ClientService {
         );
 
       await this.clientModel.update(updateClientInput, { where: { id } });
-      await clientToUpdate.reload({ include: [{ model: Address }] });
+      await clientToUpdate.reload(this.includeOptions);
 
       return clientToUpdate;
     } catch (error) {

@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { User } from './entities/user.entity';
 import { InjectModel } from '@nestjs/sequelize';
 import { CreateUserInput } from './dto/create-user.input';
+import { Client } from '../client/entities/client.entity';
 
 @Injectable()
 export class UserService {
@@ -14,7 +15,10 @@ export class UserService {
 
   async findOne(username: string): Promise<User | undefined> {
     try {
-      return await this.userModel.findOne({ where: { username } });
+      return await this.userModel.findOne({
+        where: { username },
+        include: [{ model: Client, include: [{ model: User }] }],
+      });
     } catch (error) {
       this.logger.error(
         `${this.findOne.name} -> ${error.message}`,
@@ -27,7 +31,9 @@ export class UserService {
 
   async findById(id: number): Promise<User | undefined> {
     try {
-      return await this.userModel.findByPk(id);
+      return await this.userModel.findByPk(id, {
+        include: [{ model: Client }],
+      });
     } catch (error) {
       this.logger.error(
         `${this.findById.name} -> ${error.message}`,
@@ -40,7 +46,9 @@ export class UserService {
 
   async create(createUserInput: CreateUserInput): Promise<User> {
     try {
-      return await this.userModel.create(createUserInput);
+      return await this.userModel.create(createUserInput, {
+        include: [{ model: Client }],
+      });
     } catch (error) {
       this.logger.error(
         `${this.create.name} -> ${error.message}`,

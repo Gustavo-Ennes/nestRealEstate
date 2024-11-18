@@ -158,7 +158,7 @@ describe('AuthService', () => {
       ...signUpInput,
       id: 1,
       password: await hashPassword(signUpInput.password),
-      client: Promise.resolve(client),
+      client: { id: 1 },
     } as User;
     (userModel.findOne as jest.Mock).mockResolvedValueOnce(user);
     (clientModel.findByPk as jest.Mock).mockResolvedValueOnce(client);

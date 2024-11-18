@@ -6,6 +6,7 @@ import {
   PrimaryKey,
   Table,
   ForeignKey,
+  BelongsTo,
 } from 'sequelize-typescript';
 import { Client } from '../../client/entities/client.entity';
 
@@ -43,10 +44,7 @@ export class User extends Model<User> {
   @Field(() => Int)
   clientId: number;
 
+  @BelongsTo(() => Client)
   @Field(() => Client)
-  get client(): Promise<Client> {
-    return Client.findOne({
-      where: { id: this.clientId },
-    });
-  }
+  client: Client;
 }

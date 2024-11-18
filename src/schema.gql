@@ -85,6 +85,18 @@ type Client {
   observation: String
   createdAt: DateTime!
   updatedAt: DateTime!
+  users: [User!]
+}
+
+type User {
+  id: Int!
+  username: String!
+  password: String!
+  email: String!
+  isActive: Boolean!
+  role: String!
+  clientId: Int!
+  client: Client!
 }
 
 type AuthReturn {

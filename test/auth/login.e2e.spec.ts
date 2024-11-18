@@ -10,10 +10,13 @@ import { Client } from '../../src/application/client/entities/client.entity';
 import { clientInput } from '../client/utils';
 import { Address } from '../../src/application/address/entities/address.entity';
 import { addressInput } from '../address/utils';
+import { JwtService } from '@nestjs/jwt';
 
 describe('Auth Module - Login (e2e)', () => {
   let app: INestApplication;
   let sequelize: Sequelize;
+  let jwtService: JwtService;
+  let client: Client;
 
   beforeAll(async () => {
     const { application, db } = await initApp();
@@ -24,9 +27,10 @@ describe('Auth Module - Login (e2e)', () => {
   beforeEach(async () => {
     await sequelize.getQueryInterface().dropAllTables();
     await sequelize.sync({ force: true });
+    jwtService = app.get<JwtService>(JwtService);
 
     await Address.create(addressInput);
-    await Client.create(clientInput);
+    client = await Client.create(clientInput);
   });
 
   afterAll(async () => {
@@ -35,13 +39,14 @@ describe('Auth Module - Login (e2e)', () => {
   });
 
   it('should login', async () => {
-    await User.create({
+    const userInput = {
       username: defaultLoginInput.username,
       password: await hashPassword(defaultLoginInput.password),
       role: 'admin',
       email: 'teste@teste.com',
       clientId: 1,
-    });
+    };
+    const user: User = await User.create(userInput);
 
     const res = await request(app.getHttpServer())
       .post('/graphql')
@@ -51,10 +56,26 @@ describe('Auth Module - Login (e2e)', () => {
       })
       .expect(200);
 
+    const accessToken = res.body.data.login.access_token;
+    const decodedToken = await jwtService.decode(accessToken);
+
     expect(res.body.data).toHaveProperty('login');
     expect(res.body.data.login).toHaveProperty('access_token');
-    expect(res.body.data.login.access_token).not.toBeUndefined();
-    expect(res.body.data.login.access_token).not.toBeNull();
+    expect(accessToken).not.toBeUndefined();
+    expect(accessToken).not.toBeNull();
+
+    expect(decodedToken).toHaveProperty('email', userInput.email);
+    expect(decodedToken).toHaveProperty('role', userInput.role);
+    expect(decodedToken).toHaveProperty(
+      'client',
+      expect.objectContaining({ id: client.id }),
+    );
+    expect(decodedToken.client).toHaveProperty('id', client.id);
+    expect(decodedToken.client).toHaveProperty('users');
+    expect(decodedToken.client.users).toContainEqual(
+      expect.objectContaining({ id: user.id }),
+    );
+    expect(decodedToken).toHaveProperty('iat');
   });
 
   it('should not login if username is empty', async () =>

@@ -13,6 +13,9 @@ export const createMutation = `
         id
       }
       addressId
+      users {
+        id
+      }
       createdAt
       updatedAt
     }
@@ -34,6 +37,9 @@ export const updateMutation = `
         id
       }
       addressId
+      users {
+        id
+      }
       createdAt
       updatedAt
     }
@@ -55,6 +61,9 @@ export const findAllQuery = `
         id
       }
       addressId
+      users {
+        id
+      }
       createdAt
       updatedAt
     }
@@ -76,6 +85,9 @@ export const findOneQuery = `
         id
       }
       addressId
+      users {
+        id
+      }
       createdAt
       updatedAt
     }
