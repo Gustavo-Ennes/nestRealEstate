@@ -29,6 +29,9 @@ export class LandlordService {
   ) {}
 
   private readonly logger = new Logger(LandlordService.name);
+  private readonly includeOptions = {
+    include: [{ model: Address }, { model: Client }],
+  };
 
   async create(createLandlordDto: CreateLandlordInput): Promise<Landlord> {
     try {
@@ -46,7 +49,7 @@ export class LandlordService {
 
       const newLandlord: Landlord =
         await this.landlordModel.create(createLandlordDto);
-      await newLandlord.reload({ include: [{ model: Address }] });
+      await newLandlord.reload(this.includeOptions);
 
       await this.cacheManager.set(`landlord:${newLandlord.id}`, newLandlord);
       const landlords: Landlord[] = await this.landlordModel.findAll({
@@ -74,9 +77,9 @@ export class LandlordService {
         await this.cacheManager.get('landlords');
       if (cacheLandlords) return cacheLandlords;
 
-      const landlords: Landlord[] = await this.landlordModel.findAll({
-        include: [{ model: Address }],
-      });
+      const landlords: Landlord[] = await this.landlordModel.findAll(
+        this.includeOptions,
+      );
       await this.cacheManager.set(
         'landlords',
         landlords.sort((a, b) => a.id - b.id),
@@ -98,9 +101,10 @@ export class LandlordService {
       );
       if (cacheLandlords) return cacheLandlords;
 
-      const landlord: Landlord = await this.landlordModel.findByPk(id, {
-        include: [{ model: Address }],
-      });
+      const landlord: Landlord = await this.landlordModel.findByPk(
+        id,
+        this.includeOptions,
+      );
       await this.cacheManager.set(`landlord:${id}`, landlord);
       return landlord;
     } catch (error) {
@@ -162,7 +166,7 @@ export class LandlordService {
         landlords.sort((a, b) => a.id - b.id),
       );
 
-      await landlord.reload({ include: [{ model: Address }] });
+      await landlord.reload(this.includeOptions);
 
       return landlord;
     } catch (error) {

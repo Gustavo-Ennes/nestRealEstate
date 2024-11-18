@@ -90,6 +90,7 @@ export class Tenant extends Model<Tenant> {
   @Field(() => Address)
   address: Address;
 
+  // this relation is different because documents could have many entities as it's owner
   @Field(() => [Document])
   get documents(): Promise<Document[]> {
     return Document.findAll({

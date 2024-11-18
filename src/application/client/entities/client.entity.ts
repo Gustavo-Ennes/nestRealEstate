@@ -14,6 +14,7 @@ import {
 import { Address } from '../../address/entities/address.entity';
 import { User } from '../../user/entities/user.entity';
 import { Tenant } from '../../../domain/tenant/entities/tenant.entity';
+import { Landlord } from '../../../domain/landlord/entities/landlord.entity';
 
 @ObjectType()
 @Table
@@ -76,4 +77,8 @@ export class Client extends Model<Client> {
   @HasMany(() => Tenant)
   @Field(() => [Tenant], { nullable: true })
   tenants: Tenant[];
+
+  @HasMany(() => Landlord)
+  @Field(() => [Landlord], { nullable: true })
+  landlords: Landlord[];
 }

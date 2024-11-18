@@ -77,13 +77,11 @@ export class Landlord extends Model<Landlord> {
   @Field(() => Int)
   clientId: number;
 
+  @BelongsTo(() => Client)
   @Field(() => Client)
-  get client(): Promise<Client> {
-    return Client.findOne({
-      where: { id: this.clientId },
-    });
-  }
+  client: Client;
 
+  // this relation is different because documents could have many entities as it's owner
   @Field(() => [Document])
   get documents(): Promise<Document[]> {
     return Document.findAll({

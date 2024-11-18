@@ -28,6 +28,7 @@ export class Document extends Model<Document> {
   @Field(() => String)
   ownerRole: string; // ERole => table
 
+  // this relation is different because documents could have many entities as it's owner
   @Column
   @Field(() => Int)
   ownerId: number;
