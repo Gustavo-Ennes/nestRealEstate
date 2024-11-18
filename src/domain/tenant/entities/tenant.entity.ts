@@ -77,12 +77,9 @@ export class Tenant extends Model<Tenant> {
   @Field(() => Int)
   clientId: number;
 
-  @Field(() => Client)
-  get client(): Promise<Client> {
-    return Client.findOne({
-      where: { id: this.clientId },
-    });
-  }
+  @BelongsTo(() => Client)
+  @Field(() => Document)
+  client: Client;
 
   @ForeignKey(() => Address)
   @Column

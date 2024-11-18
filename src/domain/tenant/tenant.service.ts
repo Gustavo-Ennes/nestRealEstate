@@ -29,6 +29,9 @@ export class TenantService {
   ) {}
 
   private readonly logger = new Logger(TenantService.name);
+  private readonly includeOptions = {
+    include: [{ model: Address }, { model: Client }],
+  };
 
   async create(createTenantDto: CreateTenantInput): Promise<Tenant> {
     try {
@@ -45,7 +48,7 @@ export class TenantService {
         );
 
       const newTenant: Tenant = await this.tenantModel.create(createTenantDto);
-      await newTenant.reload({ include: [{ model: Address }] });
+      await newTenant.reload(this.includeOptions);
 
       await this.cacheManager.set(`tenant:${newTenant.id}`, newTenant);
       const tenants: Tenant[] = await this.tenantModel.findAll();
@@ -71,9 +74,9 @@ export class TenantService {
         await this.cacheManager.get('tenants');
       if (chacheTenants) return chacheTenants;
 
-      const tenants: Tenant[] = await this.tenantModel.findAll({
-        include: [{ model: Address }],
-      });
+      const tenants: Tenant[] = await this.tenantModel.findAll(
+        this.includeOptions,
+      );
       await this.cacheManager.set(
         'tenants',
         tenants.sort((a, b) => a.id - b.id),
@@ -95,9 +98,10 @@ export class TenantService {
       );
       if (cacheTenant) return cacheTenant;
 
-      const tenant: Tenant = await this.tenantModel.findByPk(id, {
-        include: [{ model: Address }],
-      });
+      const tenant: Tenant = await this.tenantModel.findByPk(
+        id,
+        this.includeOptions,
+      );
       await this.cacheManager.set(`tenant:${id}`, tenant);
       return tenant;
     } catch (error) {
@@ -158,7 +162,7 @@ export class TenantService {
         'tenants',
         tenants.sort((a, b) => a.id - b.id),
       );
-      await tenant.reload({ include: [{ model: Address }] });
+      await tenant.reload(this.includeOptions);
 
       return tenant;
     } catch (error) {

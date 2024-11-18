@@ -13,6 +13,7 @@ import {
 } from 'sequelize-typescript';
 import { Address } from '../../address/entities/address.entity';
 import { User } from '../../user/entities/user.entity';
+import { Tenant } from '../../../domain/tenant/entities/tenant.entity';
 
 @ObjectType()
 @Table
@@ -71,4 +72,8 @@ export class Client extends Model<Client> {
   @HasMany(() => User)
   @Field(() => [User], { nullable: true })
   users: User[];
+
+  @HasMany(() => Tenant)
+  @Field(() => [Tenant], { nullable: true })
+  tenants: Tenant[];
 }
