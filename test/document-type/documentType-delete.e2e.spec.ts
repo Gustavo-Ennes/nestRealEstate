@@ -22,7 +22,7 @@ describe('DocumentType Module - Delete (e2e)', () => {
   });
 
   beforeEach(async () => {
-    await sequelize.getQueryInterface().dropTable('DocumentTypes');
+    await sequelize.getQueryInterface().dropAllTables();
     await sequelize.sync({ force: true });
 
     documentType = await DocumentType.create({

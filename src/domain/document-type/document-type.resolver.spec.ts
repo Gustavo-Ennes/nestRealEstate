@@ -25,9 +25,10 @@ describe('DocumentTypeResolver', () => {
   });
 
   it('should create a document type', async () => {
-    const dtoObj: CreateDocumentTypeInput = {
+    const dtoObj = {
       name: 'asdasd',
       legalType: ELegalType.Natural,
+      reload: jest.fn(),
     };
     (documentTypeModel.create as jest.Mock).mockResolvedValueOnce({
       ...dtoObj,
@@ -36,6 +37,7 @@ describe('DocumentTypeResolver', () => {
     const dtoInstance = Object.assign(new CreateDocumentTypeInput(), dtoObj);
     const response = await resolver.createDocumentType(dtoInstance);
     expect(response).toEqual({ id: 1, ...dtoInstance });
+    expect(dtoObj.reload).toHaveBeenCalled();
   });
 
   it('should not create a document type without a name', async () => {

@@ -15,6 +15,7 @@ export class DocumentRequirementService {
   ) {}
 
   private readonly logger = new Logger(DocumentRequirementService.name);
+  private readonly includeOptions = { include: [{ model: DocumentType }] };
 
   async create(createDocumentRequirementInput: CreateDocumentRequirementInput) {
     let documentType: DocumentType;
@@ -32,6 +33,7 @@ export class DocumentRequirementService {
       const documentRequirement = await this.documentRequirementModel.create(
         createDocumentRequirementInput,
       );
+      await documentRequirement.reload(this.includeOptions);
 
       return documentRequirement;
     } catch (error) {
@@ -46,8 +48,9 @@ export class DocumentRequirementService {
 
   async findAll() {
     try {
-      const documentRequirements =
-        await this.documentRequirementModel.findAll();
+      const documentRequirements = await this.documentRequirementModel.findAll(
+        this.includeOptions,
+      );
 
       return documentRequirements;
     } catch (error) {
@@ -61,8 +64,10 @@ export class DocumentRequirementService {
 
   async findOne(id: number) {
     try {
-      const documentRequirement =
-        await this.documentRequirementModel.findByPk(id);
+      const documentRequirement = await this.documentRequirementModel.findByPk(
+        id,
+        this.includeOptions,
+      );
 
       return documentRequirement;
     } catch (error) {
@@ -101,7 +106,7 @@ export class DocumentRequirementService {
           where: { id },
         },
       );
-      await documentRequirementToUpdate.reload();
+      await documentRequirementToUpdate.reload(this.includeOptions);
 
       return documentRequirementToUpdate;
     } catch (error) {

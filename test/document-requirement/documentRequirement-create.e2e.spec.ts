@@ -4,21 +4,16 @@ import { Sequelize } from 'sequelize-typescript';
 import { createMutation } from './queries';
 import { afterAllTests, generateToken, initApp } from '../utils';
 import { ERole } from '../../src/application/auth/role/role.enum';
-import { ELegalType } from '../../src/domain/enum/legal-type.enum';
-import { CreateDocumentRequirementInput } from '../../src/domain/document-requirement/dto/create-document-requirement.input';
 import { DocumentType } from '../../src/domain/document-type/entities/document-type.entity';
-import { EDocumentType } from '../../src/domain/document/enum/document-type.enum';
 import { assoc, dissoc } from 'ramda';
+import { documentRequirementInput } from './utils';
+import { documentTypeInput } from '../document-type/utils';
 
 describe('DocumentRequirement Module - Create (e2e)', () => {
   let app: INestApplication;
   let sequelize: Sequelize;
   let token: string;
   let documentType: DocumentType;
-  const input: CreateDocumentRequirementInput = {
-    role: ERole.Landlord,
-    documentTypeId: 1,
-  };
 
   beforeAll(async () => {
     const { application, db, adminToken } = await initApp();
@@ -28,14 +23,10 @@ describe('DocumentRequirement Module - Create (e2e)', () => {
   });
 
   beforeEach(async () => {
-    await sequelize.getQueryInterface().dropTable('DocumentRequirements');
+    await sequelize.getQueryInterface().dropAllTables();
     await sequelize.sync({ force: true });
 
-    documentType = await DocumentType.create({
-      name: EDocumentType.CNPJ,
-      legalType: ELegalType.Legal,
-    });
-    input.documentTypeId = documentType.id;
+    documentType = await DocumentType.create(documentTypeInput);
   });
 
   afterAll(async () => {
@@ -48,18 +39,18 @@ describe('DocumentRequirement Module - Create (e2e)', () => {
       .set('Authorization', `Bearer ${token}`)
       .send({
         query: createMutation,
-        variables: { input },
+        variables: { input: documentRequirementInput },
       })
       .expect(200);
 
     expect(res.body.data).toHaveProperty('createDocumentRequirement');
     expect(res.body.data.createDocumentRequirement).toHaveProperty(
       'role',
-      input.role,
+      documentRequirementInput.role,
     );
     expect(res.body.data.createDocumentRequirement).toHaveProperty(
       'documentTypeId',
-      input.documentTypeId,
+      documentRequirementInput.documentTypeId,
     );
     expect(res.body.data.createDocumentRequirement).toHaveProperty(
       'isRequired',
@@ -80,18 +71,18 @@ describe('DocumentRequirement Module - Create (e2e)', () => {
       .set('Authorization', `Bearer ${superadminToken}`)
       .send({
         query: createMutation,
-        variables: { input },
+        variables: { input: documentRequirementInput },
       })
       .expect(200);
 
     expect(res.body.data).toHaveProperty('createDocumentRequirement');
     expect(res.body.data.createDocumentRequirement).toHaveProperty(
       'role',
-      input.role,
+      documentRequirementInput.role,
     );
     expect(res.body.data.createDocumentRequirement).toHaveProperty(
       'documentTypeId',
-      input.documentTypeId,
+      documentRequirementInput.documentTypeId,
     );
     expect(res.body.data.createDocumentRequirement).toHaveProperty(
       'isRequired',
@@ -112,7 +103,7 @@ describe('DocumentRequirement Module - Create (e2e)', () => {
       .set('Authorization', `Bearer ${tenantToken}`)
       .send({
         query: createMutation,
-        variables: { input },
+        variables: { input: documentRequirementInput },
       })
       .expect(200);
 
@@ -135,7 +126,7 @@ describe('DocumentRequirement Module - Create (e2e)', () => {
       .set('Authorization', `Bearer ${landlordToken}`)
       .send({
         query: createMutation,
-        variables: { input },
+        variables: { input: documentRequirementInput },
       })
       .expect(200);
 
@@ -151,7 +142,7 @@ describe('DocumentRequirement Module - Create (e2e)', () => {
     });
   });
   it('should not create a document without a role', async () => {
-    const noRoleInput = dissoc('role', input);
+    const noRoleInput = dissoc('role', documentRequirementInput);
     const res = await request(app.getHttpServer())
       .post('/graphql')
       .set('Authorization', `Bearer ${token}`)
@@ -175,7 +166,7 @@ describe('DocumentRequirement Module - Create (e2e)', () => {
   });
 
   it('should not create a document with an empty role', async () => {
-    const emptyRoleInput = assoc('role', '', input);
+    const emptyRoleInput = assoc('role', '', documentRequirementInput);
     const res = await request(app.getHttpServer())
       .post('/graphql')
       .set('Authorization', `Bearer ${token}`)
@@ -209,7 +200,11 @@ describe('DocumentRequirement Module - Create (e2e)', () => {
   });
 
   it('should not create a document with an invalid role', async () => {
-    const invalidRoleInput = assoc('role', 'musician', input);
+    const invalidRoleInput = assoc(
+      'role',
+      'musician',
+      documentRequirementInput,
+    );
     const res = await request(app.getHttpServer())
       .post('/graphql')
       .set('Authorization', `Bearer ${token}`)
@@ -243,7 +238,10 @@ describe('DocumentRequirement Module - Create (e2e)', () => {
   });
 
   it('should not create a document without documentTypeId property', async () => {
-    const noDocumentTypeIdInput = dissoc('documentTypeId', input);
+    const noDocumentTypeIdInput = dissoc(
+      'documentTypeId',
+      documentRequirementInput,
+    );
     const res = await request(app.getHttpServer())
       .post('/graphql')
       .set('Authorization', `Bearer ${token}`)
@@ -270,7 +268,7 @@ describe('DocumentRequirement Module - Create (e2e)', () => {
     const inputWithoutReferencedDocumentType = assoc(
       'documentTypeId',
       666,
-      input,
+      documentRequirementInput,
     );
     const res = await request(app.getHttpServer())
       .post('/graphql')

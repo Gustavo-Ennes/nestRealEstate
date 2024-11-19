@@ -8,6 +8,7 @@ import {
   PrimaryKey,
   CreatedAt,
   UpdatedAt,
+  BelongsTo,
 } from 'sequelize-typescript';
 import { DocumentType } from '../../document-type/entities/document-type.entity';
 import { Field, Int, ObjectType } from '@nestjs/graphql';
@@ -26,6 +27,10 @@ export class DocumentRequirement extends Model<DocumentRequirement> {
   @Field(() => Int)
   documentTypeId: number;
 
+  @BelongsTo(() => DocumentType)
+  @Field(() => DocumentType)
+  documentType: DocumentType;
+
   @Column
   @Field(() => String)
   role: string; // ERole
@@ -42,11 +47,4 @@ export class DocumentRequirement extends Model<DocumentRequirement> {
   @UpdatedAt
   @Field(() => Date)
   updatedAt: Date;
-
-  @Field(() => DocumentType)
-  get documentType(): Promise<DocumentType> {
-    return DocumentType.findOne({
-      where: { id: this.documentTypeId },
-    });
-  }
 }

@@ -6,6 +6,9 @@ export const updateMutation = `
       legalType
       createdAt
       updatedAt
+      documentRequirements {
+        id
+      }
     }
   }
 `;
@@ -18,6 +21,9 @@ export const findAllQuery = `
       legalType
       createdAt
       updatedAt
+      documentRequirements {
+        id
+      }
     }
   }
 `;
@@ -30,6 +36,9 @@ export const findOneQuery = `
       legalType
       createdAt
       updatedAt
+      documentRequirements {
+        id
+      }
     }
   }
 `;
@@ -48,6 +57,9 @@ export const createMutation = `
       legalType
       createdAt
       updatedAt
+      documentRequirements {
+        id
+      }
     }
   }
 `;

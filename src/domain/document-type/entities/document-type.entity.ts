@@ -3,11 +3,13 @@ import {
   AutoIncrement,
   Column,
   CreatedAt,
+  HasMany,
   Model,
   PrimaryKey,
   Table,
   UpdatedAt,
 } from 'sequelize-typescript';
+import { DocumentRequirement } from '../../document-requirement/entities/document-requirement.entity';
 
 @Table
 @ObjectType()
@@ -17,6 +19,10 @@ export class DocumentType extends Model<DocumentType> {
   @Column
   @Field(() => Int)
   id: number;
+
+  @HasMany(() => DocumentRequirement)
+  @Field(() => [DocumentRequirement])
+  documentRequirements: DocumentRequirement[];
 
   @Column
   @Field(() => String)

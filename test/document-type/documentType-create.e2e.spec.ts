@@ -25,7 +25,7 @@ describe('DocumentType Module - Create (e2e)', () => {
   });
 
   beforeEach(async () => {
-    await sequelize.getQueryInterface().dropTable('DocumentTypes');
+    await sequelize.getQueryInterface().dropAllTables();
     await sequelize.sync({ force: true });
   });
 
@@ -48,6 +48,10 @@ describe('DocumentType Module - Create (e2e)', () => {
     expect(res.body.data.createDocumentType).toHaveProperty(
       'legalType',
       input.legalType,
+    );
+    expect(res.body.data.createDocumentType).toHaveProperty(
+      'documentRequirements',
+      [],
     );
     expect(res.body.data.createDocumentType).toHaveProperty('createdAt');
     expect(res.body.data.createDocumentType).toHaveProperty('updatedAt');

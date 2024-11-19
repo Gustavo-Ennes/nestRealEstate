@@ -19,15 +19,23 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
-type User {
+type Landlord {
   id: Int!
-  username: String!
-  password: String!
+  name: String!
+  cpf: String
+  cnpj: String
   email: String!
+  phone: String!
   isActive: Boolean!
-  role: String!
+  annotations: [String!]
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  landlordType: String!
   clientId: Int!
   client: Client!
+  documents: [Document!]!
+  addressId: Int!
+  address: Address!
 }
 
 type Tenant {
@@ -49,6 +57,21 @@ type Tenant {
   documents: [Document!]!
 }
 
+type Address {
+  id: Int!
+  street: String!
+  number: String!
+  complement: String
+  neighborhood: String!
+  city: String!
+  state: String!
+  additionalInfo: String
+  postalCode: String!
+  tenant: Tenant
+  landlord: Landlord
+  client: Client
+}
+
 type Client {
   id: Int!
   name: String!
@@ -67,38 +90,15 @@ type Client {
   landlords: [Landlord!]
 }
 
-type Landlord {
+type User {
   id: Int!
-  name: String!
-  cpf: String
-  cnpj: String
+  username: String!
+  password: String!
   email: String!
-  phone: String!
   isActive: Boolean!
-  annotations: [String!]
-  createdAt: DateTime!
-  updatedAt: DateTime!
-  landlordType: String!
+  role: String!
   clientId: Int!
   client: Client!
-  documents: [Document!]!
-  addressId: Int!
-  address: Address!
-}
-
-type Address {
-  id: Int!
-  street: String!
-  number: String!
-  complement: String
-  neighborhood: String!
-  city: String!
-  state: String!
-  additionalInfo: String
-  postalCode: String!
-  tenant: Tenant
-  landlord: Landlord
-  client: Client
 }
 
 type AuthReturn {
@@ -109,22 +109,23 @@ type FileOutput {
   jobId: String!
 }
 
-type DocumentType {
-  id: Int!
-  name: String!
-  legalType: String!
-  createdAt: DateTime!
-  updatedAt: DateTime!
-}
-
 type DocumentRequirement {
   id: Int!
   documentTypeId: Int!
+  documentType: DocumentType!
   role: String!
   isRequired: Boolean!
   createdAt: DateTime!
   updatedAt: DateTime!
-  documentType: DocumentType!
+}
+
+type DocumentType {
+  id: Int!
+  documentRequirements: [DocumentRequirement!]!
+  name: String!
+  legalType: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
 }
 
 type Query {

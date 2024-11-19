@@ -4,11 +4,12 @@ import { Sequelize } from 'sequelize-typescript';
 import { deleteMutation } from './queries';
 import { afterAllTests, generateToken, initApp } from '../utils';
 import { ERole } from '../../src/application/auth/role/role.enum';
-import { ELegalType } from '../../src/domain/enum/legal-type.enum';
 import { CreateDocumentRequirementInput } from '../../src/domain/document-requirement/dto/create-document-requirement.input';
 import { DocumentType } from '../../src/domain/document-type/entities/document-type.entity';
-import { EDocumentType } from '../../src/domain/document/enum/document-type.enum';
 import { DocumentRequirement } from '../../src/domain/document-requirement/entities/document-requirement.entity';
+import { documentTypeInput } from '../document-type/utils';
+import { clone } from 'ramda';
+import { documentRequirementInput } from './utils';
 
 describe('DocumentRequirement Module - Delete (e2e)', () => {
   let app: INestApplication;
@@ -16,10 +17,7 @@ describe('DocumentRequirement Module - Delete (e2e)', () => {
   let token: string;
   let documentType: DocumentType;
   let documentRequirement: DocumentRequirement;
-  const input: CreateDocumentRequirementInput = {
-    role: ERole.Landlord,
-    documentTypeId: 1,
-  };
+  const input: CreateDocumentRequirementInput = clone(documentRequirementInput);
 
   beforeAll(async () => {
     const { application, db, adminToken } = await initApp();
@@ -29,13 +27,10 @@ describe('DocumentRequirement Module - Delete (e2e)', () => {
   });
 
   beforeEach(async () => {
-    await sequelize.getQueryInterface().dropTable('DocumentRequirements');
+    await sequelize.getQueryInterface().dropAllTables();
     await sequelize.sync({ force: true });
 
-    documentType = await DocumentType.create({
-      name: EDocumentType.CNPJ,
-      legalType: ELegalType.Legal,
-    });
+    documentType = await DocumentType.create(documentTypeInput);
 
     input.documentTypeId = documentType.id;
     documentRequirement = await DocumentRequirement.create(input);

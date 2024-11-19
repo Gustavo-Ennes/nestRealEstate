@@ -34,9 +34,10 @@ describe('DocumentRequirementResolver', () => {
   });
 
   it('should add a document requirement', async () => {
-    const dtoObj: CreateDocumentRequirementInput = {
+    const dtoObj = {
       role: ERole.Tenant,
       documentTypeId: 1,
+      reload: jest.fn(),
     };
     (documentTypeModel.findOne as jest.Mock).mockResolvedValueOnce({
       id: 1,
@@ -48,6 +49,7 @@ describe('DocumentRequirementResolver', () => {
 
     const response = await resolver.createDocumentRequirement(dtoObj);
     expect(response).toEqual({ id: 1, ...dtoObj });
+    expect(dtoObj.reload).toHaveBeenCalled();
   });
 
   it('should not add a document requirement without a documentTypeId', async () => {

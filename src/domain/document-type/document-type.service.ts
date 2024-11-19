@@ -3,6 +3,7 @@ import { CreateDocumentTypeInput } from './dto/create-document-type.input';
 import { UpdateDocumentTypeInput } from './dto/update-document-type.input';
 import { InjectModel } from '@nestjs/sequelize';
 import { DocumentType } from './entities/document-type.entity';
+import { DocumentRequirement } from '../document-requirement/entities/document-requirement.entity';
 
 @Injectable()
 export class DocumentTypeService {
@@ -12,6 +13,9 @@ export class DocumentTypeService {
   ) {}
 
   private readonly logger = new Logger(DocumentTypeService.name);
+  private readonly includeOptions = {
+    include: [{ model: DocumentRequirement }],
+  };
 
   async create(
     createDocumentTypeInput: CreateDocumentTypeInput,
@@ -20,6 +24,7 @@ export class DocumentTypeService {
       const documentType: DocumentType = await this.documentTypeModel.create(
         createDocumentTypeInput,
       );
+      await documentType.reload(this.includeOptions);
 
       return documentType;
     } catch (error) {
@@ -35,7 +40,7 @@ export class DocumentTypeService {
   async findAll(): Promise<DocumentType[]> {
     try {
       const documentTypes: DocumentType[] =
-        await this.documentTypeModel.findAll();
+        await this.documentTypeModel.findAll(this.includeOptions);
 
       return documentTypes;
     } catch (error) {
@@ -50,7 +55,10 @@ export class DocumentTypeService {
   async findOne(id: number): Promise<DocumentType | null> {
     try {
       const documentType: DocumentType | null =
-        await this.documentTypeModel.findOne({ where: { id } });
+        await this.documentTypeModel.findOne({
+          where: { id },
+          ...this.includeOptions,
+        });
 
       return documentType;
     } catch (error) {
@@ -75,7 +83,7 @@ export class DocumentTypeService {
         );
 
       await this.documentTypeModel.update(input, { where: { id: input.id } });
-      await documentType.reload();
+      await documentType.reload(this.includeOptions);
 
       return documentType;
     } catch (error) {
