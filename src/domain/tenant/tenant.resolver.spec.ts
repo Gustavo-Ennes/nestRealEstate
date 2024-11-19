@@ -79,6 +79,45 @@ describe('TenantResolver', () => {
     expect(createdTenant.reload).toHaveBeenCalled();
   });
 
+  it('should create a tenant if address does not exists', async () => {
+    try {
+      const client = { id: 2 };
+
+      (clientModel.findByPk as jest.Mock).mockResolvedValueOnce(client);
+
+      await resolver.createTenant(input);
+    } catch (error) {
+      expect(error).toHaveProperty('response', {
+        message: 'No address found with provided addressId.',
+        error: 'Not Found',
+        statusCode: 404,
+      });
+    }
+  });
+
+  it('should not create a tenant if address is already associated to another entity', async () => {
+    try {
+      const client = { id: 2 };
+
+      (clientModel.findByPk as jest.Mock).mockResolvedValueOnce(client);
+      (addressModel.findByPk as jest.Mock).mockResolvedValueOnce({
+        id: 1,
+        landlord: { id: 1 },
+        isAssociated: function () {
+          return !!this.landlord;
+        },
+      });
+
+      await resolver.createTenant(input);
+    } catch (error) {
+      expect(error).toHaveProperty('response', {
+        message: 'Address already associated to another entity.',
+        error: 'Bad Request',
+        statusCode: 400,
+      });
+    }
+  });
+
   it("shouldn't create a tenant without cpf or cnpj in input", async () => {
     const inputWithoutCpfOrCnpj = { ...input, cpf: undefined };
     const dtoInstance = Object.assign(

@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Inject,
   Injectable,
@@ -45,6 +46,11 @@ export class TenantService {
       if (!address)
         throw new NotFoundException(
           'No address found with provided addressId.',
+        );
+
+      if (address.isAssociated)
+        throw new BadRequestException(
+          'Address already associated to another entity.',
         );
 
       const newTenant: Tenant = await this.tenantModel.create(createTenantDto);
@@ -153,6 +159,10 @@ export class TenantService {
       if (addressId && !address)
         throw new NotFoundException(
           'No address found with provided addressId.',
+        );
+      if (address && address.isAssociated)
+        throw new BadRequestException(
+          'Address already associated to another entity.',
         );
 
       await tenant.update(updateTenantDto);

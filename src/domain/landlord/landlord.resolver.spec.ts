@@ -111,11 +111,8 @@ describe('LandlordResolver', () => {
 
   it('should not create a landlord if address does not exists', async () => {
     try {
-      const createdLandlord = { id: 1, ...input, reload: jest.fn() };
       const client = { id: 1 };
 
-      (landlordModel.create as jest.Mock).mockResolvedValue(createdLandlord);
-      (landlordModel.findAll as jest.Mock).mockResolvedValue([createdLandlord]);
       (clientModel.findByPk as jest.Mock).mockResolvedValueOnce(client);
 
       await resolver.createLandlord(input);
@@ -130,11 +127,8 @@ describe('LandlordResolver', () => {
 
   it('should not create a landlord if address is already associated to another entity', async () => {
     try {
-      const createdLandlord = { id: 1, ...input, reload: jest.fn() };
       const client = { id: 1 };
 
-      (landlordModel.create as jest.Mock).mockResolvedValue(createdLandlord);
-      (landlordModel.findAll as jest.Mock).mockResolvedValue([createdLandlord]);
       (clientModel.findByPk as jest.Mock).mockResolvedValueOnce(client);
       (addressModel.findByPk as jest.Mock).mockResolvedValueOnce({
         id: 1,

@@ -1,6 +1,7 @@
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { Sequelize } from 'sequelize-typescript';
+import { assoc } from 'ramda';
 import { createMutation } from './queries';
 import { tenantInput, tenantWith } from './utils';
 import {
@@ -19,6 +20,8 @@ describe('Tenant Module - Create (e2e)', () => {
   let app: INestApplication;
   let sequelize: Sequelize;
   let token: string;
+  let clientAddress: Address, tenantAddress: Address;
+  let client: Client;
 
   beforeAll(async () => {
     const { application, adminToken, db } = await initApp();
@@ -30,8 +33,13 @@ describe('Tenant Module - Create (e2e)', () => {
   beforeEach(async () => {
     await sequelize.getQueryInterface().dropAllTables();
     await sequelize.sync({ force: true });
-    await Address.create(addressInput);
-    await Client.create(clientInput);
+
+    // address to client
+    clientAddress = await Address.create(addressInput);
+    client = await Client.create(clientInput);
+    // address to tenant
+    tenantAddress = await Address.create(addressInput);
+    tenantInput.addressId = tenantAddress.id;
   });
 
   afterAll(async () => await afterAllTests(app));
@@ -47,14 +55,30 @@ describe('Tenant Module - Create (e2e)', () => {
       .expect(200);
 
     expect(res.body.data).toHaveProperty('createTenant');
-    expect(res.body.data.createTenant).toEqual(
-      expect.objectContaining({
-        id: 1,
-        ...tenantInput,
-        client: { id: 1 },
-        address: { id: 1 },
-      }),
+    expect(res.body.data.createTenant).toHaveProperty('id', 1);
+    expect(res.body.data.createTenant).toHaveProperty('name', tenantInput.name);
+    expect(res.body.data.createTenant).toHaveProperty(
+      'phone',
+      tenantInput.phone,
     );
+    expect(res.body.data.createTenant).toHaveProperty(
+      'email',
+      tenantInput.email,
+    );
+    expect(res.body.data.createTenant).toHaveProperty(
+      'clientId',
+      tenantInput.clientId,
+    );
+    expect(res.body.data.createTenant).toHaveProperty(
+      'addressId',
+      tenantInput.addressId,
+    );
+    expect(res.body.data.createTenant).toHaveProperty('client', {
+      id: client.id,
+    });
+    expect(res.body.data.createTenant).toHaveProperty('address', {
+      id: tenantAddress.id,
+    });
     expect(res.body.data.createTenant).toHaveProperty('createdAt');
     expect(res.body.data.createTenant).toHaveProperty('updatedAt');
   });
@@ -72,19 +96,87 @@ describe('Tenant Module - Create (e2e)', () => {
       .expect(200);
 
     expect(res.body.data).toHaveProperty('createTenant');
-    expect(res.body.data.createTenant).toEqual(
-      expect.objectContaining({
-        id: 1,
-        ...tenantInput,
-        client: { id: 1 },
-        address: { id: 1 },
-      }),
+
+    expect(res.body.data).toHaveProperty('createTenant');
+    expect(res.body.data.createTenant).toHaveProperty('id', 1);
+    expect(res.body.data.createTenant).toHaveProperty('name', tenantInput.name);
+    expect(res.body.data.createTenant).toHaveProperty(
+      'phone',
+      tenantInput.phone,
     );
+    expect(res.body.data.createTenant).toHaveProperty(
+      'email',
+      tenantInput.email,
+    );
+    expect(res.body.data.createTenant).toHaveProperty(
+      'clientId',
+      tenantInput.clientId,
+    );
+    expect(res.body.data.createTenant).toHaveProperty(
+      'addressId',
+      tenantInput.addressId,
+    );
+    expect(res.body.data.createTenant).toHaveProperty('client', {
+      id: client.id,
+    });
+    expect(res.body.data.createTenant).toHaveProperty('address', {
+      id: tenantAddress.id,
+    });
     expect(res.body.data.createTenant).toHaveProperty('createdAt');
     expect(res.body.data.createTenant).toHaveProperty('updatedAt');
   });
 
-  it('should no create a tenant without a clientId', async () => {
+  it('should not create a tenant if address does not exists', async () => {
+    await tenantAddress.destroy();
+
+    const res = await request(app.getHttpServer())
+      .post('/graphql')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        query: createMutation,
+        variables: { input: tenantInput },
+      })
+      .expect(200);
+
+    expect(res.body).toHaveProperty('errors');
+    expect(res.body.errors).toHaveLength(1);
+    expect(res.body.errors[0]).toHaveProperty('extensions');
+    expect(res.body.errors[0].extensions).toHaveProperty(
+      'code',
+      'INTERNAL_SERVER_ERROR',
+    );
+    expect(res.body.errors[0].extensions.originalError).toHaveProperty(
+      'message',
+      'No address found with provided addressId.',
+    );
+  });
+
+  it('should not create a tenant if address is already associated to another entity', async () => {
+    const payloadWithClientAddress = assoc(
+      'addressId',
+      clientAddress.id,
+      tenantInput,
+    );
+    const res = await request(app.getHttpServer())
+      .post('/graphql')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        query: createMutation,
+        variables: { input: payloadWithClientAddress },
+      })
+      .expect(200);
+
+    expect(res.body).toHaveProperty('errors');
+    expect(res.body.errors).toHaveLength(1);
+    expect(res.body.errors[0]).toHaveProperty('extensions');
+    expect(res.body.errors[0].extensions).toHaveProperty('code', 'BAD_REQUEST');
+    expect(res.body.errors[0].extensions.originalError).toHaveProperty(
+      'message',
+      'Address already associated to another entity.',
+    );
+  });
+
+  it('should not create a tenant without a clientId', async () => {
     const res = await request(app.getHttpServer())
       .post('/graphql')
       .set('Authorization', `Bearer ${token}`)
