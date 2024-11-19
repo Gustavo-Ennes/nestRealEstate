@@ -10,12 +10,15 @@ import { assoc } from 'ramda';
 import { clientInput } from './utils';
 import { Address } from '../../src/application/address/entities/address.entity';
 import { addressInput } from '../address/utils';
+import { Tenant } from '../../src/domain/tenant/entities/tenant.entity';
+import { tenantInput } from '../tenant/utils';
 
 describe('Client Module - Update (e2e)', () => {
   let app: INestApplication;
   let sequelize: Sequelize;
   let superadminToken: string;
   let client: Client;
+  let address: Address;
   const updateInput: UpdateClientInput = {
     id: 1,
   };
@@ -31,7 +34,7 @@ describe('Client Module - Update (e2e)', () => {
     await sequelize.getQueryInterface().dropAllTables();
     await sequelize.sync({ force: true });
 
-    await Address.create(addressInput);
+    address = await Address.create(addressInput);
     client = await Client.create(clientInput);
     updateInput.id = client.id;
   });
@@ -149,6 +152,32 @@ describe('Client Module - Update (e2e)', () => {
     expect(res.body.errors[0].extensions.originalError).toHaveProperty(
       'message',
       'No address found with provided addressId.',
+    );
+  });
+
+  it('should not update a client address if it is associated with another entity', async () => {
+    const superadminToken = generateToken({ sub: 1, role: ERole.Superadmin });
+    const input = assoc('addressId', address.id, updateInput);
+    const tenantUsingAddress = assoc('addressId', address.id, tenantInput);
+    await Client.create(clientInput);
+    await Tenant.create(tenantUsingAddress);
+
+    const res = await request(app.getHttpServer())
+      .post('/graphql')
+      .set('Authorization', `Bearer ${superadminToken}`)
+      .send({
+        query: updateMutation,
+        variables: { input },
+      })
+      .expect(200);
+
+    expect(res.body).toHaveProperty('errors');
+    expect(res.body.errors).toHaveLength(1);
+    expect(res.body.errors[0]).toHaveProperty('extensions');
+    expect(res.body.errors[0].extensions).toHaveProperty('code', 'BAD_REQUEST');
+    expect(res.body.errors[0].extensions.originalError).toHaveProperty(
+      'message',
+      'Address already associated to another entity.',
     );
   });
 

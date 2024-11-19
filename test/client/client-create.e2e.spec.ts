@@ -8,6 +8,9 @@ import { assoc, dissoc } from 'ramda';
 import { clientInput } from './utils';
 import { Address } from '../../src/application/address/entities/address.entity';
 import { addressInput } from '../address/utils';
+import { Tenant } from '../../src/domain/tenant/entities/tenant.entity';
+import { tenantInput } from '../tenant/utils';
+import { Client } from '../../src/application/client/entities/client.entity';
 
 describe('Client Module - Create (e2e)', () => {
   let app: INestApplication;
@@ -159,6 +162,30 @@ describe('Client Module - Create (e2e)', () => {
     expect(res.body.errors[0]).toHaveProperty(
       'message',
       'Variable "$input" got invalid value { cnpj: "12312312312322", email: "client@client.com", name: "Franz Kafka", phone: "12312312322", site: "client.com", isActive: true }; Field "addressId" of required type "Int!" was not provided.',
+    );
+  });
+
+  it('should not create a client address is already associated to another entity', async () => {
+    const tenantUsingAddress = assoc('addressId', address.id, tenantInput);
+    await Client.create(clientInput);
+    await Tenant.create(tenantUsingAddress);
+
+    const res = await request(app.getHttpServer())
+      .post('/graphql')
+      .set('Authorization', `Bearer ${superadminToken}`)
+      .send({
+        query: createMutation,
+        variables: { input: clientInput },
+      })
+      .expect(200);
+
+    expect(res.body).toHaveProperty('errors');
+    expect(res.body.errors).toHaveLength(1);
+    expect(res.body.errors[0]).toHaveProperty('extensions');
+    expect(res.body.errors[0].extensions).toHaveProperty('code', 'BAD_REQUEST');
+    expect(res.body.errors[0].extensions.originalError).toHaveProperty(
+      'message',
+      'Address already associated to another entity.',
     );
   });
 

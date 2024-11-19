@@ -63,6 +63,10 @@ describe('Address module - Create (e2e)', () => {
       'street',
       addressInput.street,
     );
+    expect(res.body.data.createAddress).toHaveProperty('tenant', null);
+    expect(res.body.data.createAddress).toHaveProperty('client', null);
+    expect(res.body.data.createAddress).toHaveProperty('landlord', null);
+    expect(res.body.data.createAddress).toHaveProperty('isAssociated', false);
   });
 
   it('should create an address with admin role', async () => {
@@ -98,6 +102,10 @@ describe('Address module - Create (e2e)', () => {
       'street',
       addressInput.street,
     );
+    expect(res.body.data.createAddress).toHaveProperty('tenant', null);
+    expect(res.body.data.createAddress).toHaveProperty('client', null);
+    expect(res.body.data.createAddress).toHaveProperty('landlord', null);
+    expect(res.body.data.createAddress).toHaveProperty('isAssociated', false);
   });
 
   it('should create an address with tenant role', async () => {
@@ -134,6 +142,10 @@ describe('Address module - Create (e2e)', () => {
       'street',
       addressInput.street,
     );
+    expect(res.body.data.createAddress).toHaveProperty('tenant', null);
+    expect(res.body.data.createAddress).toHaveProperty('client', null);
+    expect(res.body.data.createAddress).toHaveProperty('landlord', null);
+    expect(res.body.data.createAddress).toHaveProperty('isAssociated', false);
   });
 
   it('should create an address with landlord role', async () => {

@@ -19,6 +19,7 @@ export const createMutation = `
       client {
         id
       }
+      isAssociated
     }
   }
 `;

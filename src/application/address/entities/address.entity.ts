@@ -63,4 +63,9 @@ export class Address extends Model<Address> {
   @HasOne(() => Client)
   @Field(() => Client, { nullable: true })
   client?: Client;
+
+  @Field(() => Boolean)
+  get isAssociated() {
+    return !!(this.client || this.tenant || this.landlord);
+  }
 }

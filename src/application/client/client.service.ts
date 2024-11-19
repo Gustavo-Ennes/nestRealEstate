@@ -1,4 +1,9 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateClientInput } from './dto/create-client.input';
 import { UpdateClientInput } from './dto/update-client.input';
 import { InjectModel } from '@nestjs/sequelize';
@@ -27,6 +32,10 @@ export class ClientService {
       if (!address)
         throw new NotFoundException(
           'No address found with provided addressId.',
+        );
+      if (address.isAssociated)
+        throw new BadRequestException(
+          'Address already associated to another entity.',
         );
 
       const client = await this.clientModel.create(createClientInput);
@@ -79,9 +88,15 @@ export class ClientService {
         throw new NotFoundException('No client found with provided id.');
 
       if (addressId) address = await this.addressService.findOne(addressId);
+
       if (addressId && !address)
         throw new NotFoundException(
           'No address found with provided addressId.',
+        );
+
+      if (address && address.isAssociated)
+        throw new BadRequestException(
+          'Address already associated to another entity.',
         );
 
       await this.clientModel.update(updateClientInput, { where: { id } });

@@ -133,6 +133,32 @@ describe('ClientResolver', () => {
       }
     });
 
+    it('should throw if address is already associated to another entity', async () => {
+      try {
+        const client = {
+          id: 1,
+          ...clientInput,
+          reload: jest.fn(),
+        };
+        (clientModel.create as jest.Mock).mockResolvedValueOnce(client);
+        (addressModel.findByPk as jest.Mock).mockResolvedValueOnce({
+          id: 1,
+          tenant: { id: 1 },
+          isAssociated: function () {
+            return !!this.tenant;
+          },
+        });
+
+        await resolver.createClient(clientInput);
+      } catch (error) {
+        expect(error).toHaveProperty('response', {
+          message: 'Address already associated to another entity.',
+          error: 'Bad Request',
+          statusCode: 400,
+        });
+      }
+    });
+
     it('should not create a client with number or special characters in name', async () => {
       const inputWithWrongName = assoc('name', 'vilma22.', clientInput);
 
@@ -355,6 +381,53 @@ describe('ClientResolver', () => {
 
       const response = await resolver.updateClient(updatePayload);
       expect(response).toEqual(expect.objectContaining(updatePayload));
+    });
+
+    it('should not update a client with an inexistent address', async () => {
+      try {
+        const updatePayload: UpdateClientInput = { id: 1, name: 'Other name' };
+        const client = {
+          id: 1,
+          ...clientInput,
+          reload: jest.fn(),
+        };
+        (clientModel.findByPk as jest.Mock).mockResolvedValueOnce(client);
+
+        await resolver.updateClient(updatePayload);
+      } catch (error) {
+        expect(error).toHaveProperty('response', {
+          message: 'No address found with provided addressId.',
+          error: 'Not Found',
+          statusCode: 404,
+        });
+      }
+    });
+
+    it('should not update a client address if it was already associated to another entity', async () => {
+      try {
+        const updatePayload: UpdateClientInput = { id: 1, name: 'Other name' };
+        const client = {
+          id: 1,
+          ...clientInput,
+          reload: jest.fn(),
+        };
+        (clientModel.findByPk as jest.Mock).mockResolvedValueOnce(client);
+        (addressModel.findByPk as jest.Mock).mockResolvedValueOnce({
+          id: 1,
+          tenant: { id: 1 },
+          isAssociated: function () {
+            return !!this.tenant;
+          },
+        });
+
+        await resolver.updateClient(updatePayload);
+      } catch (error) {
+        expect(error).toHaveProperty('response', {
+          message: 'Address already associated to another entity.',
+          error: 'Bad Request',
+          statusCode: 400,
+        });
+      }
     });
 
     it('should not update a client with an empty name', async () => {
