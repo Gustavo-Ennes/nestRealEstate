@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Inject,
   Injectable,
@@ -45,6 +46,10 @@ export class LandlordService {
       if (!address)
         throw new NotFoundException(
           'No address found with provided addressId.',
+        );
+      if (address.isAssociated)
+        throw new BadRequestException(
+          'Address already associated to another entity.',
         );
 
       const newLandlord: Landlord =
@@ -158,9 +163,17 @@ export class LandlordService {
           'No address found with provided addressId.',
         );
 
+      if (address && address.isAssociated)
+        throw new BadRequestException(
+          'Address already associated to another entity.',
+        );
+
       await landlord.update(updateLandlordDto);
+
       await this.cacheManager.set(`landlord:${id}`, landlord);
-      const landlords: Landlord[] = await this.landlordModel.findAll();
+      const landlords: Landlord[] = await this.landlordModel.findAll(
+        this.includeOptions,
+      );
       await this.cacheManager.set(
         'landlords',
         landlords.sort((a, b) => a.id - b.id),

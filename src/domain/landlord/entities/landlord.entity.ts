@@ -67,11 +67,6 @@ export class Landlord extends Model<Landlord> {
   @Field(() => Date)
   updatedAt: Date;
 
-  @Field(() => String)
-  get landlordType(): ELegalType {
-    return this.cpf ? ELegalType.Natural : ELegalType.Legal;
-  }
-
   @ForeignKey(() => Client)
   @Column
   @Field(() => Int)
@@ -81,14 +76,6 @@ export class Landlord extends Model<Landlord> {
   @Field(() => Client)
   client: Client;
 
-  // this relation is different because documents could have many entities as it's owner
-  @Field(() => [Document])
-  get documents(): Promise<Document[]> {
-    return Document.findAll({
-      where: { ownerId: this.id, ownerRole: ERole.Landlord },
-    });
-  }
-
   @ForeignKey(() => Address)
   @Column
   @Field(() => Int)
@@ -97,4 +84,17 @@ export class Landlord extends Model<Landlord> {
   @BelongsTo(() => Address)
   @Field(() => Address)
   address: Address;
+
+  @Field(() => String)
+  get landlordType(): ELegalType {
+    return this.cpf ? ELegalType.Natural : ELegalType.Legal;
+  }
+
+  // this relation is different because documents could have many entities as it's owner
+  @Field(() => [Document])
+  get documents(): Promise<Document[]> {
+    return Document.findAll({
+      where: { ownerId: this.id, ownerRole: ERole.Landlord },
+    });
+  }
 }
