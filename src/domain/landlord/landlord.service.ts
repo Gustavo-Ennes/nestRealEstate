@@ -17,6 +17,8 @@ import { ClientService } from '../../application/client/client.service';
 import { Client } from '../../application/client/entities/client.entity';
 import { AddressService } from '../../application/address/address.service';
 import { Address } from '../../application/address/entities/address.entity';
+import { CacheService } from '../../application/cache/cache.service';
+import { ModuleNames } from '../../application/cache/cache.utils';
 
 @Injectable()
 export class LandlordService {
@@ -27,6 +29,7 @@ export class LandlordService {
     private cacheManager: Cache,
     private readonly clientService: ClientService,
     private readonly addressService: AddressService,
+    private readonly cacheService: CacheService,
   ) {}
 
   private readonly logger = new Logger(LandlordService.name);
@@ -55,15 +58,21 @@ export class LandlordService {
       const newLandlord: Landlord =
         await this.landlordModel.create(createLandlordDto);
       await newLandlord.reload(this.includeOptions);
-
-      await this.cacheManager.set(`landlord:${newLandlord.id}`, newLandlord);
       const landlords: Landlord[] = await this.landlordModel.findAll({
         include: [{ model: Address }],
       });
+
+      await this.cacheManager.set(`landlord:${newLandlord.id}`, newLandlord);
       await this.cacheManager.set(
         'landlords',
         landlords.sort((a, b) => a.id - b.id),
       );
+
+      await this.cacheService.insertOrUpdateCache({
+        moduleName: ModuleNames.Landlord,
+        createdOrUpdated: newLandlord,
+        allEntities: landlords,
+      });
 
       return newLandlord;
     } catch (error) {
@@ -79,16 +88,20 @@ export class LandlordService {
   async findAll(): Promise<Landlord[]> {
     try {
       const cacheLandlords: Landlord[] | null =
-        await this.cacheManager.get('landlords');
+        (await this.cacheService.getFromCache(
+          ModuleNames.Landlord,
+        )) as Landlord[];
       if (cacheLandlords) return cacheLandlords;
 
       const landlords: Landlord[] = await this.landlordModel.findAll(
         this.includeOptions,
       );
-      await this.cacheManager.set(
-        'landlords',
-        landlords.sort((a, b) => a.id - b.id),
-      );
+
+      await this.cacheService.insertOrUpdateCache({
+        moduleName: ModuleNames.Landlord,
+        allEntities: landlords,
+      });
+
       return landlords;
     } catch (error) {
       this.logger.error(
@@ -101,16 +114,24 @@ export class LandlordService {
 
   async findOne(id: number): Promise<Landlord> {
     try {
-      const cacheLandlords: Landlord | null = await this.cacheManager.get(
-        `landlords:${id}`,
-      );
+      const cacheLandlords: Landlord | null =
+        (await this.cacheService.getFromCache(
+          ModuleNames.Landlord,
+          id,
+        )) as Landlord;
+
       if (cacheLandlords) return cacheLandlords;
 
       const landlord: Landlord = await this.landlordModel.findByPk(
         id,
         this.includeOptions,
       );
-      await this.cacheManager.set(`landlord:${id}`, landlord);
+
+      await this.cacheService.insertOrUpdateCache({
+        moduleName: ModuleNames.Landlord,
+        createdOrUpdated: landlord,
+      });
+
       return landlord;
     } catch (error) {
       this.logger.error(
@@ -169,15 +190,15 @@ export class LandlordService {
         );
 
       await landlord.update(updateLandlordDto);
-
-      await this.cacheManager.set(`landlord:${id}`, landlord);
       const landlords: Landlord[] = await this.landlordModel.findAll(
         this.includeOptions,
       );
-      await this.cacheManager.set(
-        'landlords',
-        landlords.sort((a, b) => a.id - b.id),
-      );
+
+      await this.cacheService.insertOrUpdateCache({
+        moduleName: ModuleNames.Landlord,
+        createdOrUpdated: landlord,
+        allEntities: landlords,
+      });
 
       await landlord.reload(this.includeOptions);
 
@@ -198,6 +219,14 @@ export class LandlordService {
       if (!landlord) throw new NotFoundException('Landlord not found.');
 
       await landlord.destroy();
+      const landlords = await this.landlordModel.findAll(this.includeOptions);
+
+      await this.cacheService.insertOrUpdateCache({
+        moduleName: ModuleNames.Landlord,
+        allEntities: landlords,
+      });
+      await this.cacheService.deleteOneFromCache(ModuleNames.Landlord, id);
+
       return true;
     } catch (error) {
       this.logger.error(

@@ -11,6 +11,7 @@ import { Client } from '../../../application/client/entities/client.entity';
 import { addressModuleObject } from '../../../application/address/address.module';
 import { Address } from '../../../application/address/entities/address.entity';
 import { SchedulerRegistry } from '@nestjs/schedule';
+import { getMockedCacheService } from '../../../utils/unitTests/defaultCacheService';
 
 export const createLandlordTestingModule = async () =>
   await Test.createTestingModule({
@@ -26,5 +27,6 @@ export const createLandlordTestingModule = async () =>
       getMockedEntityProvider(Client),
       getMockedEntityProvider(Address),
       getMockedCacheProvider(),
+      getMockedCacheService(),
     ],
   }).compile();

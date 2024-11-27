@@ -193,7 +193,7 @@ export class TenantService {
     }
   }
 
-  async remove(id: number): Promise<void> {
+  async remove(id: number): Promise<boolean> {
     try {
       const tenant = await this.findOne(id);
       if (!tenant) throw new NotFoundException('Tenant not found.');
@@ -206,6 +206,8 @@ export class TenantService {
         allEntities: tenants,
       });
       await this.cacheService.deleteOneFromCache(ModuleNames.Tenant, id);
+
+      return true;
     } catch (error) {
       this.logger.error(
         `${this.update.name} -> ${error.message}`,
