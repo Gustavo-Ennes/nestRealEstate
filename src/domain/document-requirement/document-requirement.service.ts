@@ -5,6 +5,8 @@ import { InjectModel } from '@nestjs/sequelize';
 import { DocumentRequirement } from './entities/document-requirement.entity';
 import { DocumentType } from '../document-type/entities/document-type.entity';
 import { DocumentTypeService } from '../document-type/document-type.service';
+import { CacheService } from '../../application/cache/cache.service';
+import { ModuleNames } from '../../application/cache/cache.utils';
 
 @Injectable()
 export class DocumentRequirementService {
@@ -12,6 +14,7 @@ export class DocumentRequirementService {
     @InjectModel(DocumentRequirement)
     private readonly documentRequirementModel: typeof DocumentRequirement,
     private readonly documentTypeService: DocumentTypeService,
+    private readonly cacheService: CacheService,
   ) {}
 
   private readonly logger = new Logger(DocumentRequirementService.name);
@@ -34,6 +37,15 @@ export class DocumentRequirementService {
         createDocumentRequirementInput,
       );
       await documentRequirement.reload(this.includeOptions);
+      const documentRequirements = await this.documentRequirementModel.findAll(
+        this.includeOptions,
+      );
+
+      await this.cacheService.insertOrUpdateCache({
+        moduleName: ModuleNames.DocumentRequirement,
+        createdOrUpdated: documentRequirement,
+        allEntities: documentRequirements,
+      });
 
       return documentRequirement;
     } catch (error) {
@@ -48,9 +60,20 @@ export class DocumentRequirementService {
 
   async findAll() {
     try {
+      const cachedDocumentRequirements = (await this.cacheService.getFromCache(
+        ModuleNames.DocumentRequirement,
+      )) as DocumentRequirement[];
+
+      if (cachedDocumentRequirements) return cachedDocumentRequirements;
+
       const documentRequirements = await this.documentRequirementModel.findAll(
         this.includeOptions,
       );
+
+      await this.cacheService.insertOrUpdateCache({
+        moduleName: ModuleNames.DocumentRequirement,
+        allEntities: documentRequirements,
+      });
 
       return documentRequirements;
     } catch (error) {
@@ -64,10 +87,22 @@ export class DocumentRequirementService {
 
   async findOne(id: number) {
     try {
+      const cachedDocumentRequirement = (await this.cacheService.getFromCache(
+        ModuleNames.DocumentRequirement,
+        id,
+      )) as DocumentRequirement;
+
+      if (cachedDocumentRequirement) return cachedDocumentRequirement;
+
       const documentRequirement = await this.documentRequirementModel.findByPk(
         id,
         this.includeOptions,
       );
+
+      await this.cacheService.insertOrUpdateCache({
+        moduleName: ModuleNames.DocumentRequirement,
+        createdOrUpdated: documentRequirement,
+      });
 
       return documentRequirement;
     } catch (error) {
@@ -107,6 +142,15 @@ export class DocumentRequirementService {
         },
       );
       await documentRequirementToUpdate.reload(this.includeOptions);
+      const documentRequirements = await this.documentRequirementModel.findAll(
+        this.includeOptions,
+      );
+
+      await this.cacheService.insertOrUpdateCache({
+        moduleName: ModuleNames.DocumentRequirement,
+        createdOrUpdated: documentRequirementToUpdate,
+        allEntities: documentRequirements,
+      });
 
       return documentRequirementToUpdate;
     } catch (error) {
@@ -128,6 +172,19 @@ export class DocumentRequirementService {
         throw new NotFoundException(
           'No document requirement found with provided id.',
         );
+
+      await documentRequirementToRemove.destroy();
+      const documentRequirements = await this.documentRequirementModel.findAll(
+        this.includeOptions,
+      );
+      await this.cacheService.insertOrUpdateCache({
+        moduleName: ModuleNames.DocumentRequirement,
+        allEntities: documentRequirements,
+      });
+      await this.cacheService.deleteOneFromCache(
+        ModuleNames.DocumentRequirement,
+        id,
+      );
 
       return true;
     } catch (error) {

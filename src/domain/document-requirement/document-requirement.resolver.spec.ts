@@ -299,11 +299,15 @@ describe('DocumentRequirementResolver', () => {
   });
 
   it('should remove a document requirement', async () => {
-    (documentRequirementModel.findByPk as jest.Mock).mockResolvedValueOnce({
-      id: 1,
-    });
+    const documentRequirement = { id: 1, destroy: jest.fn() };
+
+    (documentRequirementModel.findByPk as jest.Mock).mockResolvedValueOnce(
+      documentRequirement,
+    );
+
     const result = await resolver.removeDocumentRequirement(1);
     expect(result).toBeTruthy();
+    expect(documentRequirement.destroy).toHaveBeenCalled();
   });
 
   it('should throw if document requirement does not exists', async () => {
