@@ -39,7 +39,7 @@ describe('DocumentRequirementResolver', () => {
       documentTypeId: 1,
       reload: jest.fn(),
     };
-    (documentTypeModel.findOne as jest.Mock).mockResolvedValueOnce({
+    (documentTypeModel.findByPk as jest.Mock).mockResolvedValueOnce({
       id: 1,
     });
     (documentRequirementModel.create as jest.Mock).mockResolvedValueOnce({
@@ -159,7 +159,7 @@ describe('DocumentRequirementResolver', () => {
     (documentRequirementModel.findByPk as jest.Mock).mockResolvedValueOnce(
       documentRequirementToUpdate,
     );
-    (documentTypeModel.findOne as jest.Mock).mockResolvedValueOnce({
+    (documentTypeModel.findByPk as jest.Mock).mockResolvedValueOnce({
       id: 1,
     });
     (documentRequirementModel.update as jest.Mock).mockImplementationOnce(

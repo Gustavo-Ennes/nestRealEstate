@@ -209,7 +209,7 @@ describe('DocumentTypeResolver', () => {
 
   it('should get a document type by id', async () => {
     const documentType = { id: 1 };
-    (documentTypeModel.findOne as jest.Mock).mockResolvedValueOnce(
+    (documentTypeModel.findByPk as jest.Mock).mockResolvedValueOnce(
       documentType,
     );
 
@@ -218,7 +218,7 @@ describe('DocumentTypeResolver', () => {
   });
 
   it('should return null if no document type found', async () => {
-    (documentTypeModel.findOne as jest.Mock).mockResolvedValueOnce(null);
+    (documentTypeModel.findByPk as jest.Mock).mockResolvedValueOnce(null);
 
     const response = await resolver.findOne(1);
     expect(response).toBeNull();
@@ -226,7 +226,7 @@ describe('DocumentTypeResolver', () => {
 
   it('should delete a document type', async () => {
     const documentType = { id: 1, destroy: jest.fn() };
-    (documentTypeModel.findOne as jest.Mock).mockResolvedValueOnce(
+    (documentTypeModel.findByPk as jest.Mock).mockResolvedValueOnce(
       documentType,
     );
 

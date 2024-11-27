@@ -62,12 +62,6 @@ export class LandlordService {
         include: [{ model: Address }],
       });
 
-      await this.cacheManager.set(`landlord:${newLandlord.id}`, newLandlord);
-      await this.cacheManager.set(
-        'landlords',
-        landlords.sort((a, b) => a.id - b.id),
-      );
-
       await this.cacheService.insertOrUpdateCache({
         moduleName: ModuleNames.Landlord,
         createdOrUpdated: newLandlord,
@@ -91,6 +85,7 @@ export class LandlordService {
         (await this.cacheService.getFromCache(
           ModuleNames.Landlord,
         )) as Landlord[];
+
       if (cacheLandlords) return cacheLandlords;
 
       const landlords: Landlord[] = await this.landlordModel.findAll(
@@ -190,6 +185,7 @@ export class LandlordService {
         );
 
       await landlord.update(updateLandlordDto);
+      await landlord.reload(this.includeOptions);
       const landlords: Landlord[] = await this.landlordModel.findAll(
         this.includeOptions,
       );
@@ -199,8 +195,6 @@ export class LandlordService {
         createdOrUpdated: landlord,
         allEntities: landlords,
       });
-
-      await landlord.reload(this.includeOptions);
 
       return landlord;
     } catch (error) {

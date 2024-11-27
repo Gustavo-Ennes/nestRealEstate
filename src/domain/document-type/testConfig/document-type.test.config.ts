@@ -11,6 +11,8 @@ import { clientModuleObject } from '../../../application/client/client.module';
 import { addressModuleObject } from '../../../application/address/address.module';
 import { Address } from '../../../application/address/entities/address.entity';
 import { SchedulerRegistry } from '@nestjs/schedule';
+import { getMockedCacheService } from '../../../utils/unitTests/defaultCacheService';
+import { getMockedCacheProvider } from '../../../utils/unitTests/defaultCacheMock';
 
 export const documentTypeTestModuleObject = {
   providers: [
@@ -25,6 +27,8 @@ export const documentTypeTestModuleObject = {
     getMockedEntityProvider(User),
     getMockedEntityProvider(Client),
     getMockedEntityProvider(Address),
+    getMockedCacheProvider(),
+    getMockedCacheService(),
   ],
 };
 export const createDocumentTypeTestingModule = async () =>

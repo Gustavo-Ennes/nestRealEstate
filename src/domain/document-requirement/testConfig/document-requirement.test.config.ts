@@ -5,6 +5,7 @@ import { getMockedEntityProvider } from '../../../utils/unitTests/defaultEntityM
 import { DocumentType } from '../../document-type/entities/document-type.entity';
 import { JwtService } from '@nestjs/jwt';
 import { documentTypeModuleObject } from '../../document-type/document-type.module';
+import { getMockedCacheService } from '../../../utils/unitTests/defaultCacheService';
 
 export const documentRequirementTestModuleObject = {
   providers: [
@@ -13,6 +14,7 @@ export const documentRequirementTestModuleObject = {
     ...documentRequirementModuleObject.providers,
     getMockedEntityProvider(DocumentType),
     getMockedEntityProvider(DocumentRequirement),
+    getMockedCacheService(),
   ],
 };
 
