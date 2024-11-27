@@ -98,8 +98,8 @@ type User {
   email: String!
   isActive: Boolean!
   role: String!
-  clientId: Int!
-  client: Client!
+  clientId: Int
+  client: Client
 }
 
 type AuthReturn {
@@ -149,6 +149,7 @@ type Query {
 type Mutation {
   signUp(signUpInput: SignUpInput!): AuthReturn!
   login(loginInput: LoginInput!): AuthReturn!
+  hashPassword(password: String!): String!
   createClient(createClientInput: CreateClientInput!): Client!
   updateClient(updateClientInput: UpdateClientInput!): Client!
   removeClient(id: Int!): Boolean!
@@ -177,7 +178,7 @@ input SignUpInput {
   password: String!
   email: String!
   role: String!
-  clientId: Int!
+  clientId: Int
 }
 
 input LoginInput {

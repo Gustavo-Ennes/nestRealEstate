@@ -1,8 +1,9 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { User } from './entities/user.entity';
 import { InjectModel } from '@nestjs/sequelize';
 import { CreateUserInput } from './dto/create-user.input';
 import { Client } from '../client/entities/client.entity';
+import { ERole } from '../auth/role/role.enum';
 
 @Injectable()
 export class UserService {
@@ -46,6 +47,13 @@ export class UserService {
 
   async create(createUserInput: CreateUserInput): Promise<User> {
     try {
+      const { clientId, role } = createUserInput;
+
+      if (!clientId && role !== ERole.Superadmin)
+        throw new BadRequestException(
+          'Non superadmin users must have a clientId.',
+        );
+
       return await this.userModel.create(createUserInput, {
         include: [{ model: Client }],
       });

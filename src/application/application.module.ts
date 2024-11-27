@@ -6,13 +6,13 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { join } from 'path';
-import { CacheModule } from '@nestjs/cache-manager';
 import { BullModule } from '@nestjs/bullmq';
 import { BullBoardModule } from '@bull-board/nestjs';
 import { ExpressAdapter } from '@bull-board/express';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ClientModule } from './client/client.module';
 import { AddressModule } from './address/address.module';
+import { CacheModule } from './cache/cache.module';
 
 @Module({
   imports: [
@@ -45,7 +45,6 @@ import { AddressModule } from './address/address.module';
       },
       inject: [ConfigService],
     }),
-    CacheModule.register({ isGlobal: true }),
     BullModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -66,6 +65,7 @@ import { AddressModule } from './address/address.module';
     BucketModule,
     ClientModule,
     AddressModule,
+    CacheModule,
   ],
 })
 export class ApplicationModule {}

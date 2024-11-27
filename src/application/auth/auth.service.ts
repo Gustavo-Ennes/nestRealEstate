@@ -4,6 +4,7 @@ import {
   Logger,
   NotFoundException,
   UnauthorizedException,
+  BadRequestException,
 } from '@nestjs/common';
 import { UserService } from '../user/user.service';
 import { JwtService } from '@nestjs/jwt';
@@ -28,6 +29,12 @@ export class AuthService {
   async signUp(createUserInput: CreateUserInput): Promise<AuthReturn> {
     try {
       const { username, password, email, role, clientId } = createUserInput;
+
+      if (!clientId && role !== ERole.Superadmin)
+        throw new BadRequestException(
+          'Non superadmin users must have a clientId',
+        );
+
       const sameUsernameUser = await this.usersService.findOne(username);
       const client = await this.clientService.findOne(clientId);
 
@@ -89,5 +96,9 @@ export class AuthService {
       });
       throw error;
     }
+  }
+
+  async hashPassword(str: string): Promise<string> {
+    return await hashPassword(str);
   }
 }

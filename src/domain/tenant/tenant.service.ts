@@ -1,7 +1,6 @@
 import {
   BadRequestException,
   ConflictException,
-  Inject,
   Injectable,
   Logger,
   NotAcceptableException,
@@ -11,22 +10,22 @@ import { CreateTenantInput } from './dto/create-tenant.input';
 import { UpdateTenantInput } from './dto/update-tenant.input';
 import { InjectModel } from '@nestjs/sequelize';
 import { Tenant } from './entities/tenant.entity';
-import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
 import { ELegalType } from '../enum/legal-type.enum';
 import { ClientService } from '../../application/client/client.service';
 import { Client } from '../../application/client/entities/client.entity';
 import { AddressService } from '../../application/address/address.service';
 import { Address } from '../../application/address/entities/address.entity';
+import { CacheService } from '../../application/cache/cache.service';
+import { ModuleNames } from '../../application/cache/cache.utils';
 
 @Injectable()
 export class TenantService {
   constructor(
     @InjectModel(Tenant)
     private readonly tenantModel: typeof Tenant,
-    @Inject(CACHE_MANAGER)
-    private cacheManager: Cache,
     private readonly clientService: ClientService,
     private readonly addressService: AddressService,
+    private readonly cacheService: CacheService,
   ) {}
 
   private readonly logger = new Logger(TenantService.name);
@@ -55,13 +54,13 @@ export class TenantService {
 
       const newTenant: Tenant = await this.tenantModel.create(createTenantDto);
       await newTenant.reload(this.includeOptions);
-
-      await this.cacheManager.set(`tenant:${newTenant.id}`, newTenant);
       const tenants: Tenant[] = await this.tenantModel.findAll();
-      await this.cacheManager.set(
-        'tenants',
-        tenants.sort((a, b) => a.id - b.id),
-      );
+
+      await this.cacheService.insertOrUpdateCache({
+        moduleName: ModuleNames.Tenant,
+        createdOrUpdated: newTenant,
+        allEntities: tenants,
+      });
 
       return newTenant;
     } catch (error) {
@@ -76,17 +75,20 @@ export class TenantService {
 
   async findAll(): Promise<Tenant[]> {
     try {
-      const chacheTenants: Tenant[] | null =
-        await this.cacheManager.get('tenants');
-      if (chacheTenants) return chacheTenants;
+      const cachedTenants = (await this.cacheService.getFromCache(
+        ModuleNames.Tenant,
+      )) as Tenant[];
+      if (cachedTenants) return cachedTenants;
 
       const tenants: Tenant[] = await this.tenantModel.findAll(
         this.includeOptions,
       );
-      await this.cacheManager.set(
-        'tenants',
-        tenants.sort((a, b) => a.id - b.id),
-      );
+
+      await this.cacheService.insertOrUpdateCache({
+        moduleName: ModuleNames.Tenant,
+        allEntities: cachedTenants,
+      });
+
       return tenants;
     } catch (error) {
       this.logger.error(
@@ -99,16 +101,21 @@ export class TenantService {
 
   async findOne(id: number): Promise<Tenant> {
     try {
-      const cacheTenant: Tenant | null = await this.cacheManager.get(
-        `tenant:${id}`,
-      );
+      const cacheTenant: Tenant | null = (await this.cacheService.getFromCache(
+        ModuleNames.Tenant,
+        id,
+      )) as Tenant;
       if (cacheTenant) return cacheTenant;
 
       const tenant: Tenant = await this.tenantModel.findByPk(
         id,
         this.includeOptions,
       );
-      await this.cacheManager.set(`tenant:${id}`, tenant);
+
+      await this.cacheService.insertOrUpdateCache({
+        moduleName: ModuleNames.Tenant,
+        createdOrUpdated: tenant,
+      });
       return tenant;
     } catch (error) {
       this.logger.error(
@@ -166,13 +173,14 @@ export class TenantService {
         );
 
       await tenant.update(updateTenantDto);
-      await this.cacheManager.set(`tenant:${updateTenantDto.id}`, tenant);
-      const tenants: Tenant[] = await this.tenantModel.findAll();
-      await this.cacheManager.set(
-        'tenants',
-        tenants.sort((a, b) => a.id - b.id),
-      );
       await tenant.reload(this.includeOptions);
+      const tenants: Tenant[] = await this.tenantModel.findAll();
+
+      await this.cacheService.insertOrUpdateCache({
+        moduleName: ModuleNames.Tenant,
+        createdOrUpdated: tenant,
+        allEntities: tenants,
+      });
 
       return tenant;
     } catch (error) {
@@ -191,6 +199,13 @@ export class TenantService {
       if (!tenant) throw new NotFoundException('Tenant not found.');
 
       await tenant.destroy();
+      const tenants = await this.tenantModel.findAll(this.includeOptions);
+
+      await this.cacheService.insertOrUpdateCache({
+        moduleName: ModuleNames.Tenant,
+        allEntities: tenants,
+      });
+      await this.cacheService.deleteOneFromCache(ModuleNames.Tenant, id);
     } catch (error) {
       this.logger.error(
         `${this.update.name} -> ${error.message}`,

@@ -3,7 +3,7 @@ import { IsValidUsername } from '../validation/username.validation';
 import { IsValidPassword } from '../validation/password.validation';
 import { IsEmail } from '../../../validations/email.validation';
 import { IsValidRole } from '../validation/role.validation';
-import { IsNotEmpty, IsNumber } from 'class-validator';
+import { IsOptional, IsNumber } from 'class-validator';
 
 @InputType()
 export class SignUpInput {
@@ -23,8 +23,8 @@ export class SignUpInput {
   @Field(() => String)
   role: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsNumber()
-  @Field(() => Int)
+  @Field(() => Int, { nullable: true })
   clientId: number;
 }

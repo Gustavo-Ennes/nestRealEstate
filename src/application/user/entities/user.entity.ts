@@ -7,6 +7,7 @@ import {
   Table,
   ForeignKey,
   BelongsTo,
+  AllowNull,
 } from 'sequelize-typescript';
 import { Client } from '../../client/entities/client.entity';
 
@@ -40,11 +41,12 @@ export class User extends Model<User> {
   role: string;
 
   @ForeignKey(() => Client)
+  @AllowNull
   @Column
-  @Field(() => Int)
+  @Field(() => Int, { nullable: true })
   clientId: number;
 
   @BelongsTo(() => Client)
-  @Field(() => Client)
+  @Field(() => Client, { nullable: true })
   client: Client;
 }

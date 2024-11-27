@@ -13,6 +13,7 @@ export const documentRequirementModuleObject = {
     DocumentTypeModule,
   ],
   providers: [DocumentRequirementResolver, DocumentRequirementService],
+  exports: [DocumentRequirementService],
 };
 
 @Module(documentRequirementModuleObject)

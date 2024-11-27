@@ -58,7 +58,6 @@ describe('Landlord Module - Create (e2e)', () => {
         variables: { input: landlordInput },
       })
       .expect(200);
-    console.log('🚀 ~ it ~ res:', JSON.stringify(res.body, null, 2));
 
     expect(res.body.data).toHaveProperty('createLandlord');
     expect(res.body.data.createLandlord).toHaveProperty('id', 1);

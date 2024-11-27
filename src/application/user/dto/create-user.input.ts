@@ -25,8 +25,7 @@ export class CreateUserInput {
   @Field(() => String)
   role: string;
 
-  @IsNotEmpty()
   @IsNumber()
-  @Field(() => Int)
+  @Field(() => Int, { nullable: true })
   clientId: number;
 }

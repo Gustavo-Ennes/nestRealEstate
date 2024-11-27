@@ -22,6 +22,7 @@ import { User } from '../../../application/user/entities/user.entity';
 import { addressModuleObject } from '../../../application/address/address.module';
 import { Address } from '../../../application/address/entities/address.entity';
 import { SchedulerRegistry } from '@nestjs/schedule';
+import { getMockedCacheService } from '../../../utils/unitTests/defaultCacheService';
 
 const documentTestModuleObject = {
   imports: [
@@ -47,6 +48,7 @@ const documentTestModuleObject = {
     getMockedEntityProvider(User),
     getMockedEntityProvider(Address),
     getMockedCacheProvider(),
+    getMockedCacheService(),
     {
       provide: APP_PIPE,
       useValue: validationPipe,

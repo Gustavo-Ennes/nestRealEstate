@@ -20,4 +20,9 @@ export class AuthResolver {
   login(@Args('loginInput') loginInput: LoginInput) {
     return this.authService.login(loginInput);
   }
+
+  @Mutation(() => String)
+  hashPassword(@Args('password') password: string) {
+    return this.authService.hashPassword(password);
+  }
 }
