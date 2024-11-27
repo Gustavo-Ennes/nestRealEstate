@@ -1,6 +1,7 @@
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { Sequelize } from 'sequelize-typescript';
+import { Cache } from '@nestjs/cache-manager';
 import { findOneQuery } from './queries';
 import { afterAllTests, generateToken, initApp } from '../utils';
 import { EDocumentType } from '../../src/domain/document/enum/document-type.enum';
@@ -12,12 +13,14 @@ describe('Document Module - Find (e2e)', () => {
   let sequelize: Sequelize;
   let token: string;
   let document: Document;
+  let cache: Cache;
 
   beforeAll(async () => {
     const { application, db, adminToken } = await initApp();
     app = application;
     token = adminToken;
     sequelize = db;
+    cache = app.get<Cache>(Cache);
   });
 
   beforeEach(async () => {
@@ -30,10 +33,12 @@ describe('Document Module - Find (e2e)', () => {
       ownerId: 1,
       url: 'some.url.com',
     });
+    await cache.reset();
   });
 
   afterAll(async () => {
     await afterAllTests(app);
+    await cache.reset();
   });
 
   it('should find a document with admin role', async () => {
@@ -143,7 +148,7 @@ describe('Document Module - Find (e2e)', () => {
     expect(res.body.data.document).toHaveProperty('updatedAt');
   });
 
-  it('should return null if no tenant exists', async () => {
+  it('should return null if no document exists', async () => {
     const id = document.id;
     await document.destroy();
 

@@ -12,6 +12,7 @@ import { AuthModule } from '../../application/auth/auth.module';
 import { DocumentTypeModule } from '../document-type/document-type.module';
 import { LandlordModule } from '../landlord/landlord.module';
 import { TenantModule } from '../tenant/tenant.module';
+import { CacheModule } from '../../application/cache/cache.module';
 
 export const documentModuleObject = {
   imports: [
@@ -28,6 +29,7 @@ export const documentModuleObject = {
     TenantModule,
     LandlordModule,
     BucketModule,
+    CacheModule,
   ],
   providers: [DocumentResolver, DocumentService, DocumentConsumer],
   exports: [DocumentService],

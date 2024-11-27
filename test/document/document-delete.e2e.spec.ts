@@ -41,7 +41,7 @@ describe('Document Module - Delete (e2e)', () => {
     await afterAllTests(app);
   });
 
-  it('should delete a tenant with admin role', async () => {
+  it('should delete a document with admin role', async () => {
     const res = await request(app.getHttpServer())
       .post('/graphql')
       .set('Authorization', `Bearer ${token}`)
@@ -54,7 +54,7 @@ describe('Document Module - Delete (e2e)', () => {
     expect(res.body.data.removeDocument).toEqual(true);
   });
 
-  it('should delete a tenant with superadmin role', async () => {
+  it('should delete a document with superadmin role', async () => {
     const superadminToken = generateToken({ sub: 1, role: ERole.Superadmin });
     const res = await request(app.getHttpServer())
       .post('/graphql')
@@ -68,7 +68,7 @@ describe('Document Module - Delete (e2e)', () => {
     expect(res.body.data.removeDocument).toEqual(true);
   });
 
-  it('should throw an error if tenant not found', async () => {
+  it('should throw an error if document not found', async () => {
     await document.destroy();
 
     await requestAndCheckError('removeDocument')({

@@ -5,6 +5,8 @@ import { BucketService } from '../../../application/bucket/bucket.service';
 import { Document } from '../entities/document.entity';
 import { Logger } from '@nestjs/common';
 import * as fs from 'fs';
+import { CacheService } from '../../../application/cache/cache.service';
+import { ModuleNames } from '../../../application/cache/cache.utils';
 
 @Processor('document')
 export class DocumentConsumer extends WorkerHost {
@@ -12,6 +14,7 @@ export class DocumentConsumer extends WorkerHost {
     @InjectModel(Document)
     private readonly documentModel: typeof Document,
     private readonly bucketService: BucketService,
+    private readonly cacheService: CacheService,
   ) {
     super();
   }
@@ -28,9 +31,16 @@ export class DocumentConsumer extends WorkerHost {
       progress = 50;
       await job.updateProgress(progress);
 
-      await this.documentModel.create({
+      const document = await this.documentModel.create({
         ...documentInfo,
         url: destFileName,
+      });
+      const documents = await this.documentModel.findAll();
+
+      await this.cacheService.insertOrUpdateCache({
+        moduleName: ModuleNames.Document,
+        createdOrUpdated: document,
+        allEntities: documents,
       });
 
       progress = 100;

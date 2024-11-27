@@ -9,6 +9,8 @@ import { UpdateDocumentInput } from './dto/update-document.input';
 import { CreateDocumentInput } from './dto/create-document.input';
 import { Document } from './entities/document.entity';
 import { InjectModel } from '@nestjs/sequelize';
+import { CacheService } from '../../application/cache/cache.service';
+import { ModuleNames } from '../../application/cache/cache.utils';
 
 @Injectable()
 export class DocumentService {
@@ -17,6 +19,7 @@ export class DocumentService {
     private documentQueue: Queue,
     @InjectModel(Document)
     private readonly documentModel: typeof Document,
+    private readonly cacheService: CacheService,
   ) {}
 
   private readonly logger = new Logger(DocumentService.name);
@@ -67,7 +70,19 @@ export class DocumentService {
 
   async findAll(): Promise<Document[]> {
     try {
+      const cachedDocuments = (await this.cacheService.getFromCache(
+        ModuleNames.Document,
+      )) as Document[];
+
+      if (cachedDocuments) return cachedDocuments;
+
       const documents: Document[] = await this.documentModel.findAll();
+
+      await this.cacheService.insertOrUpdateCache({
+        moduleName: ModuleNames.Document,
+        allEntities: documents,
+      });
+
       return documents;
     } catch (error) {
       this.logger.error(
@@ -80,9 +95,21 @@ export class DocumentService {
 
   async findOne(id: number): Promise<Document> {
     try {
+      const cachedDocument = (await this.cacheService.getFromCache(
+        ModuleNames.Document,
+        id,
+      )) as Document;
+
+      if (cachedDocument) return cachedDocument;
       const document: Document = await this.documentModel.findOne({
         where: { id },
       });
+
+      await this.cacheService.insertOrUpdateCache({
+        moduleName: ModuleNames.Document,
+        createdOrUpdated: document,
+      });
+
       return document;
     } catch (error) {
       this.logger.error(
@@ -106,6 +133,13 @@ export class DocumentService {
 
       await this.documentModel.update(inputWithoutId, { where: { id } });
       await document.reload();
+      const documents = await this.documentModel.findAll();
+
+      await this.cacheService.insertOrUpdateCache({
+        moduleName: ModuleNames.Document,
+        createdOrUpdated: document,
+        allEntities: documents,
+      });
 
       return document;
     } catch (error) {
@@ -127,6 +161,13 @@ export class DocumentService {
       if (!document) throw new NotFoundException('Document not found.');
 
       await document.destroy();
+      const documents = await this.documentModel.findAll();
+
+      await this.cacheService.insertOrUpdateCache({
+        moduleName: ModuleNames.Document,
+        allEntities: documents,
+      });
+      await this.cacheService.deleteOneFromCache(ModuleNames.Document, id);
 
       return true;
     } catch (error) {
