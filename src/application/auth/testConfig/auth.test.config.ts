@@ -10,6 +10,7 @@ import { clientModuleObject } from '../../../application/client/client.module';
 import { addressModuleObject } from '../../../application/address/address.module';
 import { Address } from '../../../application/address/entities/address.entity';
 import { SchedulerRegistry } from '@nestjs/schedule';
+import { getMockedCacheService } from '../../../utils/unitTests/defaultCacheService';
 
 const authTestModuleConfig = {
   imports: [
@@ -27,6 +28,7 @@ const authTestModuleConfig = {
     getMockedEntityProvider(User),
     getMockedEntityProvider(Client),
     getMockedEntityProvider(Address),
+    getMockedCacheService(),
   ],
 };
 

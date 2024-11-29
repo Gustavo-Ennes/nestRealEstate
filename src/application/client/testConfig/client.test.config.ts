@@ -8,6 +8,8 @@ import { JwtService } from '@nestjs/jwt';
 import { addressModuleObject } from '../../../application/address/address.module';
 import { Address } from '../../../application/address/entities/address.entity';
 import { SchedulerRegistry } from '@nestjs/schedule';
+import { getMockedCacheProvider } from '../../../utils/unitTests/defaultCacheMock';
+import { getMockedCacheService } from '../../../utils/unitTests/defaultCacheService';
 
 const clientTestModuleObject = {
   providers: [
@@ -17,6 +19,8 @@ const clientTestModuleObject = {
     ...addressModuleObject.providers,
     getMockedEntityProvider(Client),
     getMockedEntityProvider(Address),
+    getMockedCacheProvider(),
+    getMockedCacheService(),
     {
       provide: ValidationPipe,
       useValue: validationPipe,

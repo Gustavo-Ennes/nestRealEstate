@@ -5,9 +5,15 @@ import { SequelizeModule } from '@nestjs/sequelize';
 import { Client } from './entities/client.entity';
 import { JwtModule } from '@nestjs/jwt';
 import { AddressModule } from '../address/address.module';
+import { CacheModule } from '../cache/cache.module';
 
 export const clientModuleObject = {
-  imports: [SequelizeModule.forFeature([Client]), JwtModule, AddressModule],
+  imports: [
+    SequelizeModule.forFeature([Client]),
+    JwtModule,
+    AddressModule,
+    CacheModule,
+  ],
   providers: [ClientResolver, ClientService],
   exports: [ClientService],
 };
